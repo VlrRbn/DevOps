@@ -14,10 +14,10 @@ devops-notes/
  │   └─ Day1_Schedule_EN.pdf
  │   └─ Day1_Schedule_RU.pdf
  ├─ Day2/
- │   ├─ 
- │   ├─ 
- │   ├─ 
- │   └─ 
+ │   ├─ Day2_Materials_EN.pdf
+ │   ├─ Day2_Materials_RU.pdf
+ │   ├─ Day2_Schedule_EN.pdf
+ │   └─ Day2_Schedule_RU.pdf
  ├─ DevOps_Progress.md
  └─ README.md
 ```
@@ -30,6 +30,7 @@ devops-notes/
 | Day | Topic | Materials_EN | Materials_RU | Schedule_EN | Schedule_RU |
 |-----|-------|-----------|----------|----------|----------|
 | **Day 1** | Environment Setup / Подготовка среды | [PDF](Day1/Day1_Materials_EN.pdf) | [PDF](Day1/Day1_Materials_RU.pdf) | [PDF](Day1/Day1_Schedule_EN.pdf) | [PDF](Day1/Day1_Schedule_RU.pdf) |
+| **Day 2** | Nano basics, file ops, permissions, mini-lab project folder / Основы nano, операции с файлами, права доступа, мини-лаб структура проекта | [PDF](Day2/Day2_Materials_EN.pdf) | [PDF](Day2/Day2_Materials_RU.pdf) | [PDF](Day2/Day2_Schedule_EN.pdf) | [PDF](Day2/Day2_Schedule_RU.pdf) |
 
 ---
 
