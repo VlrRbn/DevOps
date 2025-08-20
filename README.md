@@ -11,9 +11,11 @@ devops-notes/
  ├─ Day1/
  │   ├─ Day1_Materials_EN.pdf
  │   ├─ Day1_Materials_RU.pdf
- │   └─ Day1_Schedule_EN.pdf
+ │   ├─ Day1_Schedule_EN.pdf
  │   └─ Day1_Schedule_RU.pdf
  ├─ Day2/
+ │   ├─ Day2_Project_Folder_Setup_Script_EN.pdf
+ │   ├─ Day2_Project_Folder_Setup_Script_RU.pdf
  │   ├─ Day2_Materials_EN.pdf
  │   ├─ Day2_Materials_RU.pdf
  │   ├─ Day2_Schedule_EN.pdf
@@ -35,6 +37,7 @@ devops-notes/
 ---
 
 ## 🧪 Mini‑labs / Мини‑лабы
+- **Project Folder Setup Script** — [PDF](Day2/Day2_Project_Folder_Setup_Script_EN.pdf) | [PDF](Day2/Day2_Project_Folder_Setup_Script_RU.pdf)
 
 ---
 
