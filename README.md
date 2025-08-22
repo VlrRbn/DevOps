@@ -24,6 +24,9 @@ devops-notes/
  │   ├─ Day3_Network_Diagnostics_Lab_EN.pdf
  │   ├─ Day3_Materials_EN.pdf
  │   └─ Day3_Schedule_EN.pdf
+ ├─ Prep_Evening/
+ │   ├─ Prep_Evening1.pdf
+ │   └─ Prep_Evening_Schedule1.pdf
  ├─ DevOps_Progress.md
  └─ README.md
 ```
@@ -33,17 +36,18 @@ devops-notes/
 ---
 
 ## 📅 Calendar / Календарь
-| Day | Topic | Materials_EN | Materials_RU | Schedule_EN | Schedule_RU |
+| Day | Topic | Materials_EN | Schedule_EN |
 |-----|-------|-----------|----------|----------|----------|
-| **Day 1** | Environment Setup / Подготовка среды | [PDF](Day1/Day1_Materials_EN.pdf) | [PDF](Day1/Day1_Materials_RU.pdf) | [PDF](Day1/Day1_Schedule_EN.pdf) | [PDF](Day1/Day1_Schedule_RU.pdf) |
-| **Day 2** | Nano basics, file ops, permissions, mini-lab project folder / Основы nano, операции с файлами, права доступа, мини-лаб структура проекта | [PDF](Day2/Day2_Materials_EN.pdf) | [PDF](Day2/Day2_Materials_RU.pdf) | [PDF](Day2/Day2_Schedule_EN.pdf) | [PDF](Day2/Day2_Schedule_RU.pdf) |
-| **Day 3** | Networking basics & tools / Основы сетей, сетевые утилиты | [PDF](Day3/Day3_Materials_EN.pdf) | [PDF](Day3/Day3_Materials_EN.pdf) |[PDF](Day3/Day3_Schedule_EN.pdf) |[PDF](Day3/Day3_Schedule_EN.pdf) |
+| **Day 1** | Environment Setup / Подготовка среды | [PDF](Day1/Day1_Materials_EN.pdf) | [PDF](Day1/Day1_Schedule_EN.pdf) |
+| **Day 2** | Nano basics, file ops, permissions, mini-lab project folder / Основы nano, операции с файлами, права доступа, мини-лаб структура проекта | [PDF](Day2/Day2_Materials_EN.pdf) | [PDF](Day2/Day2_Schedule_EN.pdf) |
+| **Day 3** | Networking basics & tools / Основы сетей, сетевые утилиты | [PDF](Day3/Day3_Materials_EN.pdf) |[PDF](Day3/Day3_Schedule_EN.pdf) |
+| **Day !** | Prep evening: revision Day1–3, extra practice / Подготовительный вечер: повтор Дня 1–3, доп. практика | [PDF](Prep_Evening/Prep_Evening1.pdf) | [PDF](Prep_Evening/Prep_Evening_Schedule1.pdf) |
 
 ---
 
 ## 🧪 Mini‑labs / Мини‑лабы
-- **Project Folder Setup Script** — [PDF](Day2/Day2_Project_Folder_Setup_Script_EN.pdf) | [PDF](Day2/Day2_Project_Folder_Setup_Script_RU.pdf)
-- **Network Diagnostics Lab** — [PDF](Day3/Day3_Network_Diagnostics_Lab_EN.pdf)
+- **Project Folder Setup Script** — [PDF](Day2/Day2_Project_Folder_Setup_Script_EN.pdf) |
+- **Network Diagnostics Lab** — [PDF](Day3/Day3_Network_Diagnostics_Lab_EN.pdf) |
 
 ---
 
