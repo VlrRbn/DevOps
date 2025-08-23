@@ -27,6 +27,14 @@ devops-notes/
  ├─ Prep_Evening/
  │   ├─ Prep_Evening1.pdf
  │   └─ Prep_Evening_Schedule1.pdf
+├─ Day4/
+ │   ├─ Day4_Materials_EN.md
+ │   └─ Day4_Schedule_EN.md
+ ├─ labs/
+ │   └─ day4/
+ |      └─ SGID_ACL_v1.md
+ ├─ tools/
+ │   └─ mkshare.sh
  ├─ DevOps_Progress.md
  └─ README.md
 ```
@@ -37,17 +45,18 @@ devops-notes/
 
 ## 📅 Calendar / Календарь
 | Day | Topic | Materials_EN | Schedule_EN |
-|-----|-------|-----------|----------|----------|----------|
+|-----|-------|-----------|----------|
 | **Day 1** | Environment Setup / Подготовка среды | [PDF](Day1/Day1_Materials_EN.pdf) | [PDF](Day1/Day1_Schedule_EN.pdf) |
 | **Day 2** | Nano basics, file ops, permissions, mini-lab project folder / Основы nano, операции с файлами, права доступа, мини-лаб структура проекта | [PDF](Day2/Day2_Materials_EN.pdf) | [PDF](Day2/Day2_Schedule_EN.pdf) |
 | **Day 3** | Networking basics & tools / Основы сетей, сетевые утилиты | [PDF](Day3/Day3_Materials_EN.pdf) |[PDF](Day3/Day3_Schedule_EN.pdf) |
 | **Day !** | Prep evening: revision Day1–3, extra practice / Подготовительный вечер: повтор Дня 1–3, доп. практика | [PDF](Prep_Evening/Prep_Evening1.pdf) | [PDF](Prep_Evening/Prep_Evening_Schedule1.pdf) |
-
+| **Day 4** | Users & Groups; shared dirs with SGID + default ACL; account policies; sudoers / Пользователи и группы; общие каталоги SGID+ACL; политики учётных записей; sudoers | [MD](Day4/Day4_Materials_EN.md) | [MD](Day4/Day4_Schedule_EN.md) |
 ---
 
 ## 🧪 Mini‑labs / Мини‑лабы
 - **Project Folder Setup Script** — [PDF](Day2/Day2_Project_Folder_Setup_Script_EN.pdf) |
 - **Network Diagnostics Lab** — [PDF](Day3/Day3_Network_Diagnostics_Lab_EN.pdf) |
+- **Automation: mkshare (v1)** — [MD](labs/day4/SGID_ACL_v1.md) | [.sh] (tools/mkshare.sh) |
 
 ---
 

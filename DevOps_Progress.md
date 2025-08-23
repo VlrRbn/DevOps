@@ -6,3 +6,4 @@
 | 2 | 2025-08-20 | Nano basics, file ops, permissions, mini-lab project folder | Основы nano, операции с файлами, права доступа, мини-лаб структура проекта |
 | 3 | 2025-08-21 | Networking basics, network tools, network diagnostics lab | Основы сетей, сетевые утилиты, лабораторка по диагностике сети |
 | * | 2025-08-16 | Prep evening: revision Day1–3, extra practice, repo cleanup | Подготовительный вечер: повтор Дня 1–3, доп. практика, наведение порядка в репо |
+| 4 | 2025-08-23 | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds); 2 mini-labs; mkshare v1 | Пользователи и группы; общие каталоги SGID+ACL; политики учётных записей (chage); sudoers (безопасные команды); 2 мини-лаба; скрипт mkshare v1 |
