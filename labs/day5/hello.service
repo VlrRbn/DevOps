@@ -1,6 +1,10 @@
 [Unit]
-Description=Hello logger (oneshot)
+Description=Hello logger (hardened)
 
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/hello.sh
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes

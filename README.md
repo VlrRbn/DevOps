@@ -27,13 +27,21 @@ devops-notes/
  ├─ Prep_Evening/
  │   ├─ Prep_Evening1.pdf
  │   └─ Prep_Evening_Schedule1.pdf
-├─ Day4/
+ ├─ Day4/
  │   ├─ Day4_Materials_EN.md
  │   └─ Day4_Schedule_EN.md
+ ├─ Day5/
+ │   ├─ Day5_Materials_EN.md
+ │   └─ Day5_Schedule_EN.md
  ├─ labs/
  │   └─ day4/
- |      └─ SGID_ACL_v1.md
+ |      └─ SGID_ACL%20_v1.md
+ │   └─ day5/
+        ├─ flaky.service
+        ├─ hello.service
+        └─ hello.timer
  ├─ tools/
+     ├─ hello.sh
  │   └─ mkshare.sh
  ├─ DevOps_Progress.md
  └─ README.md
@@ -56,9 +64,28 @@ devops-notes/
 ## 🧪 Mini‑labs / Мини‑лабы
 - **Project Folder Setup Script** — [PDF](Day2/Day2_Project_Folder_Setup_Script_EN.pdf) |
 - **Network Diagnostics Lab** — [PDF](Day3/Day3_Network_Diagnostics_Lab_EN.pdf) |
-- **Automation: mkshare (v1)** — [MD](labs/day4/SGID_ACL_v1.md) | [.sh] (tools/mkshare.sh) |
-
+- **Automation: mkshare (v1)** — [MD](labs/day4/SGID_ACL%20_v1.md) |
 ---
+
+## How to use
+- Each day: **Goals → Practice → Mini-lab → Summary** in `DayN_EN.md`.
+- Labs under `labs/dayN/…`, scripts under `tools/`.
+- If copied from `/etc` or `/usr/local/bin` with sudo, fix ownership before commit:
+  ```bash
+  sudo chown -R "$(id -un)":"$(id -gn)" labs tools
+  ```
+- Make scripts executable:
+  ```bash
+  chmod +x tools/*.sh
+  ```
+---
+
+## Example — Day 5 quick check
+```bash
+sudo systemctl enable --now hello.timer
+systemctl list-timers --all | grep hello
+journalctl -u hello.service -n 10 --no-pager
+```
 
 ## 📈 Progress / Прогресс
 - Daily log / Журнал прогресса: [DevOps_Progress.md](DevOps_Progress.md)
