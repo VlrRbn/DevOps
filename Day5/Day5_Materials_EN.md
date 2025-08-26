@@ -1127,7 +1127,10 @@ sudo systemctl daemon-reload
 ---
 
 ## Summary
+- Inspected built-in services with `systemctl status/cat/show` (cron), added a drop-in override (`Environment=HELLO=worldx`).
+- Built a custom **systemd** oneshot service (`hello.service`) and a **timer** (every 5 min).
+- Verified logs with `journalctl` (`-u`, `-t`, `-o short-precise`) and basic troubleshooting flow.
+- Optional: demoed auto-restart with `flaky.service`, added light hardening (`ProtectSystem=strict`, `PrivateTmp`, `NoNewPrivileges`).
 
-- Service+Timer working; logs verified; (optional) restart policy & hardening explored.
-
-**Artifacts:** `labs/day5/hello.service`, `labs/day5/flaky.service`, `labs/day5/hello.timer` `tools/hello.sh`
+**Artifacts:** `labs/day5/hello.service`, `labs/day5/hello.timer`, `labs/day5/flaky.service`, `tools/hello.sh`.
+**To repeat:** `systemctl` lifecycle, `journalctl` filters (`-u/-p/-b/-f/-t`), timers.

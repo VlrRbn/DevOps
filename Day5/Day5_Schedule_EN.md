@@ -130,8 +130,8 @@ Basic hardening (hello.service): `ProtectSystem=strict`, `PrivateTmp=yes`, `NoNe
 
 ## Docs & stash artifacts
 
-Copy to repo (commit later):
+Copy to repo:
 - `tools/hello.sh`
 - `labs/day5/hello.service`
 - `labs/day5/hello.timer`
-- *(opt)* `labs/day5/flaky.service`
+- `labs/day5/flaky.service`
