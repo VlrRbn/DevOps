@@ -65,10 +65,9 @@ devops-notes/
 | **Day 2** | Nano basics; file ops; permissions; mini-lab project folder | [Materials_2](Day2/Day2_Materials_EN.pdf) | [Schedule_2](Day2/Day2_Schedule_EN.pdf) |
 | **Day 3** | Networking basics; network tools; network diagnostics lab | [Materials_3](Day3/Day3_Materials_EN.pdf) |[Schedule_3](Day3/Day3_Schedule_EN.pdf) |
 | **Day !** | Prep evening: revision Day1–3; extra practice | [Materials_EV](Prep_Evening/Prep_Evening1.pdf) | [Schedule_EV](Prep_Evening/Prep_Evening_Schedule1.pdf) |
-
 | **Day 4** | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds); 2 mini-labs; mkshare_v1 | [Materials_4](Day4/Day4_Materials_EN.md) | [Schedule_4](Day4/Day4_Schedule_EN.md) |
-| **Day 5** | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit | [Materials_5](Day5/Day5_Materials_EN.md) · [Schedule_5](Day5/Day5_Schedule_EN.md) |
-| **Day 6** | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) | [Materials_6](Day6/Day6_Materials_EN.md) · [Schedule_6](Day6/Day6_Schedule_EN.md) |
+| **Day 5** | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit | [Materials_5](Day5/Day5_Materials_EN.md) | [Schedule_5](Day5/Day5_Schedule_EN.md) |
+| **Day 6** | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) | [Materials_6](Day6/Day6_Materials_EN.md) | [Schedule_6](Day6/Day6_Schedule_EN.md) |
 ---
 
 ## 🧪 Mini‑labs
