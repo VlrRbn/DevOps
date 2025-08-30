@@ -9,7 +9,7 @@
 ```
 devops-notes/
  ├─ Day1/
- │   ─ day1_en.md
+ │   └─ day1_en.md
  ├─ Day2/
  │   └─ day2_en.md
  ├─ Day3/
@@ -24,6 +24,8 @@ devops-notes/
  │   └─ Day6_Materials_EN.md
  ├─ Day7/
  │   └─ day7_en.md
+ ├─ Day8/
+ │   └─ day8_en.md
  ├─ labs/
  │   └─ day4/
  |      └─ SGID_ACL%20_v1.md
@@ -32,19 +34,30 @@ devops-notes/
  |      ├─ hello.service
  |      ├─ hello.timer
  |      └─ persistent.conf
+ │   └─ day8/
+ |      ├─ logs
+ |         └─ sample
+ |            └─ nginx_access.log
+ |      └─ mock
+ |         └─ sshd_config
  ├─ tools/
  |    ├─ apt-dry-upgrade.sh
- |    ├─ hello.sh
- |    ├─ pkg-restore.sh
- |    ├─ pkg-snapshot.sh
  |    ├─ backup-dir.sh
  |    ├─ backup-dir.v2.sh
  |    ├─ devops-tail.sh
  |    ├─ devops-tail.v2.sh
+ |    ├─ hello.sh log-grep.sh
+ |    ├─ log-grep.sh
+ |    ├─ log-grep.v2.sh
+ |    ├─ log-nginx-report.sh
+ |    ├─ log-ssh-fail-report.sh
+ |    ├─ log-ssh-fail-report.v2.sh
+ |    ├─ mkshare.sh
+ |    ├─ pkg-restore.sh
+ |    ├─ pkg-snapshot.sh
  |    ├─ rename-ext.sh
  |    ├─ rename-ext.v2.sh
- |    ├─ _template.sh
- │    └─ mkshare.sh
+ │    └─ _template.sh
  ├─ DevOps_Progress.md
  └─ README.md
 ```
@@ -64,6 +77,7 @@ devops-notes/
 | **Day 5** | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit | [Materials_5](Day5/Day5_Materials_EN.md) |
 | **Day 6** | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) | [Materials_6](Day6/Day6_Materials_EN.md) |
 | **Day 7** | Bash Scripting (template, rename, backup, logs) | [Materials_7](Day7/day7_en.md) |
+| **Day 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](Day8/day8_en.md) |
 ---
 
 ## How to use

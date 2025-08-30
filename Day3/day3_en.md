@@ -492,3 +492,11 @@ Address: 172.253.116.113
 
 #nslookup is simpler and shorter, but provides fewer details.
 ```
+
+---
+
+## Daily summary
+
+- **Learned:** read IP/interfaces/routes (`ip -br addr`, `ip route`), inspect DNS (`resolvectl status`), basic reachability (`ping`, `traceroute -I`, `mtr`), DNS queries with `dig` (A/AAAA/NS/MX, `+short`, `+trace`), safe `/etc/hosts` edits (add/remove).
+- **Hard:** —
+- **Repeat:** DNS record types (A/AAAA/NS/MX), `ping -4/-6`, difference between `ip -br addr` and `ip -br link`, robust `sed` line removal from `/etc/hosts`.

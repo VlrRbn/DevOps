@@ -10,3 +10,4 @@
 | 5 | 2025-08-25 | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit |
 | 6 | 2025-08-26 | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) |
 | 7 | 2025-08-27 | Bash Scripting (template, rename, backup, logs) |
+| 8 | 2025-08-30 | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools |
