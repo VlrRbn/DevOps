@@ -2,7 +2,11 @@
 
 # Bash Scripting
 
+---
+
 **Date:** **2025-08-27**
+
+**Topic:** Bash scripting, templates, ShellCheck, backups, journal/systemd helpers
 
 ---
 
@@ -50,23 +54,23 @@ set -Eeuo pipefail
 IFS=$'\n\t'
 trap 'echo "ERR:$? at ${BASH_SOURCE[0]}:${LINENO}" >&2' ERR
 usage(){ echo "Usage: $0 ..."; }
-> SH
+SH
 ```
 
 `set -Eeuo pipefail`
 
 Strict mode for safer, more predictable scripts:
 
-- `E` → makes the error trap (`trap ERR`) work inside functions and subshells.
-- `e` → exit immediately if any command fails (non-zero exit code).
-- `u` → error on undefined variables (catches typos early).
-- `o pipefail` → in a pipeline (`cmd1 | cmd2`), if *any* command fails, the whole pipeline fails (by default only the last command matters).
+- `-E` → makes the error trap (`trap ERR`) work inside functions and subshells.
+- `-e` → exit immediately if any command fails (non-zero exit code).
+- `-u` → error on undefined variables (catches typos early).
+- `-o pipefail` → in a pipeline (`cmd1 | cmd2`), if *any* command fails, the whole pipeline fails (by default only the last command matters).
 
 ---
 
 `IFS=$'\n\t'` — sets the **Internal Field Separator** (how Bash splits words).
 
-By default it’s : *space, tab, newline* → that breaks filenames with spaces.
+By default it’s : *space, tab, efore commitnewline* → that breaks filenames with spaces.
 
 Here we keep only newline and tab, so it’s safer for file handling.
 
@@ -92,7 +96,11 @@ Breakdown:
 - It prints a usage message: `Usage: scriptname ...`.
 - `$0` → the script name as it was invoked.
 
----
+**Install:**
+
+```bash
+leprecha@Ubuntu-DevOps:~$ sudo apt-get install -y shellcheck
+```
 
 ---
 
@@ -116,7 +124,7 @@ src=".$1"; dst=".$2"; dir="$3"
 shopt -s nullglob
 for f in "$dir"/*"$src"; do mv -- "$f" "${f%"$src"}$dst"; done
 echo "Renamed in $dir: $src -> $dst"
-> SH
+SH
 ```
 
 `usage(){ echo "Usage: $0 <src_ext> <dst_ext> <dir>"; }`— helper function showing usage.
@@ -166,8 +174,6 @@ leprecha@Ubuntu-DevOps:~$ shellcheck tools/rename-ext.sh || true
 
 ---
 
----
-
 `rename-ext.v2.sh (flags, spaces in paths)`
 
 ```bash
@@ -191,7 +197,7 @@ new="${f%"$src"}$dst"
 (( verbose )) && printf '%s -> %s\n' "$f" "$new"
 (( dry )) || mv -- "$f" "$new"
 done
-> SH
+SH
 ```
 
 `dry=0; verbose=0` — Default flags:
@@ -267,8 +273,6 @@ leprecha@Ubuntu-DevOps:~$ ./tools/rename-ext.v2.sh -v txt md ~/lab7/test
 
 ---
 
----
-
 ### 2) Dated backup with rotation (`tools/backup-dir.sh`)
 
 - Args: `DIR [--keep N]`. Create `~/backups/NAME_YYYYmmdd_HHMM.tar.gz`; keep last N with `ls -1t … | tail -n +$((N+1)) | xargs -r rm -f`.
@@ -290,7 +294,7 @@ tarball="$out/${base}_${ts}.tar.gz"
 tar -C "$(dirname "$dir")" -czf "$tarball" "$base"
 ls -1t -- "$out"/"${base}"_* 2>/dev/null | tail -n +$((keep+1)) | tr '\n' '\0' | xargs -0 -r rm -f
 echo "Created: $tarball (kept last $keep)"
-> SH
+SH
 ```
 
 - `set -Eeuo pipefail; IFS=$'\n\t'` — strict Bash mode + safe splitting.
@@ -360,10 +364,8 @@ ls -1t -- "$out"/"${base}"_* 2>/dev/null | tail -n +$((keep+1)) | tr '\n' '\0' |
 For more information:
   https://www.shellcheck.net/wiki/SC2012 -- Use find instead of ls to better ...
   
-  # Script works fine, just ShellCheck warning for now.
+# Script works fine, just ShellCheck warning for now.
 ```
-
----
 
 ---
 
@@ -394,7 +396,7 @@ tar -tzf "$tarball" >/dev/null
 logger -t backup "Created $tarball"
 find "$out" -maxdepth 1 -type f -name "${base}_*.tar.gz" -printf "%T@ %p\n" | sort -rn | tail -n +$((keep+1)) | cut -d' ' -f2- | xargs -r rm -f
 echo "OK: $tarball (keep last $keep)"
-> SH
+SH
 ```
 
 `while [[ $# -gt 0 ]]; do` — loop while there are CLI args — parse them.
@@ -494,10 +496,9 @@ demo/
 demo/a/
 demo/a/c/
 demo/a/b/
+
 #This finds the latest backup file, lists its contents, and shows the first 10 lines.You see demo/, demo/a/, demo/a/c/, and demo/a/b/, but no hi.txt inside b/.
 ```
-
----
 
 ---
 
@@ -517,7 +518,7 @@ since="10 min ago"
 [[ "${1:-}" == "--since" ]] && since="${2:-$since}"
 echo "== systemctl status $unit =="; systemctl status "$unit" --no-pager | sed -n '1,12p'
 echo "== journalctl -u $unit --since '$since' =="; journalctl -u "$unit" --since "$since" -n 50 --no-pager
-> SH
+SH
 ```
 
 `[[ $# -ge 1 ]] || { echo "Usage: $0 <unit> [--since '1 hour ago']"; exit 1; }` — need at least one argument. Otherwise print usage and exit.
@@ -533,7 +534,7 @@ echo "== journalctl -u $unit --since '$since' =="; journalctl -u "$unit" --since
 
 ---
 
-`echo "== systemctl status $unit =="; systemctl status "$unit" --no-pager | sed -n '1,12p’` — print header, then show first 12 lines of `systemctl status` (overview only, no pager).
+`echo "== systemctl status $unit =="; systemctl status "$unit" --no-pager | sed -n '1,12p'` — print header, then show first 12 lines of `systemctl status` (overview only, no pager).
 
 ---
 
@@ -567,8 +568,6 @@ Aug 27 14:35:01 Ubuntu-DevOps CRON[9038]: pam_unix(cron:session): session opened
 Aug 27 14:35:01 Ubuntu-DevOps CRON[9038]: pam_unix(cron:session): session closed for user root
 leprecha@Ubuntu-DevOps:~$ shellcheck tools/devops-tail.sh || true
 ```
-
----
 
 ---
 
@@ -620,7 +619,7 @@ args=(-u "$unit" --since "$since" -n "$lines" --no-pager)
 (( follow )) && args+=(-f)
 printf '== journalctl %s ==\n' "$(printf '%s ' "${args[@]}")"
 journalctl "${args[@]}"
-> SH
+SH
 ```
 
 `since="10 min ago"; lines=50; follow=0; prio=""` — default values: show logs since 10 minutes ago, 50 lines, don’t follow, no priority filter.
@@ -707,15 +706,11 @@ All flags work, headers are displayed in a single line.
 
 ---
 
----
-
 ## Optional hard ideas
 
-- Add `getopts` to `devops-tail.sh` (`s`, `n`, `f`), and to `backup-dir.sh` (`k` keep).
+- Add `getopts` to `devops-tail.sh` (`-s`, `-n`, `-f`), and to `backup-dir.sh` (keep).
 - Use `flock` to serialize backups; add `logger -t backup "Created: $tarball"`.
 - Create a temporary workspace with `mktemp -d` and clean up in `trap`.
-
----
 
 ---
 
@@ -757,8 +752,6 @@ grep/sed/awk pipelines for log parsing, `find -print0 | xargs -0` patterns, and 
 
 ---
 
----
-
 ## Artifacts
 
 - `tools/_template.sh`
@@ -769,7 +762,7 @@ grep/sed/awk pipelines for log parsing, `find -print0 | xargs -0` patterns, and 
 - `tools/devops-tail.sh`
 - `tools/devops-tail.v2.sh`
 
----
+**Tooling dependency** — `shellcheck` 
 
 ---
 

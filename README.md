@@ -14,21 +14,17 @@ devops-notes/
  │   └─ day2_en.md
  ├─ Day3/
  │   └─ day3_en.md
- ├─ Prep_Evening/
- │   └─ Prep_Evening1.pdf
  ├─ Day4/
- │   └─ Day4_Materials_EN.md
+ │   └─ day4_en.md
  ├─ Day5/
- │   └─ Day5_Materials_EN.md
+ │   └─ day5_en.md
  ├─ Day6/
- │   └─ Day6_Materials_EN.md
+ │   └─ day6_en.md
  ├─ Day7/
  │   └─ day7_en.md
  ├─ Day8/
  │   └─ day8_en.md
  ├─ labs/
- │   └─ day4/
- |      └─ SGID_ACL%20_v1.md
  │   └─ day5/
  |      ├─ flaky.service
  |      ├─ hello.service
@@ -40,6 +36,9 @@ devops-notes/
  |            └─ nginx_access.log
  |      └─ mock
  |         └─ sshd_config
+ ├─ Prep_Evening/
+ │   └─ prep_evening1_en.md
+ ├─ Theory/
  ├─ tools/
  |    ├─ apt-dry-upgrade.sh
  |    ├─ backup-dir.sh
@@ -72,12 +71,13 @@ devops-notes/
 | **Day 1** | Environment Setup and Basic Linux Commands | [Materials_1](Day1/day1_en.md) |
 | **Day 2** | Nano basics; file ops; permissions; mini-lab project folder | [Materials_2](Day2/day2_en.md) |
 | **Day 3** | Networking basics; network tools; network diagnostics lab | [Materials_3](Day3/day3_en.md) |
-| **Day !** | Prep evening: revision Day1–3; extra practice | [Materials_EV](Prep_Evening/Prep_Evening1.pdf) |
-| **Day 4** | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds); 2 mini-labs; mkshare_v1 | [Materials_4](Day4/Day4_Materials_EN.md) | 
-| **Day 5** | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit | [Materials_5](Day5/Day5_Materials_EN.md) |
-| **Day 6** | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) | [Materials_6](Day6/Day6_Materials_EN.md) |
+| **Day !** | Prep evening: revision Day1–3; extra practice | [Materials_EV](Prep_Evening/prep_evening1_en.md) |
+| **Day 4** | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds) | [Materials_4](Day4/day4_en.md) | 
+| **Day 5** | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit | [Materials_5](Day5/day5_en.md) |
+| **Day 6** | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) | [Materials_6](Day6/day6_en.md) |
 | **Day 7** | Bash Scripting (template, rename, backup, logs) | [Materials_7](Day7/day7_en.md) |
 | **Day 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](Day8/day8_en.md) |
+| **Day !** | Extra practice, repo cleanup, cheat sheets |
 ---
 
 ## How to use

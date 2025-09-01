@@ -1,8 +1,12 @@
 # day8_en
 
-# Day 8 — Text Processing for Ops (grep/sed/awk)
+# Text Processing for Ops (grep/sed/awk)
+
+---
 
 **Date: 2025-08-30**
+
+**Topic: grep/sed/awk, journalctl pipelines, mini-tools**
 
 ---
 
@@ -19,9 +23,11 @@
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ mkdir -p labs/day8/mock labs/day8/logs/sample tools
-leprecha@Ubuntu-DevOps:~$ ls -l /var/log/auth.log* 2>/dev/null || true journalctl -t ssh --since "today" -n 5 --no-pager || true
+leprecha@Ubuntu-DevOps:~$ ls -l /var/log/auth.log* 2>/dev/null || true
+leprecha@Ubuntu-DevOps:~$ journalctl -t ssh --since "today" -n 5 --no-pager || true
 -rw-r----- 1 syslog adm  21000 Aug 30 12:25 /var/log/auth.log
 -rw-r----- 1 syslog adm 449783 Aug 29 18:00 /var/log/auth.log.1
+-- No entries --
 ```
 
 ---
@@ -65,6 +71,10 @@ Fields (`$1`, `$2`, …, `$NF`) are words in a line (split by spaces).
 - `-o cat` → print only the log message (no extra metadata)
 - `grep -E "pat"` → filter logs by a pattern
 - `awk '…'` → parse further (extract fields, count, reformat, etc.)
+
+---
+
+`-u ssh` filters by systemd unit, `-t sshd` filters by log tag; use whichever gives the desired log coverage.
 
 ---
 
@@ -356,7 +366,7 @@ leprecha@Ubuntu-DevOps:~$ ./tools/log-grep.sh "sshd.*(Failed password|Accepted p
 2025-08-30T13:32:55.538064+01:00 Ubuntu-DevOps sshd[7152]: Accepted password for leprecha from 127.0.0.1 port 50106 ssh2
 ```
 
-`grep -rEn --color=always "$@" -e "$pattern" -- "$target”` — run `grep` recursively in that directory with these options:
+`grep -rEn --color=always "$@" -e "$pattern" -- "$target"` — run `grep` recursively in that directory with these options:
 
 - `r` → search recursively.
 - `E` → use extended regex.
@@ -452,7 +462,7 @@ case "$1" in
 --top)    top="${2:-10}"; shift 2;;
 --all)    all=1; shift;;
 -h|--help) usage; exit 0;;
-*) usage; exit1;;
+*) usage; exit 1;;
 esac
 done
 if [[ "$src" == "auth" ]]; then
@@ -540,9 +550,9 @@ leprecha@Ubuntu-DevOps:~$ tools/log-grep.v2.sh "Accepted" journal --unit ssh.ser
 
 - `[[ $# -ge 2 ]] || { usage; exit 1; }` — need at least `<pattern> <target>`.
 - `while ... case ... esac` — parse options:
-    - `-unit UNIT` → set journalctl unit filter.
-    - `-tag TAG` → set journalctl syslog tag (e.g., `sshd`).
-    - `-sshd-only` → later, keep only lines containing `sshd[`.
+    - `--unit UNIT` → set journalctl unit filter.
+    - `--tag TAG` → set journalctl syslog tag (e.g., `sshd`).
+    - `--sshd-only` → later, keep only lines containing `sshd[`.
     - `-` → stop parsing; the rest goes straight to `grep` as extra options.
     
     ---

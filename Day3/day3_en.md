@@ -1,6 +1,8 @@
 # day3_en
 
-# 1. General Info
+# Networking basics, network tools
+
+---
 
 **Date: 2025-08-21**
 
@@ -18,7 +20,7 @@ Install — `iproute2`, `traceroute`, `mtr-tiny`, `curl`, `wget`.
 
 ---
 
-## 2. Warm-up
+## 1. Warm-up
 
 **1. Navigation**
 
@@ -56,7 +58,7 @@ leprecha@Ubuntu-DevOps:~$ ls -l
 
 ---
 
-## **3. Introduction to Networking Concepts**
+## **2. Introduction to Networking Concepts**
 
 **1. What is an IP Address**
 
@@ -210,7 +212,7 @@ leprecha@Ubuntu-DevOps:~$ hostname -I
 
 ---
 
-## **Connectivity Check Commands**
+## 3. Connectivity Check Commands
 
 `ping` — checks if a host is reachable.
 
@@ -310,7 +312,7 @@ Saving to: ‘1MB.zip’
 
 ---
 
-## Working with `/etc/hosts` and checking DNS using `dig`, `nslookup`
+## 4. Working with `/etc/hosts` and checking DNS using `dig`, `nslookup`
 
 ### 1. `/etc/hosts` file
 
@@ -471,7 +473,7 @@ ns3.google.com.		146178	IN	AAAA	2001:4860:4802:36::a
 
 ---
 
-### **3. `nslookup` — simple DNS query (Name Server Lookup)**
+### **5. `nslookup` — simple DNS query (Name Server Lookup)**
 
 - Finds the IP of a domain (**A** or **AAAA** record).
 - Finds the domain from an IP (reverse lookup).

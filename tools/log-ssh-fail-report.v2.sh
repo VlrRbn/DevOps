@@ -12,7 +12,7 @@ case "$1" in
 --top)    top="${2:-10}"; shift 2;;
 --all)    all=1; shift;;
 -h|--help) usage; exit 0;;
-*) usage; exit1;;
+*) usage; exit 1;;
 esac
 done
 if [[ "$src" == "auth" ]]; then

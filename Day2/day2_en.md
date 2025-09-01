@@ -1,6 +1,8 @@
 # day2_en
 
-# 1. General Info
+# Nano basics, file ops, permissions
+
+---
 
 **Date: 2025-08-20**
 
@@ -10,7 +12,7 @@
 
 ---
 
-## 2. Review + New Commands
+## 1. Review + New Commands
 
 Today we add:
 
@@ -83,7 +85,7 @@ Change: 2025-08-19 15:51:08.038485928 +0100
 
 ---
 
-## 3. Working with nano
+## 2. Working with nano
 
 Nano editor — a simple console text editor in Linux. Suitable for creating and editing configuration and text files.
 
@@ -125,7 +127,7 @@ How are you today? I'm fine.
 
 ---
 
-## 4. Copying, moving, deleting
+## 3. Copying, moving, deleting
 
 Commands allow you to manage files and folders — copy, move, rename, and delete.
 
@@ -282,11 +284,11 @@ file2_moved.txt
 
 ---
 
-# 5. Permissions
+## 4. Permissions
 
 In Linux, permissions define who can do what with a file or directory.
 
-## **1). What are file permissions.**
+### **1).** What are file permissions.
 
 In Linux, every file and directory has three permission groups:
 
@@ -331,7 +333,7 @@ Breakdown
 
 ---
 
-## **2). How to change permissions**
+### **2).** How to change permissions
 
 In Linux, each file and directory permissions can be changed using the `chmod` command.
 
@@ -450,7 +452,7 @@ leprecha@Ubuntu-DevOps:~$ ls -l test_permissions.txt
 
 ---
 
-## 6) Daily summary
+## 5. Daily summary
 
 - **Learned:** Safe file ops, `chmod` basics, dir vs file exec bit, ownership
 - **Hard:** —

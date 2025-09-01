@@ -1,18 +1,16 @@
-# Day4_Materials_EN
+# day4_en
 
 # Users & Groups
 
 ---
 
-**Date:** 23.08.2025
+**Date:** **2025-08-23**
 
-**Start time:** 14:00
-
-**Total duration:** ~8h
+**Topic:** Users, Groups, ACL, umask, sudoers.
 
 ---
 
-## 🎯 Daily Goals
+## Daily Goals
 
 - Understand how Linux manages users and groups.
 - Practice creating, modifying, and deleting users and groups.
@@ -20,7 +18,7 @@
 
 ---
 
-## 📖 Theory
+## Theory
 
 ### Key Files
 
@@ -34,7 +32,7 @@
 - `id` — show UID, GID, and groups.
 - `groups` — list user’s groups.
 - `adduser <name>` — create a new user.
-- `userdel <name>` — delete a user.
+- `userdel <name>` — delete a user. (`deluser`)
 - `usermod -aG <group> <user>` — add user to group.
 
 ### Group Commands
@@ -52,7 +50,7 @@
 
 ---
 
-## 🛠 Practice
+## Practice
 
 1. Check current user and groups:
 
@@ -74,26 +72,25 @@ sysadmin adm cdrom sudo dip plugdev users lpadmin
 1. Inspect system files:
 
 ```bash
-cat /etc/passwd | tail -n 5
-cat /etc/group | tail -n 5
+tail -n 5 /etc/passwd
+tail -n 5 /etc/group
 sudo head -5 /etc/shadow
 ```
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ cat /etc/passwd | tail -n 5
+leprecha@Ubuntu-DevOps:~$ tail -n 5 /etc/passwd
 nm-openvpn:x:121:122:NetworkManager OpenVPN,,,:/var/lib/openvpn/chroot:/usr/sbin/nologin
-leprecha:x:1000:1000:Valerii:/home/leprecha:/bin/bash
-helpme:x:1001:1001:Ivan Ivanov,1,12345,67890:/home/helpme:/bin/bash
+leprecha:x:1000:1000:leprecha:/home/leprecha:/bin/bash
 nvidia-persistenced:x:122:124:NVIDIA Persistence Daemon,,,:/nonexistent:/usr/sbin/nologin
 _flatpak:x:123:125:Flatpak system-wide installation helper,,,:/nonexistent:/usr/sbin/nologin
-leprecha@Ubuntu-DevOps:~$ cat /etc/group | tail -n 5
+sshd:x:124:65534::/run/sshd:/usr/sbin/nologin
+leprecha@Ubuntu-DevOps:~$ tail -n 5 /etc/group
+gamemode:x:986:
 gnome-initial-setup:x:985:
 sysadmin:x:1000:
-helpme:x:1001:
 nvidia-persistenced:x:124:
 _flatpak:x:125:
 leprecha@Ubuntu-DevOps:~$ sudo head -5 /etc/shadow
-[sudo] password for leprecha: 
 root:*:20305:0:99999:7:::
 daemon:*:20305:0:99999:7:::
 bin:*:20305:0:99999:7:::
@@ -126,7 +123,7 @@ bob : bob users project
 
 ---
 
-## 🔬 Mini-lab 1 — “Alice & Bob”
+## Mini-lab 1 — “Alice & Bob”
 
 1. Create folder `/project_data`.
 2. Assign it to group `project`:
@@ -135,9 +132,9 @@ bob : bob users project
     leprecha@Ubuntu-DevOps:~$ sudo mkdir -p /project_data
     leprecha@Ubuntu-DevOps:~$ sudo chgrp project /project_data
     leprecha@Ubuntu-DevOps:~$ sudo chmod 2770 /project_data
-    leprecha@Ubuntu-DevOps:~$ sudo setfacl -m g:project:rwx /project_data
     leprecha@Ubuntu-DevOps:~$ sudo setfacl -d -m g:project:rwx /project_data
     #-d default
+    #sudo apt-get install -y acl
     ```
     
 
@@ -157,7 +154,7 @@ total 4
 
 ---
 
-## 🔬 Mini-lab 2 — “DevOps Team”
+## Mini-lab 2 — “DevOps Team”
 
 1. Create group `devops`.
 2. Add multiple users (3–4 test users).
@@ -213,9 +210,9 @@ total 4
 
 ---
 
-### 📖 Permissions & ACL under the microscope (umask, mask, sticky)
+### Permissions & ACL under the microscope (umask, mask, sticky)
 
-### 📌 **What is the umask**
+### **What is the umask**
 
 **umask** (user file creation mask) — a "mask" that defines which permission bits will be removed from new files and directories by default.
 
@@ -226,7 +223,7 @@ In other words: **umask = filter**:
 
 ---
 
-📝 **Base rules**
+**Base rules**
 
 Maximum possible permissions:
 
@@ -237,7 +234,7 @@ Maximum possible permissions:
 
 ---
 
-🔎 **Examples**
+**Examples**
 
 - **umask = 022**
     - Removes `w` for group and others.
@@ -257,7 +254,7 @@ Maximum possible permissions:
 
 ---
 
-📌 **What is the ACL mask**
+**What is the ACL mask**
 
 The **mask** in ACL is the *upper limit* of permissions for all **named users** and **named groups** (and also for `group::` if ACLs are enabled).
 
@@ -271,7 +268,7 @@ mask = the maximum that can be granted to those ACL entries.
 
 ---
 
-📊 **Permission evaluation algorithm with ACL**
+**Permission evaluation algorithm with ACL**
 
 1. If current UID = owner → use `user::`.
 2. Else, check `user:username`.
@@ -285,7 +282,7 @@ mask = the maximum that can be granted to those ACL entries.
 
 ---
 
-## 🛠 Practice
+## Practice
 
 1. Сreate test files in `/project_data` with different scenarios
 2. Сheck effective permissions and ACL mask
@@ -297,9 +294,9 @@ leprecha@Ubuntu-DevOps:~$ sudo -u alice bash -lc 'umask 077; echo A > /project_d
 leprecha@Ubuntu-DevOps:~$ sudo -u bob bash -lc 'umask 022; echo B > /project_data/u_022.txt'
 leprecha@Ubuntu-DevOps:~$ sudo bash -lc 'ls -l /project_data/u_*.txt'
 
-# the u_* is expanded **by your shell before sudo runs
-# sudo bash -lc 'ls -l /project_data/u_*.txt'**
-
+# the u_* is expanded by your shell before sudo runs
+**#** sudo bash -lc 'ls -l /project_data/u_*.txt'
+****
 -rw-rw----+ 1 bob   project 2 Aug 23 19:11 /project_data/u_022.txt
 -rw-rw----+ 1 alice project 2 Aug 23 19:10 /project_data/u_077.txt
 leprecha@Ubuntu-DevOps:~$ sudo getfacl /project_data/u_077.txt
@@ -313,7 +310,7 @@ group:project:rwx		#effective:rw-
 mask::rw-
 other::---
 
-# 600 - ACL
+# 660 - effective group RW because of mask
 ```
 
 1. Cut the mask and then restore it
@@ -335,30 +332,13 @@ default:group::rwx
 default:group:project:rwx
 default:mask::rwx
 default:other::---
-
-leprecha@Ubuntu-DevOps:~$ sudo setfacl -m m::rwx /project_data
-leprecha@Ubuntu-DevOps:~$ getfacl /project_data | sed -n '1,20p'
-getfacl: Removing leading '/' from absolute path names
-# file: project_data
-# owner: root
-# group: project
-# flags: -s-
-user::rwx
-group::rwx
-mask::rwx
-other::---
-default:user::rwx
-default:group::rwx
-default:group:project:rwx
-default:mask::rwx
-default:other::---
 ```
 
-1. Sticky bit (protection from deleting others’ files)
+1. `/project_data` Sticky bit —  (protection from deleting others’ files)
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo -u bob bash -lc 'echo x > /project_data/tmp_by_bob && ls -l /project_data/tmp_by_bob'
--rw-rw----+ 1 bob project 2 Aug 23 19:32 /project_data/tmp_by_alice
+-rw-rw----+ 1 bob project 2 Aug 23 19:32 /project_data/tmp_by_bob
 leprecha@Ubuntu-DevOps:~$ sudo -u alice bash -lc 'rm /project_data/tmp_by_bob'
 leprecha@Ubuntu-DevOps:~$ sudo chmod +t /project_data
 leprecha@Ubuntu-DevOps:~$ ls -ld /project_data
@@ -370,9 +350,9 @@ rm: cannot remove '/project_data/tmp_by_bob': Operation not permitted
 
 ---
 
-### 📖 Account Policies (aging, lock/unlock, expire)
+### Account Policies (aging, lock/unlock, expire)
 
-### 📝1. **Aging (password lifetime)**
+### 1. **Aging (password lifetime)**
 
 File: `/etc/shadow`
 
@@ -408,7 +388,7 @@ Commands:
 
 ---
 
-### 📝2. **Lock / Unlock (account lock)**
+### 2. **Lock / Unlock (account lock)**
 
 - Lock (adds `!` before the password hash in `/etc/shadow`):
     
@@ -433,7 +413,7 @@ Commands:
 
 ---
 
-### 📝3. **Expire (account expiration date)**
+### 3. **Expire (account expiration date)**
 
 - Set a date after which the account will be disabled:
     
@@ -481,9 +461,9 @@ Commands:
 
 ---
 
-### 📖 Sudoers with restrictions (least dangerous access)
+### Sudoers with restrictions (least dangerous access)
 
-## 🛠 Practice
+## Practice
 
 Give a group the right to check service status and view unit logs, without full root.
 
@@ -506,6 +486,7 @@ leprecha@Ubuntu-DevOps:~$ cat <<'EOF' | sudo tee /etc/sudoers.d/devopsadmin >/de
 Cmnd_Alias DEVOPS_SAFE = /usr/bin/systemctl status *, /usr/bin/journalctl -u *
 %devopsadmin ALL=(root) NOPASSWD: DEVOPS_SAFE
 EOF
+#NOPASSWD sees all the logs but doesn't change anything
 leprecha@Ubuntu-DevOps:~$ sudo chmod 440 /etc/sudoers.d/devopsadmin
 leprecha@Ubuntu-DevOps:~$ sudo visudo -cf /etc/sudoers.d/devopsadmin
 /etc/sudoers.d/devopsadmin: parsed OK
@@ -541,11 +522,76 @@ alice@Ubuntu-DevOps:~$ exit
 exit
 ```
 
-📌 Summary:
+Summary:
 
 - `chage` manages **password/account lifetime policies**.
 - `usermod -L / -U` manages **locking/unlocking accounts**.
 - `nologin` turns a user into a **service account** (no login).
+
+---
+
+## **Automation**: minimal share creator
+
+**Purpose:**
+
+Create a shared directory for a Unix group with proper permissions (SGID + ACL).
+
+**Usage:**
+
+```bash
+chmod +x mkshare.sh
+./mkshare.sh devs /srv/shared/dev --sticky
+ls -ld /srv/shared/dev
+getfacl /srv/shared/dev | sed -n '1,20p'
+```
+
+**Parameters:**
+
+- `<group>` – target Unix group (created if it doesn’t exist).
+- `<dir>` – directory path to be created/shared.
+
+**What it does:**
+
+1. Ensures the group exists ( `getent … || groupadd` )
+2. Creates the directory if missing.
+3. Sets group ownership to `<group>`.
+4. Applies SGID bit (so new files inherit the group).
+5. Grants group **rwx** access via ACL (default + effective).
+6. Ensures default ACL so new files/dirs inherit group rwx.
+
+Note: requires acl package.
+
+```bash
+command -v setfacl >/dev/null || { sudo apt-get update && sudo apt-get install -y acl; }
+```
+
+```bash
+#!/usr/bin/env bash
+# requires: acl (setfacl/getfacl). Ubuntu: sudo apt-get install -y acl
+group="$1"
+dir="$2"
+opt="${3:-}"
+
+if [ -z "$group" ] || [ -z "$dir" ]; then
+  echo "Usage: $0 <group> <dir> [--sticky]"
+  exit 1
+fi
+
+if ! getent group "$group" >/dev/null; then
+  sudo groupadd "$group"
+fi
+
+sudo mkdir -p "$dir"
+sudo chgrp "$group" "$dir"
+sudo chmod 2770 "$dir"
+
+sudo setfacl -m g:"$group":rwx "$dir"
+sudo setfacl -d -m g:"$group":rwx "$dir"
+
+[ "$opt" = "--sticky" ] && sudo chmod +t "$dir"
+
+echo "OK: $dir owned by :$group (SGID+ACL${opt:+ +sticky})"
+```
 
 ---
 
@@ -561,7 +607,7 @@ exit
 **Key commands**
 
 ```bash
-adduser / userdel / usermod -aG
+adduser / userdel (deluser) / usermod -aG
 groupadd / groupdel / gpasswd -a|-d
 ls -l / getent passwd|group
 chmod 2770 / chgrp / chown
@@ -581,11 +627,11 @@ sudo chmod +t /devops_share
 
 ---
 
-## 📝 Daily Summary
+## Daily Summary
 
 - Understood `/etc/passwd`, `/etc/group`, `/etc/shadow` (fields & password aging).
 - Created users & groups; managed group membership.
 - Built shared directories with SGID + default ACLs for team collaboration.
 - Verified cross-user read/write using `sudo -u`.
 - **To revisit:** `chmod` (symbolic/octal), `setfacl/getfacl`, `chage -l, sudo -l, visudo -c.`
-- Artifacts: labs/day4/SGID_ACL_v1.md, tools/mkshare.sh.
+- Artifacts: labs/day4/SGID_ACL.md, tools/mkshare.sh.

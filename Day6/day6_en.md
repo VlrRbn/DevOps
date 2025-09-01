@@ -1,8 +1,10 @@
-# Day6_Materials_EN
+# day6_en
 
 # Package management (apt/dpkg)
 
-**Date: 26.08.2025**
+---
+
+**Date:** **2025-08-26**
 
 **Topic:** APT & dpkg essentials (search, policy, versions, files, holds).
 
@@ -12,21 +14,21 @@
 
 ### Step 1 — “What’s in our repository lists?”.
 
-`grep -h ^deb` — Check active sources and update the cache.
+`grep -h ^deb` — lists active APT sources, while `sudo apt update` updates the package cache.
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ grep -h ^deb /etc/apt/sources.list /etc/apt/sources.list.d/*list 2>/dev/null | tr -s ' ' | head -10
+leprecha@Ubuntu-DevOps:~$ grep -h ^deb /etc/apt/sources.list /etc/apt/sources.list.d/*list 2>/dev/null | tr -s ' ' | head -n 10
 deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main
 ```
 
 - `grep -h ^deb` — extracts active repositories (`deb` lines).
 - `2>/dev/null` — hides errors if some file doesn’t exist.
 - `tr -s ' '` — normalizes spaces, alternative - `sed -E 's/[[:space:]]+/ /g'`.
-- `head -10` — shows the first 10 only.
+- `head -n 10` — shows the first 10 only.
 
 ---
 
-`sudo apt update` — Updates the package index from those repositories (doesn’t install anything yet).
+`sudo apt update` — updates the package index from those repositories (doesn’t install anything yet).
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo apt update
@@ -47,7 +49,7 @@ Reading state information... Done
 - Output includes package name, available version, repo, and currently installed version.
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ apt list --upgradable 2>/dev/null | head -20
+leprecha@Ubuntu-DevOps:~$ apt list --upgradable 2>/dev/null | head -n 20
 Listing...
 bluez-cups/noble-updates 5.72-0ubuntu5.4 amd64 [upgradable from: 5.72-0ubuntu5.3]
 bluez-obexd/noble-updates 5.72-0ubuntu5.4 amd64 [upgradable from: 5.72-0ubuntu5.3]
@@ -74,8 +76,10 @@ Useful for a quick glance at pending updates.
 - **Does not remove** packages and **does not install** new dependencies.
 - **`-s`** — simulation only: nothing is actually changed.
 
+`sudo apt-get -s full-upgrade` — simulates a full system upgrade, showing what would change without actually applying it.
+
 ```bash
-leprecha@Ubuntu-DevOps:~$ sudo apt-get -s upgrade | head -30
+leprecha@Ubuntu-DevOps:~$ sudo apt-get -s upgrade | head -n 30
 Reading package lists...
 Building dependency tree...
 Reading state information...
@@ -109,7 +113,7 @@ Lets you preview upgrades safely before doing the real thing.
 **1)** `apt search htop` — s**earch for a package by name/description**
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ apt search htop | head -10
+leprecha@Ubuntu-DevOps:~$ apt search htop | head -n 10
 
 WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
 
@@ -225,7 +229,7 @@ htop is already the newest version (3.3.0-4build1).
 ```
 
 - **`sudo apt install`** — installs the package (plus its dependencies).
-- **`y`** — auto-answers “yes” to prompts (great for scripts).
+- **`-y`** — auto-answers “yes” to prompts (great for scripts).
 - If the package is already installed → “htop is already the newest version”.
 
 ---
@@ -233,7 +237,7 @@ htop is already the newest version (3.3.0-4build1).
 **2) Show what files the package installs**
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ dpkg -L htop | head -15
+leprecha@Ubuntu-DevOps:~$ dpkg -L htop | head -n 15
 /.
 /usr
 /usr/bin
@@ -264,7 +268,7 @@ leprecha@Ubuntu-DevOps:~$ dpkg -L htop | head -15
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo apt install -y apt-file && sudo apt-file update
 
-leprecha@Ubuntu-DevOps:~$ apt-file search bin/journalctl | head -5
+leprecha@Ubuntu-DevOps:~$ apt-file search bin/journalctl | head -n 5
 systemd: /usr/bin/journalctl
 ```
 
@@ -272,6 +276,13 @@ systemd: /usr/bin/journalctl
 - **`sudo apt-file update`** — refreshes its database (must run once after install).
 - **`apt-file search <path>`** — finds which package provides the given file.
     - Example: `apt-file search bin/journalctl` will show that the `journalctl` binary belongs to the `systemd` package.
+
+---
+
+ `dpkg -L`  and `apt-file search` difference:
+
+- `dpkg -L` = “what files does this installed package provide?”
+- `apt-file search` = “which package contains this file (even if I don’t have it)?”
 
 ---
 
@@ -328,12 +339,12 @@ Save the current “map” of packages.
 ```bash
 leprecha@Ubuntu-DevOps:~$ mkdir -p tools
 leprecha@Ubuntu-DevOps:~$ cat > tools/pkg-snapshot.sh <<'SH'
-> #!/usr/bin/env bash
-> set -e
-> dpkg --get-selections > packages.list
-> dpkg -l > packages_table.txt
-> echo "Saved: packages.list (for restore) and packages_table.txt (human-readable)."
-> SH
+#!/usr/bin/env bash
+set -e
+dpkg --get-selections > packages.list
+dpkg -l > packages_table.txt
+echo "Saved: packages.list (for restore) and packages_table.txt (human-readable)."
+SH
 leprecha@Ubuntu-DevOps:~$ chmod +x tools/pkg-snapshot.sh
 ```
 
@@ -393,13 +404,13 @@ Create `tools/pkg-restore.sh` and test without installing:
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ cat > tools/pkg-restore.sh <<'SH'
-> #!/usr/bin/env bash
-> set -e
-> [ -f packages.list ] || { echo "packages.list not found"; exit 1; }
-> sudo apt update
-> sudo dpkg --set-selections < packages.list
-> sudo apt-get -y dselect-upgrade
-> SH
+#!/usr/bin/env bash
+set -e
+[ -f packages.list ] || { echo "packages.list not found"; exit 1; }
+sudo apt update
+sudo dpkg --set-selections < packages.list
+sudo apt-get -y dselect-upgrade
+SH
 leprecha@Ubuntu-DevOps:~$ chmod +x tools/pkg-restore.sh
 ```
 
@@ -419,7 +430,6 @@ leprecha@Ubuntu-DevOps:~$ chmod +x tools/pkg-restore.sh
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo dpkg --set-selections < packages.list
-[sudo] password for leprecha: 
 leprecha@Ubuntu-DevOps:~$ sudo apt-get -s dselect-upgrade | sed -n '1,10p'
 Reading package lists...
 Building dependency tree...
@@ -563,7 +573,7 @@ leprecha@Ubuntu-DevOps:~$ dpkg -I htop_*.deb | sed -n '1,15p'
 3) List files inside the package
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ dpkg -c htop_*.deb | head -20
+leprecha@Ubuntu-DevOps:~$ dpkg -c htop_*.deb | sed -n '1,20p'
 drwxr-xr-x root/root         0 2024-04-08 16:59 ./
 drwxr-xr-x root/root         0 2024-04-08 16:59 ./usr/
 drwxr-xr-x root/root         0 2024-04-08 16:59 ./usr/bin/
@@ -584,12 +594,10 @@ drwxr-xr-x root/root         0 2024-04-08 16:59 ./usr/share/icons/hicolor/scalab
 -rw-r--r-- root/root     11202 2024-04-08 16:59 ./usr/share/icons/hicolor/scalable/apps/htop.svg
 drwxr-xr-x root/root         0 2024-04-08 16:59 ./usr/share/man/
 drwxr-xr-x root/root         0 2024-04-08 16:59 ./usr/share/man/man1/
-dpkg-deb: error: tar subprocess was killed by signal (Broken pipe)
 ```
 
 - **`dpkg -c <deb> (--contents)`**   → shows all files inside the package and where they’ll be installed.
 - Format: permissions, owner, size, path.
-- `dpkg-deb: error: tar subprocess was killed by signal (Broken pipe)` → we can ignore it.
 - Useful for inspection or manual install.
 
 ---
@@ -615,7 +623,7 @@ htop: /usr/bin/htop
 1. Manual packages
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ apt-mark showmanual | head -10
+leprecha@Ubuntu-DevOps:~$ apt-mark showmanual | head -n 10
 acl
 apt-file
 bsdutils
@@ -634,7 +642,18 @@ efibootmgr
 ---
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ apt-mark showauto | head -10
+leprecha@Ubuntu-DevOps:~$ apt-mark showmanual | sort > manual-packages.txt
+leprecha@Ubuntu-DevOps:~$ xargs -a manual-packages.txt sudo apt-get install -
+```
+
+This command saves a sorted list of manually installed packages into `manual-packages.txt`, useful for backup or system reinstallation.
+
+Second command reinstalls all packages listed in `manual-packages.txt` using `apt-get`..
+
+---
+
+```bash
+leprecha@Ubuntu-DevOps:~$ apt-mark showauto | head -n 10
 accountsservice
 adduser
 adwaita-icon-theme
@@ -721,7 +740,7 @@ Reverse Depends:
 `apt list -a nginx`
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ apt list -a nginx 2>/dev/null | head -5
+leprecha@Ubuntu-DevOps:~$ apt list -a nginx 2>/dev/null | head -n 5
 Listing...
 nginx/noble-updates,noble-security,now 1.24.0-2ubuntu7.5 amd64 [installed]
 nginx/noble 1.24.0-2ubuntu7 amd64
@@ -729,7 +748,7 @@ nginx/noble 1.24.0-2ubuntu7 amd64
 
 **`apt list -a <pkg>`** — lists all available versions of the package across repos.
 
-- `a` → all versions.
+- `-a` → all versions.
 - `2>/dev/null` → hides the “unstable CLI” warning.
 
 Useful for seeing **which version is installed right now** (`[installed]`).
@@ -799,11 +818,11 @@ Summary:
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ cat > tools/apt-dry-upgrade.sh <<'SH'
-> #!/usr/bin/env bash
-> set -e
-> sudo apt update
-> sudo apt-get -s upgrade
-> SH
+#!/usr/bin/env bash
+set -e
+sudo apt update
+sudo apt-get -s upgrade
+SH
 leprecha@Ubuntu-DevOps:~$ chmod +x tools/apt-dry-upgrade.sh
 ```
 
@@ -860,12 +879,11 @@ sudo apt-get -o APT::Get::Always-Include-Phased-Updates=true upgrade -y
 
 With this flag, you force `apt-get` to ignore phasing and install all available updates immediately.
 
----
+How to check Is it phased?
 
- `dpkg -L`  and `apt-file search` difference:
-
-- `dpkg -L` = “what files does this installed package provide?”
-- `apt-file search` = “which package contains this file (even if I don’t have it)?”
+```bash
+apt-cache show <pkg> | grep -i Phased-Update-Percentage
+```
 
 ---
 
@@ -1027,7 +1045,6 @@ Wed 2025-08-27 06:53:37 IST      11h Tue 2025-08-26 10:26:56 IST            - ap
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo ls -l /var/log/unattended-upgrades/ 2>/dev/null || true
-total 72
 -rw-r--r-- 1 root adm   2101 Aug 23 16:13 unattended-upgrades-dpkg.log
 -rw-r--r-- 1 root root 69004 Aug 26 19:40 unattended-upgrades.log
 -rw-r--r-- 1 root root     0 Aug 19 15:19 unattended-upgrades-shutdown.log

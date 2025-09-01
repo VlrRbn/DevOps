@@ -1,14 +1,12 @@
-# Day5_Materials_EN
-
----
+# day5_en
 
 # Processes & Services
 
-**Date:** 25.08.2025
+---
 
-**Start time:** 16:00
+**Date:** **2025-08-25**
 
-**Total duration:** ~6h 
+**Topic:** Processes, systemd (services & timers), journald.
 
 ---
 
@@ -32,7 +30,9 @@
 
 - Inspect `cron`: `systemctl status/cat/show`, drop-in override (Environment=HELLO=world).
 - Build `hello.service` (oneshot) + `hello.timer` (every 5 min).
-- Verify: `list-timers`, `journalctl -u hello.service` and `t hello`.
+- Verify: `list-timers`, `journalctl -u hello.service` and `journalctl -t hello` .
+
+---
 
 ## Mini-lab
 
@@ -51,7 +51,7 @@
 `ps aux --sort=-%cpu | head`
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ ps aux --sort=-%cpu | head -2
+leprecha@Ubuntu-DevOps:~$ ps aux --sort=-%cpu | head -n 2
 USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 leprecha   16533 31.8  3.2 1478621296 525316 ?   Sl   21:51   0:30 /opt/google/chrome/chrome --type=renderer --crashpad-handler-pid=14706 --enable-crash-reporter=557550b2-f1f6-4d05-90cc-1deae0f5f3fa, --change-stack-guard-on-fork=enable --ozone-platform=x11 --lang=en-US --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=43 --time-ticks-at-unix-epoch=-1756133990575695 --launch-time-ticks=21101841303 --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,8753477971298591934,7052031657596811397,2097152 --field-trial-handle=3,i,24681192782921135,9795654689833914453,262144 --variations-seed-version=20250825-050038.168000
 ```
@@ -59,7 +59,7 @@ leprecha   16533 31.8  3.2 1478621296 525316 ?   Sl   21:51   0:30 /opt/google/c
 `ps aux --sort=-%mem | head`
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ ps aux --sort=-%mem | head -2
+leprecha@Ubuntu-DevOps:~$ ps aux --sort=-%mem | head -n 2
 USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 leprecha   15083 15.7  4.9 1482060916 787784 ?   Sl   20:44  10:59 /opt/google/chrome/chrome --type=renderer --crashpad-handler-pid=14706 --enable-crash-reporter=557550b2-f1f6-4d05-90cc-1deae0f5f3fa, --change-stack-guard-on-fork=enable --ozone-platform=x11 --lang=en-US --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=20 --time-ticks-at-unix-epoch=-1756133990575695 --launch-time-ticks=17078237958 --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,8951425184311289951,3324895699145417550,2097152 --field-trial-handle=3,i,24681192782921135,9795654689833914453,262144 --variations-seed-version=20250825-050038.168000
 
@@ -74,7 +74,7 @@ Purpose: spot resource hogs quickly.
 2) Process tree — `pstree -p`.
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ pstree -p | head -20
+leprecha@Ubuntu-DevOps:~$ pstree -p | head -n 20
 systemd(1)-+-ModemManager(1405)-+-{ModemManager}(1439)
            |                    |-{ModemManager}(1442)
            |                    `-{ModemManager}(1446)
@@ -201,10 +201,10 @@ What it does:
 1. **`systemctl list-units`** — shows all units managed by systemd.
 2. **`--type=service`** — filters only services.
 3. **`--state=running`** — shows only those currently running.
-4. **`| head -20`** — limits the output to the first 20 lines (otherwise the list can be very long).
+4. **`| head -5`** — limits the output to the first 5 lines (otherwise the list can be very long).
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ systemctl list-units --type=service --state=running | head -5
+leprecha@Ubuntu-DevOps:~$ systemctl list-units --type=service --state=running | head -n 5
   UNIT                                    LOAD   ACTIVE SUB     DESCRIPTION
   accounts-daemon.service                 loaded active running Accounts Service
   avahi-daemon.service                    loaded active running Avahi mDNS/DNS-SD Stack
@@ -357,10 +357,10 @@ Aug 25 16:55:01 Ubuntu-DevOps CRON[7916]: pam_unix(cron:session): session closed
 
 ---
 
-`journalctl -p warning..alert -n 10 --no-pager` — show the last 10 log entries with **priority warning and higher** (warning, err, crit, alert, emerg). No pager.
+`journalctl -p warning..alert -n 10 --no-pager` — show the last 10 log entries with **priority warning and higher**.
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ journalctl -p warning..alert -n 1 --no-pager
+leprecha@Ubuntu-DevOps:~$ journalctl -p warning..alert -n 10 --no-pager
 Aug 25 16:57:43 Ubuntu-DevOps /usr/libexec/gdm-x-session[4910]: See https://wayland.freedesktop.org/libinput/doc/1.25.0/touchpad-jumping-cursors.html for details
 ```
 
@@ -399,7 +399,6 @@ Aug 25 17:00:01 Ubuntu-DevOps CRON[7943]: pam_unix(cron:session): session closed
 Aug 25 17:04:55 Ubuntu-DevOps systemd[1]: Stopping cron.service - Regular background program processing daemon...
 Aug 25 17:04:55 Ubuntu-DevOps systemd[1]: cron.service: Deactivated successfully.
 Aug 25 17:04:55 Ubuntu-DevOps systemd[1]: Stopped cron.service - Regular background program processing daemon.
-Aug 25 17:04:55 Ubuntu-DevOps (cron)[8049]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
 Aug 25 17:04:55 Ubuntu-DevOps systemd[1]: Started cron.service - Regular background program processing daemon.
 Aug 25 17:04:55 Ubuntu-DevOps cron[8049]: (CRON) INFO (pidfile fd = 3)
 Aug 25 17:04:55 Ubuntu-DevOps cron[8049]: (CRON) INFO (Skipping @reboot jobs -- not system startup)
@@ -507,7 +506,7 @@ root       10549       1  0 17:35 ?        00:00:00 /usr/sbin/cron -f -P
 
 ### System status and timers
 
-`systemctl list-timers --all | head -5` — lists all systemd timers (active/inactive) with next/last run. `head -5` trims to first 5 lines.
+`systemctl list-timers --all | head -n 5` — lists all systemd timers (active/inactive) with next/last run. `head -n 5` trims to first 5 lines.
 
 **When to use:**
 
@@ -516,7 +515,7 @@ root       10549       1  0 17:35 ?        00:00:00 /usr/sbin/cron -f -P
 - See which **service a timer activates** (`UNIT`/`ACTIVATES` columns).
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ systemctl list-timers --all | head -5
+leprecha@Ubuntu-DevOps:~$ systemctl list-timers --all | head -n 5
 NEXT                            LEFT LAST                              PASSED UNIT                           ACTIVATES
 Mon 2025-08-25 18:20:00 IST     8min Mon 2025-08-25 18:10:03 IST 1min 11s ago sysstat-collect.timer          sysstat-collect.service
 Mon 2025-08-25 18:28:50 IST    17min Mon 2025-08-25 17:25:17 IST    45min ago fwupd-refresh.timer            fwupd-refresh.service
@@ -543,7 +542,7 @@ leprecha@Ubuntu-DevOps:~$ systemctl --failed
 
 ---
 
-`systemd-analyze blame | head -15` — ranks units by init time on **last boot**; `head -15` shows the slowest offenders.
+`systemd-analyze blame | head -n 15` — ranks units by init time on **last boot**; `head -n 15` shows the slowest offenders.
 
 **When to use:**
 
@@ -551,7 +550,7 @@ leprecha@Ubuntu-DevOps:~$ systemctl --failed
 - Decide what to **delay**, disable, or rework.
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ systemd-analyze blame | head -15
+leprecha@Ubuntu-DevOps:~$ systemd-analyze blame | head -n 15
 22.751s fstrim.service
  6.044s plymouth-quit-wait.service
  5.794s NetworkManager-wait-online.service
@@ -660,9 +659,9 @@ When it’s useful
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo tee /usr/local/bin/hello.sh >/dev/null <<'SH'
-> #!/usr/bin/env bash
-> echo "[hello] $(date '+%F %T') $(hostname)" | systemd-cat -t hello -p info
-> SH
+#!/usr/bin/env bash
+echo "[hello] $(date '+%F %T') $(hostname)" | systemd-cat -t hello -p info
+SH
 
 leprecha@Ubuntu-DevOps:~$ sudo chmod +x /usr/local/bin/hello.sh
 ```
@@ -687,13 +686,13 @@ leprecha@Ubuntu-DevOps:~$ sudo chmod +x /usr/local/bin/hello.sh
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo tee /etc/systemd/system/hello.service >/dev/null <<'UNIT'
-> [Unit]
-> Description=Hello logger (oneshot)
-> 
-> [Service]
-> Type=oneshot
-> ExecStart=/usr/local/bin/hello.sh
-> UNIT
+[Unit]
+Description=Hello logger (oneshot)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/hello.sh
+UNIT
 ```
 
 ### Meaning:
@@ -711,17 +710,17 @@ leprecha@Ubuntu-DevOps:~$ sudo tee /etc/systemd/system/hello.service >/dev/null 
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo tee /etc/systemd/system/hello.timer >/dev/null << 'UNIT'
-> [Unit]
-> Description=Run hello.service every 5 minutes
-> 
-> [Timer]
-> OnBootSec=1min
-> OnUnitActiveSec=5min
-> Unit=hello.service
-> 
-> [Install]
-> WantedBy=timers.target
-> UNIT
+[Unit]
+Description=Run hello.service every 5 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+Unit=hello.service
+
+[Install]
+WantedBy=timers.target
+UNIT
 ```
 
 ### Meaning:
@@ -753,7 +752,7 @@ Enables the **timer** permanently and starts it immediately.
 leprecha@Ubuntu-DevOps:~$ sudo systemctl daemon-reload
 leprecha@Ubuntu-DevOps:~$ sudo systemctl start hello.service
 leprecha@Ubuntu-DevOps:~$ sudo systemctl enable --now hello.timer
-leprecha@Ubuntu-DevOps:~$ systemctl list-timers --all | grep hello || systemctl list-timers --all | head -5
+leprecha@Ubuntu-DevOps:~$ systemctl list-timers --all | grep hello || systemctl list-timers --all | head -n 5
 Mon 2025-08-25 19:48:09 IST 4min 44s Mon 2025-08-25 19:41:20 IST  2min 4s ago hello.timer                    hello.service
 leprecha@Ubuntu-DevOps:~$ journalctl -u hello.service --since "10 min ago" -n 20 --no-pager
 Aug 25 19:36:18 Ubuntu-DevOps systemd[1]: Starting hello.service - Hello logger (oneshot)...
@@ -783,15 +782,15 @@ A service that crashes, and systemd brings it back up:
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo tee /etc/systemd/system/flaky.service >/dev/null <<'UNIT'
-> [Unit]
-> Description=Flaky demo (restarts on failure)
-> 
-> [Service]
-> Type=simple
-> ExecStart=/bin/bash -lc 'echo start; sleep 2; echo crash >&2; exit 1'
-> Restart=on-failure
-> RestartSec=3s
-> UNIT
+[Unit]
+Description=Flaky demo (restarts on failure)
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -lc 'echo start; sleep 2; echo crash >&2; exit 1'
+Restart=on-failure
+RestartSec=3s
+UNIT
 ```
 
 ```bash
@@ -871,17 +870,17 @@ A bit of isolation without breaking things.
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo tee /etc/systemd/system/hello.service >/dev/null << 'UNIT'
-> [Unit]
-> Description=Hello logger (hardened)
-> 
-> [Service]
-> Type=oneshot
-> ExecStart=/usr/local/bin/hello.sh
-> ProtectSystem=strict
-> ProtectHome=yes
-> PrivateTmp=yes
-> NoNewPrivileges=yes
-> UNIT
+[Unit]
+Description=Hello logger (hardened)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/hello.sh
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+UNIT
 ```
 
 Set:
@@ -1127,10 +1126,7 @@ sudo systemctl daemon-reload
 ---
 
 ## Summary
-- Inspected built-in services with `systemctl status/cat/show` (cron), added a drop-in override (`Environment=HELLO=worldx`).
-- Built a custom **systemd** oneshot service (`hello.service`) and a **timer** (every 5 min).
-- Verified logs with `journalctl` (`-u`, `-t`, `-o short-precise`) and basic troubleshooting flow.
-- Optional: demoed auto-restart with `flaky.service`, added light hardening (`ProtectSystem=strict`, `PrivateTmp`, `NoNewPrivileges`).
 
-**Artifacts:** `labs/day5/hello.service`, `labs/day5/hello.timer`, `labs/day5/flaky.service`, `tools/hello.sh`.
-**To repeat:** `systemctl` lifecycle, `journalctl` filters (`-u/-p/-b/-f/-t`), timers.
+- Service+Timer working; logs verified; (optional) restart policy & hardening explored.
+
+**Artifacts:** `labs/day5/hello.service`, `labs/day5/flaky.service`, `labs/day5/hello.timer` `tools/hello.sh`

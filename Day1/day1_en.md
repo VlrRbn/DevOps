@@ -1,6 +1,8 @@
 # day1_en
 
-## 1. General Info
+# Environment Setup and Basic Linux Commands
+
+---
 
 **Date: 2025-08-19**
 
@@ -10,7 +12,7 @@
 
 ---
 
-## 2. Learned Material
+## 1. Learned Material
 
 **Commands and what they do:**
 
@@ -196,7 +198,7 @@ Linux Ubuntu-DevOps 6.14.0-28-generic #28~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Fri
 
 ---
 
-## Working with nano and the Filesystem.
+## 2. Working with nano and the Filesystem.
 
 - Create `hello.txt` and edit in nano.
 
