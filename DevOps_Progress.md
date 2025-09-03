@@ -11,4 +11,4 @@
 | 6 | 2025-08-26 | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) |
 | 7 | 2025-08-27 | Bash Scripting (template, rename, backup, logs) |
 | 8 | 2025-08-30 | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools |
-| * | 2025-09-01 | Extra practice, repo cleanup, cheat sheets |
+| * | 2025-09-01 — 2025-09-03| Extra practice, repo cleanup, cheat sheets |
