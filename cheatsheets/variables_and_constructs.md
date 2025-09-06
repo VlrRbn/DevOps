@@ -1,5 +1,7 @@
 # variables_and_constructs
 
+---
+
 ## Аргументы скрипта
 
 - `$0` — имя скрипта
@@ -28,7 +30,7 @@ for x in "$*"; do printf '[%s]\n' "$x"; done   # [a b c]
 
 ```bash
 cmd1 | cmd2 | cmd3
-echo "${PIPESTATUS[@]}"    # Например: 0 0 1
+echo "${PIPESTATUS[@]}"     # Например: 0 0 1
 job & pid=$!; wait "$pid"; rc=$?; echo "job rc=$rc"
 ```
 
@@ -61,10 +63,10 @@ job & pid=$!; wait "$pid"; rc=$?; echo "job rc=$rc"
 
 ```bash
 f="/var/log/nginx/access.log"
-echo "${f##*/}"     # access.log
-echo "${f%/*}"      # /var/log/nginx
-s="hello"; echo "${s^} ${s^^}"     # Hello HELLO
-msg="abc abc"; echo "${msg//a/A}"  # Abc Abc
+echo "${f##*/}"                       # access.log
+echo "${f%/*}"                        # /var/log/nginx
+s="hello"; echo "${s^} ${s^^}"        # Hello HELLO
+msg="abc abc"; echo "${msg//a/A}"     # Abc Abc
 ```
 
 ---
@@ -94,8 +96,8 @@ EOF
 ```bash
 arr=(alpha beta)
 arr+=("gamma")
-printf '%s\n' "${!arr[@]}"   # 0 1 2
-printf '%s\n' "${arr[@]}"    # alpha beta gamma
+printf '%s\n' "${!arr[@]}"     # 0 1 2
+printf '%s\n' "${arr[@]}"      # alpha beta gamma
 ```
 
 ### Ассоциативные массивы
@@ -154,11 +156,8 @@ done < /etc/hosts
 - Подстановка процессов: `<(cmd)` как файл для чтения, `>(cmd)` — для записи
 
 ```bash
-# Сравнение вывода двух команд построчно
-diff -u <(cmd_a) <(cmd_b)
-
-# Записать вывод в cmd
-tee out.log >(grep -i error >&2)
+diff -u <(cmd_a) <(cmd_b)            # Сравнение вывода двух команд построчно
+tee out.log >(grep -i error >&2)     # Записать вывод в cmd
 ```
 
 ---
@@ -171,10 +170,9 @@ tee out.log >(grep -i error >&2)
 
 ```bash
 n=5;
-echo $((n+1))        # 6
-
-if (( (n % 2) == 1 )); then echo odd; fi        # true, если результат ≠ 0
-echo "scale=2; 3/2" | bc        # 1.50
+echo $((n+1))                                # 6
+if (( (n % 2) == 1 )); then echo odd; fi     # true, если результат ≠ 0
+echo "scale=2; 3/2" | bc                     # 1.50
 ```
 
 ---
