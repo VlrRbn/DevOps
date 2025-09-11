@@ -190,7 +190,7 @@ leprecha@Ubuntu-DevOps:~$ mkdir -p practice
 leprecha@Ubuntu-DevOps:~$ zgrep -h "Start-Date\|Commandline:\|Install:\|Upgrade:\|Remove:\|End-Date" /var/log/apt/history.log* | tail -n 10 > practice/apt_audit.txt
 ```
 
-1. **Hold**: поставить `apt-mark hold` на один критичный пакет (например, `nginx`), проверить `apt-mark showhold`, потом снять.
+2. **Hold**: поставить `apt-mark hold` на один критичный пакет (например, `nginx`), проверить `apt-mark showhold`, потом снять.
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo apt-mark hold nginx
@@ -201,7 +201,7 @@ leprecha@Ubuntu-DevOps:~$ sudo apt-mark unhold nginx
 Canceled hold on nginx.
 ```
 
-1. **Integrity**: установить `debsums`, проверить систему `debsums -s`, отработать `dpkg -V` для 1-2 пакетов.
+3. **Integrity**: установить `debsums`, проверить систему `debsums -s`, отработать `dpkg -V` для 1-2 пакетов.
 
 ```bash
 sudo apt update
@@ -214,7 +214,7 @@ leprecha@Ubuntu-DevOps:~$ sudo dpkg -V cloud-init
 leprecha@Ubuntu-DevOps:~$ sudo apt install --reinstall cloud-init     # Вернуть оригинал
 ```
 
-1. **Recovery**: симулировать прерванную установку (Ctrl+C), восстановить `dpkg --configure -a`, зафиксировать шаги.
+4. **Recovery**: симулировать прерванную установку (Ctrl+C), восстановить `dpkg --configure -a`, зафиксировать шаги.
 
 ```bash
 sudo apt install sl          # Во время загрузки нажать Ctrl+C

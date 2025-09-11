@@ -245,7 +245,7 @@ sudo usermod -aG devs bob
 
 Проверка: `touch /srv/shared/test && ls -l /srv/shared/test` → группа `devs`.
 
-1. **Выдать право рестартовать nginx без пароля**
+2. **Выдать право рестартовать nginx без пароля**
 
 ```bash
 # /etc/sudoers.d/90-restart-nginx
@@ -254,7 +254,7 @@ alice ALL=(root) NOPASSWD:/bin/systemctl restart nginx
 
 Проверка: `sudo -l -U alice` → затем `sudo systemctl restart nginx`.
 
-1. **Блок учётной записи по требованию**
+3. **Блок учётной записи по требованию**
 
 ```bash
 sudo usermod -L alice              # Блок входа по паролю:
@@ -262,7 +262,7 @@ sudo passwd -l alice               # или:
 sudo chage -E 2025-09-30 alice     # Полное отключение к дате (истечение):
 ```
 
-1. **Найти все SUID-бинарники и проверить целостность**
+4. **Найти все SUID-бинарники и проверить целостность**
 
 ```bash
 sudo find / -xdev -perm -4000 -type f -print0 2>/dev/null | xargs -0 ls -l

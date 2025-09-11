@@ -197,7 +197,7 @@ leprecha@Ubuntu-DevOps:~$ sudo /usr/local/bin/hello.sh && tail -n 5 /var/log/hel
 Tue Sep  9 12:52:32 PM IST 2025 hello
 ```
 
-1. **Юнит:** скопировать шаблон `myapp.service`, адаптировать под `hello` (минимум: `User=root`, `LogsDirectory=hello`, `ExecStart=/usr/local/bin/hello.sh`).
+2. **Юнит:** скопировать шаблон `myapp.service`, адаптировать под `hello` (минимум: `User=root`, `LogsDirectory=hello`, `ExecStart=/usr/local/bin/hello.sh`).
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo tee /etc/systemd/system/hello.service > /dev/null <<'EOF'
@@ -275,7 +275,7 @@ Tue Sep  9 12:53:48 PM IST 2025 hello
 Tue Sep  9 07:51:30 PM IST 2025 hello
 ```
 
-1. `systemctl daemon-reload && systemctl enable --now hello.service && systemctl status hello`.
+3. `systemctl daemon-reload && systemctl enable --now hello.service && systemctl status hello`.
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ systemctl daemon-reload && systemctl enable --now hello.service && systemctl status hello
@@ -293,7 +293,7 @@ leprecha@Ubuntu-DevOps:~$ systemctl daemon-reload && systemctl enable --now hell
 Sep 09 19:54:51 Ubuntu-DevOps systemd[1]: Started hello.service - Hello echo service.
 ```
 
-1. **Сломать намеренно:** добавить `ExecStartPre=/bin/false`, перезапустить и посмотреть `journalctl -xeu hello` → `systemctl reset-failed hello`.
+4. **Сломать намеренно:** добавить `ExecStartPre=/bin/false`, перезапустить и посмотреть `journalctl -xeu hello` → `systemctl reset-failed hello`.
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo mkdir -p /etc/systemd/system/hello.service.d
@@ -317,7 +317,7 @@ leprecha@Ubuntu-DevOps:~$ systemctl status hello --no-pager -l
         CPU: 32ms
 ```
 
-1. **Таймер:** создать `hello.timer` с `OnUnitActiveSec=1min`, включить `-now`, проверить в `systemctl list-timers` и хвост лога.
+5. **Таймер:** создать `hello.timer` с `OnUnitActiveSec=1min`, включить `-now`, проверить в `systemctl list-timers` и хвост лога.
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ sudo tee /etc/systemd/system/hello.timer > /dev/null <<'EOF'

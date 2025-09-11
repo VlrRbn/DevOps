@@ -162,7 +162,7 @@
 find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -printf '%M %m %u:%g %p\n' 2>/dev/null | sort > suid_audit.txt
 ```
 
-1. **Ошибки nginx «за сегодня» (access.log)**
+2. **Ошибки nginx «за сегодня» (access.log)**
 
 ```bash
 zgrep -h "$(date '+%d/%b/%Y')" /var/log/nginx/access.log* 2>/dev/null \
@@ -173,7 +173,7 @@ zgrep -h "$(date '+%d/%b/%Y')" /var/log/nginx/access.log* 2>/dev/null \
        }'
 ```
 
-1. **Бэкап $HOME на внешний диск (dry-run → реальность)**
+3. **Бэкап $HOME на внешний диск (dry-run → реальность)**
 
 ```bash
 RSRC="$HOME/";
