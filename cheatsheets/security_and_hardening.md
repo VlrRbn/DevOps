@@ -320,7 +320,7 @@ net.ipv6.conf.default.accept_redirects=0
 - **UFW**: deny‑by‑default, `limit 22/tcp`, `IPV6=yes`.
 - **Fail2ban**: jail `sshd` включён.
 - **Auditd**: правила загружены через `augenrules`.
-- J**ournald**: `Storage=persistent`, лимиты заданы.
+- **Journald**: `Storage=persistent`, лимиты заданы.
 - **Unattended‑Upgrades**: security‑only c dry‑run’ом.
 - **AppArmor**: ключевые сервисы в `enforce`.
 - **Systemd drop‑in**: лимиты применились (`systemctl show`).

@@ -38,18 +38,17 @@ devops-notes/
  ├─ prep_evening/
  │   └─ prep_evening1_en.md
  ├─ cheatsheets/
- |      ├─variables_and_constructs.md
- |      ├─ 
- |      ├─ 
- |      ├─ 
- |      ├─ 
- |      ├─ 
- |      ├─ 
- |      ├─ 
- |      ├─
- |      ├─ 
- |      ├─ 
- |      └─ 
+ |      ├─ backup_and_archives.md
+ |      ├─ disks_and_filesystems.md
+ |      ├─ files_and_search.md
+ |      ├─ logs_and_monitoring.md
+ |      ├─ network.md
+ |      ├─ packages.md
+ |      ├─ processes_and_memory.md
+ |      ├─ security_and_hardening.md
+ |      ├─ systemd.md
+ |      ├─ users_and_permissions.md
+ |      └─ variables_and_constructs.md
  ├─ tools/
  |    ├─ apt-dry-upgrade.sh
  |    ├─ backup-dir.sh
@@ -89,6 +88,7 @@ devops-notes/
 | **Day 7** | Bash Scripting (template, rename, backup, logs) | [Materials_7](Day7/day7_en.md) |
 | **Day 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](Day8/day8_en.md) |
 | **Day !** | Extra practice, repo cleanup, cheat sheets |
+| **Day 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns)|
 ---
 
 ## How to use
