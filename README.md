@@ -23,6 +23,8 @@ devops-notes/
  │   └─ day7_en.md
  ├─ Day8/
  │   └─ day8_en.md
+ ├─ Day9/
+ │   └─ day9_en.md
  ├─ labs/
  │   └─ day5/
  |      ├─ flaky.service
