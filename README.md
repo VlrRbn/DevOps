@@ -37,6 +37,13 @@ devops-notes/
  |            └─ nginx_access.log
  |      └─ mock
  |         └─ sshd_config
+ │   └─ day9/
+ |      ├─ captures
+ |         ├─ http_20250915_200353.pcap
+ |         └─ https_215724.pcap
+ |      └─ netns
+  |      ├─ run.sh
+  |      └─ logs
  ├─ prep_evening/
  │   └─ prep_evening1_en.md
  ├─ cheatsheets/
@@ -55,15 +62,18 @@ devops-notes/
  |    ├─ apt-dry-upgrade.sh
  |    ├─ backup-dir.sh
  |    ├─ backup-dir.v2.sh
+ |    ├─ capture-http.sh
  |    ├─ devops-tail.sh
  |    ├─ devops-tail.v2.sh
- |    ├─ hello.sh log-grep.sh
+ |    ├─ dns-query.sh
+ |    ├─ hello.sh
  |    ├─ log-grep.sh
  |    ├─ log-grep.v2.sh
  |    ├─ log-nginx-report.sh
  |    ├─ log-ssh-fail-report.sh
  |    ├─ log-ssh-fail-report.v2.sh
  |    ├─ mkshare.sh
+ |    ├─ net-ports.sh
  |    ├─ pkg-restore.sh
  |    ├─ pkg-snapshot.sh
  |    ├─ rename-ext.sh
@@ -90,7 +100,7 @@ devops-notes/
 | **Day 7** | Bash Scripting (template, rename, backup, logs) | [Materials_7](Day7/day7_en.md) |
 | **Day 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](Day8/day8_en.md) |
 | **Day !** | Extra practice, repo cleanup, cheat sheets |
-| **Day 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns)|
+| **Day 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns)| [Materials_9](Day9/day9_en.md) |
 ---
 
 ## How to use
