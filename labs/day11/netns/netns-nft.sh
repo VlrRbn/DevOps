@@ -92,7 +92,6 @@ table ip nat {
     type nat hook output priority dstnat; policy accept;
     ip daddr 127.0.0.1 tcp dport ${PORT} dnat to ${NS_IP}:${PORT}       # localhost -> ns
     ip daddr ${HOST_EXT_IP} tcp dport ${PORT} dnat to ${NS_IP}:${PORT}  # hairpin to host IP
-    ip daddr 127.0.0.1 tcp dport ${PORT} counter dnat to ${NS_IP}:${PORT}
   }
   chain postrouting {
     type nat hook postrouting priority srcnat; policy accept;
@@ -132,7 +131,7 @@ do_capture(){
   sudo mkdir -p "$PCAP_DIR"
   local OUT="${PCAP_DIR}/http_$(date +%H%M%S).pcap"
   log "#7 Capturing 5s on IF=${IF} to ${OUT} (port ${PORT})"
-  timeout 5 tcpdump -i veth0 -nn -w "$OUT" "tcp port ${PORT}" || true
+  timeout 5 tcpdump -i "$VETH_HOST" -nn -w "$OUT" "tcp port ${PORT}" || true
   chown "$REAL_USER":"$REAL_USER" "$OUT" 2>/dev/null || true
   log "#8 Quick read:"
   tcpdump -nn -r "$OUT" | head || true

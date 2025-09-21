@@ -25,8 +25,10 @@ devops-notes/
  │   └─ day8_en.md
  ├─ Day9/
  │   └─ day9_en.md
-├─ Day9/
+ ├─ Day10/
  │   └─ day10_en.md
+ ├─ Day11/
+ │   └─ day11_en.md
  ├─ labs/
  │   └─ day5/
  |      ├─ flaky.service
@@ -54,6 +56,12 @@ devops-notes/
  |      └─ netns
  |         ├─ netns-lab10.v1.sh
  |         └─ netns-lab10.v2.sh
+│   └─ day11/
+ |      ├─ captures
+ |         ├─ http_205254.pcap
+ |         └─ https_180630.pcap
+ |      └─ netns
+ |         └─ netns-nft.sh
  ├─ prep_evening/
  │   └─ prep_evening1_en.md
  ├─ cheatsheets/
@@ -83,7 +91,9 @@ devops-notes/
  |    ├─ log-ssh-fail-report.sh
  |    ├─ log-ssh-fail-report.v2.sh
  |    ├─ mkshare.sh
+ |    ├─ netns-nft.apply
  |    ├─ net-ports.sh
+ |    ├─ nft-save-restore.sh
  |    ├─ pkg-restore.sh
  |    ├─ pkg-snapshot.sh
  |    ├─ rename-ext.sh
