@@ -19,25 +19,6 @@
 
 ---
 
-## Security Checklist
-
-- **Before enabling UFW over SSH**, whitelist your SSH port explicitly (`ufw allow 22/tcp` or your port).
-- Scope DNAT to the **right ingress interface** if needed (match `i "$IF"` on PREROUTING/INPUT when exposing externally).
-- Turn on UFW logging for audit trails: `sudo ufw logging on` (check with `journalctl -u ufw`).
-- Avoid overly broad NAT sources (`s 10.0.0.0/8`); target your actual lab subnet.
-- Verify **FORWARD policy** and allow rules; DNAT without FORWARD ACCEPT won’t pass traffic.
-
----
-
-## Pitfalls
-
-- Forgot `ip_forward` → namespace can’t reach the Internet.
-- Wrong `o "$IF"` in MASQUERADE → NAT silently fails.
-- **nftables vs iptables**: don’t mix stacks.
-- UFW rule **order matters**: `insert` to place allows above denies.
-
----
-
 ## Practice
 
 ### 1) Create a network namespace
@@ -197,7 +178,7 @@ curl -sI http://127.0.0.1:8080 | head -5
 
 ---
 
-### 13) UFW
+### 14) UFW
 
 ```bash
 sudo ufw status verbose || true
@@ -212,7 +193,7 @@ sudo ufw status numbered
 
 ---
 
-### 14) Let's check from ns internet
+### 15) Let's check from ns internet
 
 ```bash
 sudo ip netns exec lab10 bash -c 'printf "ns IPs: "; ip -4 addr show veth1 | awk "/inet /{print \$2}"; ping -c1 -W1 1.1.1.1 && echo OK || echo FAIL'
@@ -220,7 +201,7 @@ sudo ip netns exec lab10 bash -c 'printf "ns IPs: "; ip -4 addr show veth1 | awk
 
 ---
 
-### 15) Quick packet capture
+### 16) Quick packet capture
 
 ```bash
 
@@ -234,7 +215,7 @@ Sniffs TCP/443 on `$IF` for 10 seconds and saves to `https.pcap` (open in Wiresh
 
 ---
 
-### 16) Cleanup
+### 17) Cleanup
 
 ```bash
 # remove rules (if added "-A", just add "-D" with the same parameters)
@@ -252,6 +233,25 @@ ip netns list
 ip link show | grep veth
 sudo ufw status numbered     # sudo ufw delete 10,9,5,4
 ```
+
+---
+
+## Security Checklist
+
+- **Before enabling UFW over SSH**, whitelist your SSH port explicitly (`ufw allow 22/tcp` or your port).
+- Scope DNAT to the **right ingress interface** if needed (match `-i "$IF"` on PREROUTING/INPUT when exposing externally).
+- Turn on UFW logging for audit trails: `sudo ufw logging on` (check with `journalctl -u ufw`).
+- Avoid overly broad NAT sources (`-s 10.0.0.0/8`); target your actual lab subnet.
+- Verify **FORWARD policy** and allow rules; DNAT without FORWARD ACCEPT won’t pass traffic.
+
+---
+
+## Pitfalls
+
+- Forgot `ip_forward` → namespace can’t reach the Internet.
+- Wrong `-o "$IF"` in MASQUERADE → NAT silently fails.
+- **nftables vs iptables**: don’t mix stacks.
+- UFW rule **order matters**: `insert` to place allows above denies.
 
 ---
 
@@ -443,7 +443,7 @@ say "#13 - getting for cleanup"
 # cleanup called with trap
 ```
 
-## Notes / Gotchas
+## Notes
 
 - Inside ns: `ping -c1 1.1.1.1` works and DNS resolves (temporary resolv.conf OK).
 - `curl -ss https://ifconfig.io` inside ns shows the **host’s external IP** (NAT works).
@@ -452,6 +452,10 @@ say "#13 - getting for cleanup"
 ---
 
 ## Summary
+- Built an isolated ns (`lab10`) with veth pair and default route via host.
+- Enabled IPv4 forwarding, added MASQUERADE for `10.10.0.0/24` out via `$IF`.
+- Exposed ns:8080 with DNAT (PREROUTING for external, OUTPUT for localhost).
+- Verified flows with `curl` and `tcpdump`, kept cleanup idempotent.
 
 ---
 
@@ -464,3 +468,15 @@ say "#13 - getting for cleanup"
 ---
 
 ## To repeat
+- Rebuild ns from scratch.
+- Verify NAT counters again after one request.
+- (Optional) Try hairpin via `$HOST_IP:8080`.
+
+---
+
+## Acceptance Criteria (self-check)
+
+- [ ] Inside ns: `ping -c1 1.1.1.1` OK and `curl -s https://ifconfig.io` shows the host’s public IP (NAT works).
+- [ ] From host: `curl -I http://127.0.0.1:8080` hits the Python server inside the ns (DNAT OUTPUT works).
+- [ ] `iptables -t nat -L -v -n --line-numbers` shows counters increasing for `PREROUTING` 8080, `POSTROUTING` MASQUERADE; `FORWARD` ACCEPT for `10.10.0.2:8080` also grows.
+- [ ] `ufw status numbered` — allow 8080/tcp is above any deny; logging is on if desired.

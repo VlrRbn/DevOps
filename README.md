@@ -25,6 +25,8 @@ devops-notes/
  │   └─ day8_en.md
  ├─ Day9/
  │   └─ day9_en.md
+├─ Day9/
+ │   └─ day10_en.md
  ├─ labs/
  │   └─ day5/
  |      ├─ flaky.service
@@ -42,8 +44,16 @@ devops-notes/
  |         ├─ http_20250915_200353.pcap
  |         └─ https_215724.pcap
  |      └─ netns
-  |      ├─ run.sh
-  |      └─ logs
+ |         ├─ run.sh
+ |         └─ logs
+ │   └─ day10/
+ |      ├─ captures
+ |         ├─ https_231135.pcap
+ |         ├─ https_234049.pcap
+ |         └─ https_210356.pcap
+ |      └─ netns
+ |         ├─ netns-lab10.v1.sh
+ |         └─ netns-lab10.v2.sh
  ├─ prep_evening/
  │   └─ prep_evening1_en.md
  ├─ cheatsheets/
@@ -100,7 +110,9 @@ devops-notes/
 | **Day 7** | Bash Scripting (template, rename, backup, logs) | [Materials_7](Day7/day7_en.md) |
 | **Day 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](Day8/day8_en.md) |
 | **Day !** | Extra practice, repo cleanup, cheat sheets |
-| **Day 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns)| [Materials_9](Day9/day9_en.md) |
+| **Day 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns) | [Materials_9](Day9/day9_en.md) |
+| **Day 10** | Networking (Part 2): NAT / DNAT / netns / UFW Deep | [Materials_10](Day10/day10_en.md) |
+| **Day 11** | Networking (Part 3): nftables NAT/DNAT + Persistence | [Materials_11](Day11/day11_en.md) |
 ---
 
 ## How to use

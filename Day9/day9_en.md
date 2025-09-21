@@ -332,7 +332,7 @@ echo "Saved: $file"
 
 ---
 
-## Notes / Gotchas
+## Notes
 
 - Prefer **iproute2** tools (`ip`, `ss`) over legacy ones (`ifconfig`, `netstat`).
 - Use **filters** and **timeouts** in tcpdump; capture to files, inspect offline.
