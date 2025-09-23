@@ -29,6 +29,8 @@ devops-notes/
  │   └─ day10_en.md
  ├─ Day11/
  │   └─ day11_en.md
+ ├─ Day12/
+ │   └─ day12_en.md
  ├─ labs/
  │   └─ day5/
  |      ├─ flaky.service
@@ -123,6 +125,7 @@ devops-notes/
 | **Day 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns) | [Materials_9](Day9/day9_en.md) |
 | **Day 10** | Networking (Part 2): NAT / DNAT / netns / UFW Deep | [Materials_10](Day10/day10_en.md) |
 | **Day 11** | Networking (Part 3): nftables NAT/DNAT + Persistence | [Materials_11](Day11/day11_en.md) |
+| **Day 12** | Nginx Reverse Proxy + TLS (self-signed) | [Materials_12](Day11/day12_en.md) |
 ---
 
 ## How to use
