@@ -1,4 +1,4 @@
-# day1_en
+# lesson_01
 
 # Environment Setup and Basic Linux Commands
 

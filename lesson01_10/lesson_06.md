@@ -1,4 +1,4 @@
-# day6_en
+# lesson_06
 
 # Package management (apt/dpkg)
 

@@ -1,4 +1,4 @@
-# day7_en
+# lesson_07
 
 # Bash Scripting
 
@@ -34,7 +34,7 @@
 leprecha@Ubuntu-DevOps:~$ echo "$SHELL" && bash --version | head -1
 /bin/bash
 GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)
-leprecha@Ubuntu-DevOps:~$ mkdir -p tools labs/day7
+leprecha@Ubuntu-DevOps:~$ mkdir -p tools labs/lesson_07
 ```
 
 - `echo "$SHELL"` → prints your default login shell (like `/bin/bash` or `/usr/bin/zsh`).
@@ -736,7 +736,7 @@ Adopted a safe Bash template, disciplined quoting and `[[ ]]`, and a ShellCheck-
 
 ---
 
-## **Next steps (Day 8 preview):**
+## **Next steps (lesson_08 preview):**
 
 grep/sed/awk pipelines for log parsing, `find -print0 | xargs -0` patterns, and small data-munging one-liners that feed into your `devops-tail` outputs.
 

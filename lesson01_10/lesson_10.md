@@ -1,4 +1,4 @@
-# day10_en
+# lesson_10
 
 # Networking (Part 2): NAT / DNAT / netns / UFW Deep
 
@@ -24,7 +24,7 @@
 ### 1) Create a network namespace
 
 ```bash
-mkdir -p ~/labs/day10/{captures,netns}
+mkdir -p ~/labs/lesson_10/{captures,netns}
 sudo ip netns del lab10 2>/dev/null || true
 sudo ip netns add lab10
 ```
@@ -208,7 +208,7 @@ sudo ip netns exec lab10 bash -c 'printf "ns IPs: "; ip -4 addr show veth1 | awk
 # IF="$(ip -o -4 route show default table main | awk '{for(i=1;i<=NF;i++) if($i=="dev"){print $(i+1); exit}}')"
 # [ -n "$IF" ] || { echo "Не смог определить WAN интерфейс"; ip -o -4 route show; exit 1; }
 
-sudo timeout 10 tcpdump -i "$IF" -nn -w ~/labs/day10/captures/https_$(date +%H%M%S).pcap 'tcp port 443'
+sudo timeout 10 tcpdump -i "$IF" -nn -w ~/labs/lesson_10/captures/https_$(date +%H%M%S).pcap 'tcp port 443'
 ```
 
 Sniffs TCP/443 on `$IF` for 10 seconds and saves to `https.pcap` (open in Wireshark to prove traffic).
@@ -257,7 +257,7 @@ sudo ufw status numbered     # sudo ufw delete 10,9,5,4
 
 ## Labs
 
-### `labs/day10/netns/netns-lab10.v2.sh`
+### `labs/lesson_10/netns/netns-lab10.v2.sh`
 
 ```bash
 #!/usr/bin/env bash
@@ -271,7 +271,7 @@ VETH_NS="veth1"
 HOST_IP="10.10.0.1/24"
 NS_IP="10.10.0.2/24"
 NS_GW="10.10.0.1"
-PCAP_DIR="$HOME/labs/day10/captures"
+PCAP_DIR="$HOME/labs/lesson_10/captures"
 
 mkdir -p "$PCAP_DIR"
 
@@ -461,16 +461,16 @@ say "#13 - getting for cleanup"
 
 ## Artifacts
 
-- `labs/day10/netns/netns-lab10.v1.sh`
-- `labs/day10/netns/netns-lab10.v2.sh`
-- `labs/day10/captures/*.pcap`.
+- `labs/lesson_10/netns/netns-lab10.v1.sh`
+- `labs/lesson_10/netns/netns-lab10.v2.sh`
+- `labs/lesson_10/captures/*.pcap`.
 
 ---
 
 ## To repeat
 - Rebuild ns from scratch.
 - Verify NAT counters again after one request.
-- (Optional) Try hairpin via `$HOST_IP:8080`.
+- Hairpin via `$HOST_IP:8080`.
 
 ---
 

@@ -1,4 +1,4 @@
-# day2_en
+# lesson_02
 
 # Nano basics, file ops, permissions
 

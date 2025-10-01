@@ -1,4 +1,4 @@
-# day5_en
+# lesson_05
 
 # Processes & Services
 
@@ -1129,4 +1129,4 @@ sudo systemctl daemon-reload
 
 - Service+Timer working; logs verified; (optional) restart policy & hardening explored.
 
-**Artifacts:** `labs/day5/hello.service`, `labs/day5/flaky.service`, `labs/day5/hello.timer` `tools/hello.sh`
+**Artifacts:** `labs/lesson_5/hello.service`, `labs/lesson_5/flaky.service`, `labs/lesson_5/hello.timer` `tools/hello.sh`

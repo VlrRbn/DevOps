@@ -1,4 +1,4 @@
-# day8_en
+# lesson_08
 
 # Text Processing for Ops (grep/sed/awk)
 
@@ -22,7 +22,7 @@
 ## Environment prep
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ mkdir -p labs/day8/mock labs/day8/logs/sample tools
+leprecha@Ubuntu-DevOps:~$ mkdir -p labs/lesson_08/mock labs/lesson_08/logs/sample tools
 leprecha@Ubuntu-DevOps:~$ ls -l /var/log/auth.log* 2>/dev/null || true
 leprecha@Ubuntu-DevOps:~$ journalctl -t ssh --since "today" -n 5 --no-pager || true
 -rw-r----- 1 syslog adm  21000 Aug 30 12:25 /var/log/auth.log
@@ -183,10 +183,10 @@ leprecha@Ubuntu-DevOps:~$ sudo grep -nEi "error|fail|critical" /var/log/* 2>/dev
 Never edit /etc directly in practice — copy first.
 
 ```bash
-leprecha@Ubuntu-DevOps:~$ sudo cp /etc/ssh/sshd_config labs/day8/mock/sshd_config || true
-leprecha@Ubuntu-DevOps:~$ sudo chown "$(id -un)":"$(id -gn)" labs/day8/mock/sshd_config 2>/dev/null || true
+leprecha@Ubuntu-DevOps:~$ sudo cp /etc/ssh/sshd_config labs/lesson_08/mock/sshd_config || true
+leprecha@Ubuntu-DevOps:~$ sudo chown "$(id -un)":"$(id -gn)" labs/lesson_08/mock/sshd_config 2>/dev/null || true
 
-leprecha@Ubuntu-DevOps:~$ sed -n '1,80p' labs/day8/mock/sshd_config | nl | sed -n '1,7p'
+leprecha@Ubuntu-DevOps:~$ sed -n '1,80p' labs/lesson_08/mock/sshd_config | nl | sed -n '1,7p'
      1	# This is the sshd server system-wide configuration file.  See
      2	# sshd_config(5) for more information.
      3	# This sshd was compiled with PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
@@ -196,14 +196,14 @@ leprecha@Ubuntu-DevOps:~$ sed -n '1,80p' labs/day8/mock/sshd_config | nl | sed -
      7	# default value.
 
 # toggle PasswordAuthentication to no (with backup)
-leprecha@Ubuntu-DevOps:~$ sed -ri.bak 's/^#?PasswordAuthentication\s+.*/PasswordAuthentication no/' labs/day8/mock/sshd_config
+leprecha@Ubuntu-DevOps:~$ sed -ri.bak 's/^#?PasswordAuthentication\s+.*/PasswordAuthentication no/' labs/lesson_08/mock/sshd_config
 
 # verify & diff grep
-leprecha@Ubuntu-DevOps:~$ grep -nE '^#?PasswordAuthentication' labs/day8/mock/sshd_config
+leprecha@Ubuntu-DevOps:~$ grep -nE '^#?PasswordAuthentication' labs/lesson_08/mock/sshd_config
 66:PasswordAuthentication no
-leprecha@Ubuntu-DevOps:~$ diff -u labs/day8/mock/sshd_config{.bak,} | sed -n '1,10p'
---- labs/day8/mock/sshd_config.bak	2025-08-30 13:19:38.109775388 +0100
-+++ labs/day8/mock/sshd_config	2025-08-30 13:24:44.456610728 +0100
+leprecha@Ubuntu-DevOps:~$ diff -u labs/lesson_08/mock/sshd_config{.bak,} | sed -n '1,10p'
+--- labs/lesson_08/mock/sshd_config.bak	2025-08-30 13:19:38.109775388 +0100
++++ labs/lesson_08/mock/sshd_config	2025-08-30 13:24:44.456610728 +0100
 @@ -63,7 +63,7 @@
  # IgnoreRhosts yes
  # To disable tunneled clear text passwords, change to no here!
@@ -212,7 +212,7 @@ leprecha@Ubuntu-DevOps:~$ diff -u labs/day8/mock/sshd_config{.bak,} | sed -n '1,
  #PermitEmptyPasswords no
  # Change to yes to enable challenge-response passwords (beware issues with
 
-# restore # mv labs/day8/mock/sshd_config{.bak,}
+# restore # mv labs/lesson_08/mock/sshd_config{.bak,}
 ```
 
 `sed -ri.bak 's/^#?PasswordAuthentication\s+.*/PasswordAuthentication no/'`
@@ -223,9 +223,9 @@ leprecha@Ubuntu-DevOps:~$ diff -u labs/day8/mock/sshd_config{.bak,} | sed -n '1,
 
 ---
 
-`diff -u labs/day8/mock/sshd_config{.bak,}`
+`diff -u labs/lesson_08/mock/sshd_config{.bak,}`
 
-- `{.bak,}` → Bash brace expansion: expands into `labs/day8/mock/sshd_config.bak` and `labs/day8/mock/sshd_config`.
+- `{.bak,}` → Bash brace expansion: expands into `labs/lesson_08/mock/sshd_config.bak` and `labs/lesson_08/mock/sshd_config`.
 - `diff -u` — compares files in “unified” format.
 
 ---
@@ -235,7 +235,7 @@ leprecha@Ubuntu-DevOps:~$ diff -u labs/day8/mock/sshd_config{.bak,} | sed -n '1,
 If you don’t have real logs, create a sample.
 
 ```bash
-cat > labs/day8/logs/sample/nginx_access.log <<'LOG'
+cat > labs/lesson_08/logs/sample/nginx_access.log <<'LOG'
 127.0.0.1 - - [10/Jul/2025:13:55:36 +0000] "GET /index.html HTTP/1.1" 200 1024 "-" "curl/8.0"
 10.0.0.5  - - [10/Jul/2025:13:55:37 +0000] "GET /api/v1/users HTTP/1.1" 200 512 "-" "Mozilla"
 10.0.0.5  - - [10/Jul/2025:13:55:38 +0000] "POST /api/v1/login HTTP/1.1" 401 0 "-" "Mozilla"
@@ -246,7 +246,7 @@ leprecha@Ubuntu-DevOps:~$ awk '{status=$9; path=$7; ip=$1; total++; codes[status
      printf "Status codes:\n"; for (c in codes) printf "  %s: %d\n", c, codes[c];
      printf "Top paths:\n"; for (p in hits) printf "  %s: %d\n", p, hits[p];
      printf "Unique IPs: %d\n", length(ips);
-}' labs/day8/logs/sample/nginx_access.log
+}' labs/lesson_08/logs/sample/nginx_access.log
 Total: 4
 Status codes:
   401: 1
@@ -384,7 +384,7 @@ leprecha@Ubuntu-DevOps:~$ ./tools/log-grep.sh "sshd.*(Failed password|Accepted p
 cat > tools/log-nginx-report.sh <<'SH'
 #!/usr/bin/env bash
 set -Eeuo pipefail
-file="${1:-labs/day8/logs/sample/nginx_access.log}"
+file="${1:-labs/lesson_08/logs/sample/nginx_access.log}"
 [[ -r "$file" ]] || { echo "No such log: $file" >&2; exit 1; }
 awk '{if (match($0, /"([A-Z]+) ([^"]+) HTTP\/[0-9.]+"/, m)) {
 method=m[1]; path=m[2];
@@ -577,8 +577,8 @@ leprecha@Ubuntu-DevOps:~$ tools/log-grep.v2.sh "Accepted" journal --unit ssh.ser
 
 ## Artifacts
 
-- `labs/day8/mock/sshd_config`
-- `labs/day8/logs/sample/nginx_access.log`
+- `labs/lesson_08/mock/sshd_config`
+- `labs/lesson_08/logs/sample/nginx_access.log`
 - `tools/log-ssh-fail-report.sh`
 - `tools/log-ssh-fail-report.v2.sh`
 - `tools/log-grep.sh`

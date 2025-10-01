@@ -1,4 +1,4 @@
-# day12_en
+# lesson_12
 
 ---
 
@@ -73,7 +73,7 @@ sudo chmod 600 /etc/nginx/ssl/lab12.key
 - `subj "/CN=localhost"` — sets Subject, Common Name = `localhost`.
 - `addext "subjectAltName=DNS:localhost"` — adds SAN; modern clients require SAN, CN alone is ignored.
 
-### 2. Backend (reuse day 10 or 11)
+### 2. Backend (reuse lesson_10 or 11)
 
 Make sure `lab10` netns and Python server are up:
 
@@ -89,7 +89,7 @@ sudo ip -n lab12 addr add 10.10.0.2/24 dev veth1
 sudo ip -n lab12 link set veth1 up
 sudo ip -n lab12 link set lo up
 sudo ip -n lab12 route add default via 10.10.0.1
-sudo ip netns exec lab12 bash -lc 'echo nameserver 1.1.1.1 >/etc/resReboot: ensure Nginx auto-starts (systemctl is-enabled nginx).olv.conf'
+sudo ip netns exec lab12 bash -lc 'echo nameserver 1.1.1.1 >/etc/resolv.conf'
 sudo ip netns exec lab12 python3 -m http.server 8080 --bind 10.10.0.2 >/dev/null 2>&1 & echo $! | sudo tee /tmp/http.pid
 
 # Check namespaces and interfaces:
@@ -252,7 +252,7 @@ sudo nginx -t && sudo systemctl reload nginx && echo "Reload OK" || { echo "Conf
 
 ## Notes
 
-- Backend from day 10/11 runs in netns on `10.10.0.2:8080`. Proxy it via Nginx on the host.
+- Backend from lesson_10/11 runs in netns on `10.10.0.2:8080`. Proxy it via Nginx on the host.
 - For **lab TLS**, use a local self-signed cert (browsers warn, `curl -k` OK).
 - For **real TLS**, use Let’s Encrypt (`certbot`) for a public DNS name and 80/443 reachable.
 - Keep config **idempotent**: one site file, enabled via symlink; always validate with `nginx -t` before reload.

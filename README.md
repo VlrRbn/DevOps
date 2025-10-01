@@ -7,50 +7,41 @@ My journey in DevOps from scratch to first job — daily notes, labs, and mini�
 ## 📂 Repository structure
 ```
 devops-notes/
- ├─ Day1/
- │   └─ day1_en.md
- ├─ Day2/
- │   └─ day2_en.md
- ├─ Day3/
- │   └─ day3_en.md
- ├─ Day4/
- │   └─ day4_en.md
- ├─ Day5/
- │   └─ day5_en.md
- ├─ Day6/
- │   └─ day6_en.md
- ├─ Day7/
- │   └─ day7_en.md
- ├─ Day8/
- │   └─ day8_en.md
- ├─ Day9/
- │   └─ day9_en.md
- ├─ Day10/
- │   └─ day10_en.md
- ├─ Day11/
- │   └─ day11_en.md
- ├─ Day12/
- │   └─ day12_en.md
+ ├─ /lesson01_10/
+ │   ├─ lesson_01.md
+ │   ├─ lesson_02.md
+ │   ├─ lesson_03.md
+ │   ├─ lesson_04.md
+ │   ├─ lesson_05.md
+ │   ├─ lesson_06.md
+ │   ├─ lesson_07.md
+ │   ├─ lesson_08.md
+ │   ├─ lesson_09.md
+ │   └─ lesson_10.md
+ ├─ /lesson11_20/
+ │   ├─ lesson_11.md
+ │   ├─ lesson_12.md
+ │   └─ lesson_13.md
  ├─ labs/
- │   └─ day5/
+ │   └─ lesson_05/
  |      ├─ flaky.service
  |      ├─ hello.service
  |      ├─ hello.timer
  |      └─ persistent.conf
- │   └─ day8/
+ │   └─ lesson_08/
  |      ├─ logs
  |         └─ sample
  |            └─ nginx_access.log
  |      └─ mock
  |         └─ sshd_config
- │   └─ day9/
+ │   └─ lesson_09/
  |      ├─ captures
  |         ├─ http_20250915_200353.pcap
  |         └─ https_215724.pcap
  |      └─ netns
  |         ├─ run.sh
  |         └─ logs
- │   └─ day10/
+ │   └─ lesson_10/
  |      ├─ captures
  |         ├─ https_231135.pcap
  |         ├─ https_234049.pcap
@@ -58,7 +49,7 @@ devops-notes/
  |      └─ netns
  |         ├─ netns-lab10.v1.sh
  |         └─ netns-lab10.v2.sh
-│   └─ day11/
+│   └─ lesson_11/
  |      ├─ captures
  |         ├─ http_205254.pcap
  |         └─ https_180630.pcap
@@ -112,25 +103,26 @@ devops-notes/
 ## 📅 Calendar
 | Day | Topic | Materials |
 |-----|-------|-----------|
-| **Day 1** | Environment Setup and Basic Linux Commands | [Materials_1](Day1/day1_en.md) |
-| **Day 2** | Nano basics; file ops; permissions; mini-lab project folder | [Materials_2](Day2/day2_en.md) |
-| **Day 3** | Networking basics; network tools; network diagnostics lab | [Materials_3](Day3/day3_en.md) |
-| **Day !** | Prep evening: revision Day1–3; extra practice | [Materials_EV](prep_evening/prep_evening1_en.md) |
-| **Day 4** | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds) | [Materials_4](Day4/day4_en.md) | 
-| **Day 5** | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit | [Materials_5](Day5/day5_en.md) |
-| **Day 6** | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) | [Materials_6](Day6/day6_en.md) |
-| **Day 7** | Bash Scripting (template, rename, backup, logs) | [Materials_7](Day7/day7_en.md) |
-| **Day 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](Day8/day8_en.md) |
-| **Day !** | Extra practice, repo cleanup, cheat sheets |
-| **Day 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns) | [Materials_9](Day9/day9_en.md) |
-| **Day 10** | Networking (Part 2): NAT / DNAT / netns / UFW Deep | [Materials_10](Day10/day10_en.md) |
-| **Day 11** | Networking (Part 3): nftables NAT/DNAT + Persistence | [Materials_11](Day11/day11_en.md) |
-| **Day 12** | Nginx Reverse Proxy + TLS (self-signed) | [Materials_12](Day11/day12_en.md) |
+| **Lesson 1** | Environment Setup and Basic Linux Commands | [Materials_1](lesson01_10/lesson_01.md) |
+| **Lesson 2** | Nano basics; file ops; permissions; mini-lab project folder | [Materials_2](lesson01_10/lesson_02.md) |
+| **Lesson 3** | Networking basics; network tools; network diagnostics lab | [Materials_3](lesson01_10/lesson_03.md) |
+| **Lesson !** | Prep evening: revision Day1–3; extra practice | [Materials_EV](prep_evening/prep_evening1_en.md) |
+| **Lesson 4** | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds) | [Materials_4](lesson01_10/lesson_04.md) | 
+| **Lesson 5** | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit | [Materials_5](lesson01_10/lesson_05.md) |
+| **Lesson 6** | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) | [Materials_6](lesson01_10/lesson_06.md) |
+| **Lesson 7** | Bash Scripting (template, rename, backup, logs) | [Materials_7](lesson01_10/lesson_07.md) |
+| **Lesson 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](lesson01_10/lesson_08.md) |
+| **Lesson !** | Extra practice, repo cleanup, cheat sheets |
+| **Lesson 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns) | [Materials_9](lesson01_10/lesson_09.md) |
+| **Lesson 10** | Networking (Part 2): NAT / DNAT / netns / UFW Deep | [Materials_10](lesson01_10/lesson_10.md) |
+| **Lesson 11** | Networking (Part 3): nftables NAT/DNAT + Persistence | [Materials_11](lesson11_20/lesson_11.md) |
+| **Lesson 12** | Nginx Reverse Proxy + TLS (self-signed) | [Materials_12](lesson11_20/lesson_12.md) |
+| **Lesson 13** | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs | [Materials_13](lesson11_20/lesson_13.md) |
 ---
 
 ## How to use
-- Each day: **Goals → Practice → Mini-lab → Summary** in `dayN_en.md`.
-- Labs under `labs/dayN/…`, scripts under `tools/`.
+- Each lesson: **Goals → Practice → Mini-lab → Summary** in `lesson_N.md`.
+- Labs under `labs/lesson_N/…`, scripts under `tools/`.
 - If copied from `/etc` or `/usr/local/bin` with sudo, fix ownership before commit:
   ```bash
   sudo chown -R "$(id -un)":"$(id -gn)" labs tools
@@ -141,7 +133,7 @@ devops-notes/
   ```
 ---
 
-## Example — Day 5 quick check
+## Example — lesson_05 quick check
 ```bash
 sudo systemctl enable --now hello.timer
 systemctl list-timers --all | grep hello

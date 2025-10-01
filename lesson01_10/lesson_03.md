@@ -1,4 +1,4 @@
-# day3_en
+# lesson_03
 
 # Networking basics, network tools
 

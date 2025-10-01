@@ -1,4 +1,4 @@
-# day11_en
+# lesson_11
 
 ---
 
@@ -102,7 +102,7 @@ NS_IP="10.10.0.2"
 PORT=8080
 IF="$(ip -o route show to default | awk '{print $5; exit}')"
 HOST_EXT_IP="$(ip -4 -o addr show "$IF" | awk '{print $4}' | cut -d/ -f1 | head -1)"
-PCAP_DIR="$HOME/labs/day11/captures"
+PCAP_DIR="$HOME/labs/lesson_11/captures"
 mkdir -p "$PCAP_DIR"
 ```
 
@@ -256,7 +256,7 @@ echo '--- ip_forward:'; sysctl net.ipv4.ip_forward || true
 
 ## Labs
 
-`labs/day11/netns/netns-nft.sh` — all in one script.
+`labs/lesson_11/netns/netns-nft.sh` — all in one script.
 
 ```bash
 #!/usr/bin/env bash
@@ -273,10 +273,10 @@ NS_IP="${NS_IP:-10.10.0.2}"
 PORT="${PORT:-8080}"
 # IF="$(detect_if)"
 # HOST_EXT_IP="$(detect_host_ext_ip "$IF")"
-# PCAP_DIR="${PCAP_DIR:-$HOME/labs/day11/captures}"
+# PCAP_DIR="${PCAP_DIR:-$HOME/labs/lesson_11/captures}"
 REAL_USER="${SUDO_USER:-$(logname 2>/dev/null || id -un)}"
 REAL_HOME="$(getent passwd "$REAL_USER" | cut -d: -f6)"
-PCAP_DIR="${PCAP_DIR:-${REAL_HOME}/labs/day11/captures}"
+PCAP_DIR="${PCAP_DIR:-${REAL_HOME}/labs/lesson_11/captures}"
 
 # My helpers
 log(){ echo -e "[$(date +%H:%M:%S)] $*"; }
@@ -615,7 +615,7 @@ sudo systemctl status nftables
 
 - `tools/netns-nft.apply.sh`
 - `tools/nft-save-restore.sh`
-- `labs/day11/netns/netns-nft.sh`
+- `labs/lesson_11/netns/netns-nft.sh`
 
 ---
 

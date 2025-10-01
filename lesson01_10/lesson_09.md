@@ -1,4 +1,4 @@
-# day9_en
+# lesson_09
 
 # Networking Deep Dive
 
@@ -23,7 +23,7 @@
 ## Environment prep
 
 ```bash
-mkdir -p labs/day9/captures labs/day9/netns tools
+mkdir -p labs/lesson_09/captures labs/lesson_09/netns tools
 ip -br a
 ip r
 ```
@@ -111,11 +111,11 @@ IF="$(ip -o route show to default | awk '{print $5; exit}')"
 echo "Using IF=$IF"
 
 # 4.1 capture HTTPS to file (5s)
-sudo timeout 5 tcpdump -i "$IF" -s 0 -nn -w "labs/day9/captures/https_$(date +%H%M%S).pcap" 'tcp port 443'
+sudo timeout 5 tcpdump -i "$IF" -s 0 -nn -w "labs/lesson_09/captures/https_$(date +%H%M%S).pcap" 'tcp port 443'
 
 # 4.2 read back (no root needed)
-tcpdump -nn -r labs/day9/captures/*.pcap | head -20
-tcpdump -nn -r "$(ls -t labs/day9/captures/*.pcap | head -1)" | head -40     # if there are several files, read the latest one
+tcpdump -nn -r labs/lesson_09/captures/*.pcap | head -20
+tcpdump -nn -r "$(ls -t labs/lesson_09/captures/*.pcap | head -1)" | head -40     # if there are several files, read the latest one
 
 # 4.3 capture only DNS
 sudo timeout 15 tcpdump -i "$IF" -vv -n 'udp port 53 or tcp port 53'     # 127.0.0.53 (lo) or any
@@ -203,7 +203,7 @@ sudo ip netns del blue
 sudo ip netns del red
 
 # 6.7 cleanup
-chmod +x labs/day9/netns/run.sh
+chmod +x labs/lesson_09/netns/run.sh
 
 # 6.8 start with log
 ./run.sh | tee "logs/run_$(date +%Y%m%d_%H%M%S).log"
@@ -313,7 +313,7 @@ if [[ -z "${iface:-}" ]]; then
   exit 1
 fi
 
-outdir="labs/day9/captures"
+outdir="labs/lesson_09/captures"
 mkdir -p "$outdir"
 file="${outdir}/http_$(date +%Y%m%d_%H%M%S).pcap"
 
@@ -353,8 +353,8 @@ echo "Saved: $file"
 
 ## Artifacts
 
-- `labs/day9/captures/*.pcap`
-- `labs/day9/netns/run.sh`
+- `labs/lesson_09/captures/*.pcap`
+- `labs/lesson_09/netns/run.sh`
 - `tools/net-ports.sh`, `tools/dns-query.sh`, `tools/capture-http.sh`
 
 ## To repeat
