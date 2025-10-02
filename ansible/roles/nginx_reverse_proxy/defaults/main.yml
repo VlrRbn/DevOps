@@ -1,0 +1,6 @@
+---
+nginx_packages:
+  - nginx
+nginx_health_path: /health
+rate_limit_enabled: false
+# defaults file for roles/nginx_reverse_proxy

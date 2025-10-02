@@ -1,0 +1,6 @@
+nginx_site_name: lab14
+nginx_backend_host: 10.10.0.2
+nginx_backend_port: 8080
+nginx_listen_http: 80
+use_https: false
+access_log_json: /var/log/nginx/access.json

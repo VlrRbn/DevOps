@@ -1,0 +1,12 @@
+---
+- name:validate nginx
+  ansible.builtin.command: nginx -t
+  become: true
+  changed_when: false
+
+- name: restart nginx
+    name: nginx
+    state: restarted
+  become: true
+  listen: "restart nginx"
+# handlers file for roles/nginx_reverse_proxy
