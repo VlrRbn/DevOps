@@ -1,12 +1,12 @@
 ---
 - name: Install nginx packages
   ansible.builtin.apt:
-    name: "{{ nginx_packages }}"
+    name: "{{ nginx_reverse_proxy_packages }}"
     state: present
     update_cache: true
   become: true
-  
-- name: Ensure log dir exist
+
+- name: Ensure log dir exists
   ansible.builtin.file:
     path: "{{ access_log_json | dirname }}"
     state: directory
@@ -14,7 +14,7 @@
     group: www-data
     mode: "0755"
   become: true
-  
+
 - name: Deploy site config
   ansible.builtin.template:
     src: lab-nginx.conf.j2
@@ -26,14 +26,14 @@
     - validate nginx
     - restart nginx
   become: true
-  
+
 - name: Enable site
   ansible.builtin.file:
     src: /etc/nginx/sites-available/{{ nginx_site_name }}.conf
     dest: /etc/nginx/sites-enabled/{{ nginx_site_name }}.conf
     state: link
   become: true
-  
+
 - name: Disable default site
   ansible.builtin.file:
     path: /etc/nginx/sites-enabled/default
@@ -42,11 +42,12 @@
     - validate nginx
     - restart nginx
   become: true
-  
+
 - name: Ensure nginx running
   ansible.builtin.service:
     name: nginx
     state: started
     enabled: true
   become: true
+  when: not ansible_check_mode
 # tasks file for roles/nginx_reverse_proxy

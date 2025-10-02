@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
-  remote_user: root
+- name: Test role nginx_reverse_proxy
+  hosts: localhost
+  gather_facts: false
   roles:
-    - roles/nginx_reverse_proxy
+    - role: nginx_reverse_proxy

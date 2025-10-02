@@ -12,7 +12,7 @@ server {
     access_log {{ access_log_json }} json;
     server_tokens off;
 
-    location = {{ nginx_health_path }} {
+    location = {{ nginx_reverse_proxy_health_path }} {
 	return 200 "OK\n";
 	add_header Content-Type text/plain;
     }

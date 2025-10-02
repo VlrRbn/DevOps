@@ -1,7 +1,8 @@
 ---
 - name: Lab14 — Reverse proxy via Ansible
-  hosts : local
+  hosts: local
   gather_facts: true
+  become: true
   vars_files:
     - group_vars/all.yml
   roles:
