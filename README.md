@@ -21,7 +21,8 @@ devops-notes/
  ├─ /lesson11_20/
  │   ├─ lesson_11.md
  │   ├─ lesson_12.md
- │   └─ lesson_13.md
+ │   ├─ lesson_13_v1.md
+ │   └─ lesson_14.md
  ├─ labs/
  │   └─ lesson_05/
  |      ├─ flaky.service
@@ -92,6 +93,7 @@ devops-notes/
  |    ├─ rename-ext.sh
  |    ├─ rename-ext.v2.sh
  │    └─ _template.sh
+ ├─ ansible/
  ├─ DevOps_Progress.md
  └─ README.md
 ```
@@ -117,7 +119,8 @@ devops-notes/
 | **Lesson 10** | Networking (Part 2): NAT / DNAT / netns / UFW Deep | [Materials_10](lesson01_10/lesson_10.md) |
 | **Lesson 11** | Networking (Part 3): nftables NAT/DNAT + Persistence | [Materials_11](lesson11_20/lesson_11.md) |
 | **Lesson 12** | Nginx Reverse Proxy + TLS (self-signed) | [Materials_12](lesson11_20/lesson_12.md) |
-| **Lesson 13** | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs | [Materials_13](lesson11_20/lesson_13.md) |
+| **Lesson 13** | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs | [Materials_13](lesson11_20/lesson_13_v1.md) |
+| **Lesson 14** | Ansible Fundamentals: Inventory, Playbooks, Roles, Idempotence | [Materials_14](lesson11_20/lesson_14.md) |
 ---
 
 ## How to use

@@ -2,7 +2,7 @@
 - name: Lab14 — Reverse proxy via Ansible
   hosts: local
   gather_facts: true
-  become: true
+  become: true     # Security WARNING (only in lab14)
   vars_files:
     - group_vars/all.yml
   roles:
