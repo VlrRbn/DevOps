@@ -1,0 +1,90 @@
+---
+- name: Lab15 — Rolling reverse proxy rollout with health checks
+  hosts: web
+  gather_facts: true
+  serial: "{{ rolling_serial | int }}"
+  max_fail_percentage: "{{ max_fail_pct }}"
+  strategy: linear
+
+  vars_files:
+    - group_vars/all.yml
+    - group_vars/all.vault.yml
+
+  pre_tasks:
+    - name: Announce start (controller)
+      ansible.builtin.debug:
+        msg: "Starting rolling update on {{ inventory_hostname }}"
+      delegate_to: localhost
+      run_once: true
+
+  roles:
+    - role: nginx_reverse_proxy
+
+  tasks:
+    - name: Wait for port to be reachable
+      ansible.builtin.wait_for:
+        port: "{{ http_port }}"
+        host: "127.0.0.1"
+        state: started
+        timeout: 30
+      when: not ansible_check_mode
+
+    - name: HTTP health probe
+      ansible.builtin.uri:
+        url: "http://127.0.0.1{{ health_path }}"
+        status_code: 200
+        return_content: false
+        validate_certs: false
+      register: health
+      retries: 5
+      delay: 3
+      until: health.status == 200
+      when: not ansible_check_mode
+
+    - name: Show health result
+      ansible.builtin.debug:
+        var: health
+      when: (not ansible_check_mode) and (health is defined)
+
+  post_tasks:
+  - block:
+      - name: Post-verify homepage responds 200 (auth-aware)
+        ansible.builtin.uri:
+          url: "http://127.0.0.1/"
+          status_code: 200
+          return_content: false
+          validate_certs: false
+          url_username: "{{ basic_auth_user | default(omit) }}"
+          url_password: "{{ basic_auth_pass | default(omit) }}"
+          force_basic_auth: "{{ (basic_auth_user is defined) and (basic_auth_pass is defined) }}"
+    rescue:
+      - name: Attempt rollback (disable site symlink)
+        ansible.builtin.file:
+          path: "/etc/nginx/sites-enabled/{{ nginx_site_name }}.conf"
+          state: absent
+        become: true
+        notify:
+          - validate nginx
+          - restart nginx
+      - name: Fail play after rollback attempt
+        ansible.builtin.fail:
+          msg: "Health failed on {{ inventory_hostname }}, rollback attempted."
+    always:
+      - name: Mark host finished
+        ansible.builtin.debug:
+          msg: "Finished {{ inventory_hostname }}"
+    when: not ansible_check_mode
+
+
+  handlers:
+    - name: validate nginx
+      ansible.builtin.command: nginx -t
+      become: true
+      changed_when: false
+
+    - name: restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+      become: true
+

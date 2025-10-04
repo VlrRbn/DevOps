@@ -1,0 +1,6 @@
+---
+- name: Test role nginx_reverse_proxy
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: nginx_reverse_proxy

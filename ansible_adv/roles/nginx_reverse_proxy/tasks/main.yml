@@ -1,0 +1,72 @@
+---
+- name: Install nginx packages
+  ansible.builtin.apt:
+    name: "{{ nginx_reverse_proxy_packages }}"
+    state: present
+    update_cache: true
+  become: true
+  
+- name: Ensure apache2-utils (htpasswd) present (Debian/Ubuntu)
+  ansible.builtin.apt:
+    name: apache2-utils
+    state: present
+    update_cache: true
+  become: true
+  when: basic_auth_user is defined and basic_auth_pass is defined and ansible_os_family == "Debian"
+
+- name: Create htpasswd file when auth is enabled
+  ansible.builtin.command: >
+    htpasswd -b -c /etc/nginx/.htpasswd "{{ basic_auth_user }}" "{{ basic_auth_pass }}"
+  args:
+    creates: /etc/nginx/.htpasswd
+  become: true
+  when: basic_auth_user is defined and basic_auth_pass is defined
+  notify:
+    - validate nginx
+    - restart nginx
+
+- name: Ensure log dir exists
+  ansible.builtin.file:
+    path: "{{ access_log_json | dirname }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
+  become: true
+
+- name: Deploy site config
+  ansible.builtin.template:
+    src: lab-nginx.conf.j2
+    dest: /etc/nginx/sites-available/{{ nginx_site_name }}.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - validate nginx
+    - restart nginx
+  become: true
+
+- name: Enable site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/{{ nginx_site_name }}.conf
+    dest: /etc/nginx/sites-enabled/{{ nginx_site_name }}.conf
+    state: link
+  become: true
+
+- name: Disable default site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify:
+    - validate nginx
+    - restart nginx
+  become: true
+
+- name: Ensure nginx running
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  become: true
+  when: not ansible_check_mode
+# tasks file for roles/nginx_reverse_proxy

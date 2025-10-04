@@ -1,0 +1,5 @@
+health_path: /health
+http_port: 80
+rolling_serial: 1
+max_fail_pct: 20
+use_https: false
