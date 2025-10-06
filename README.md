@@ -22,8 +22,7 @@ devops-notes/
  │   ├─ lesson_11.md
  │   ├─ lesson_12.md
  │   ├─ lesson_13_v1.md
- │   ├─ lesson_14.md
- │   └─ lesson_15.md
+ │   └─ lesson_14.md
  ├─ labs/
  │   └─ lesson_05/
  |      ├─ flaky.service
@@ -95,7 +94,6 @@ devops-notes/
  |    ├─ rename-ext.v2.sh
  │    └─ _template.sh
  ├─ ansible/
- ├─ ansible_adv/
  ├─ DevOps_Progress.md
  └─ README.md
 ```
@@ -123,7 +121,6 @@ devops-notes/
 | **Lesson 12** | Nginx Reverse Proxy + TLS (self-signed) | [Materials_12](lesson11_20/lesson_12.md) |
 | **Lesson 13** | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs | [Materials_13](lesson11_20/lesson_13_v1.md) |
 | **Lesson 14** | Ansible Fundamentals: Inventory, Playbooks, Roles, Idempotence | [Materials_14](lesson11_20/lesson_14.md) |
-| **Lesson 15** | Ansible Advanced: Multi-Host, Vault, Rolling Updates, Health Checks | [Materials_15](lesson11_20/lesson_15.md) |
 ---
 
 ## How to use
