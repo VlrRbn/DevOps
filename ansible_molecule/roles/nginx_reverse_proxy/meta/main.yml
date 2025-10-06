@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  author: leprecha
+  description: Simple Nginx reverse proxy with health endpoint
+  license: MIT
+  min_ansible_version: "2.14"
+dependencies: []

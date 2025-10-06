@@ -1,0 +1,27 @@
+---
+- name: Destroy
+  hosts: localhost
+  gather_facts: false
+  vars:
+    net_name: molecule_net
+    proxy_name: instance
+    backend_name: backend
+  tasks:
+    - name: Stop and remove proxy
+      community.docker.docker_container:
+        name: "{{ proxy_name }}"
+        state: absent
+        force_kill: true
+
+    - name: Stop and remove backend
+      community.docker.docker_container:
+        name: "{{ backend_name }}"
+        state: absent
+        force_kill: true
+
+    - name: Remove network (ignore if in use/absent)
+      community.docker.docker_network:
+        name: "{{ net_name }}"
+        state: absent
+      ignore_errors: true
+

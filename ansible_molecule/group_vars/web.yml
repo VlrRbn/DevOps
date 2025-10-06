@@ -1,0 +1,8 @@
+nginx_site_name: lab16
+nginx_backend_host: 127.0.0.1
+nginx_backend_port: 8081
+access_log_json: /var/log/nginx/access.json
+http_port: 80
+health_path: /health
+
+role_use_become: true
