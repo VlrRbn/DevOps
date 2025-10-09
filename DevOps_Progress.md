@@ -19,3 +19,6 @@
 | * | 2025-09-26,27,28,29,30 | Covid |
 | 13 | 2025-10-01 | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs |
 | 14 | 2025-10-02 | Ansible Fundamentals: Inventory, Playbooks, Roles, Idempotence |
+| 15 | 2025-10-04 | Ansible Advanced: Multi-Host, Vault, Rolling Updates, Health Checks |
+| 16 | 2025-10-06,07 | Ansible Role Testing: Molecule + Testinfra + CI |
+| 17 | 2025-10-09,10 | Monitoring Basics: Prometheus + Node Exporter (+ Grafana) |
