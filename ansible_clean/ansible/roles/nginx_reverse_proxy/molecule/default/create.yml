@@ -19,7 +19,7 @@
         name: "{{ backend_image }}"
         source: pull
 
-    - name: Run backend container (listens on :8081)
+    - name: Run backend container (8081)
       community.docker.docker_container:
         name: "{{ backend_name }}"
         image: "{{ backend_image }}"
@@ -36,7 +36,7 @@
         name: "{{ proxy_image }}"
         source: pull
 
-    - name: Run systemd-enabled proxy container
+    - name: Run systemd-enabled proxy
       community.docker.docker_container:
         name: "{{ proxy_name }}"
         image: "{{ proxy_image }}"

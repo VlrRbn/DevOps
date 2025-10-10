@@ -1,0 +1,9 @@
+role_use_become: true
+
+nginx_reverse_proxy_site_name: lab16
+nginx_reverse_proxy_backend_host: backend
+nginx_reverse_proxy_backend_port: 8081
+nginx_reverse_proxy_http_port: 80
+nginx_reverse_proxy_health_path: /health
+nginx_reverse_proxy_access_log_json: /var/log/nginx/access.log
+nginx_reverse_proxy_use_become: false

@@ -36,11 +36,12 @@ provisioner:
             ansible_python_interpreter: /usr/bin/python3
   config_options:
     defaults:
-      roles_path: ../../../
+      roles_path: /home/leprecha/ansible_clean/ansible/roles
       remote_tmp: /tmp
-      deprecation_warnings: False
+      deprecation_warnings: false
   env:
-    ANSIBLE_ROLES_PATH: /home/leprecha/ansible_molecule/roles
+    ANSIBLE_ROLES_PATH: /home/leprecha/ansible_clean/ansible/roles
+    ANSIBLE_VERBOSITY: "2"
 
 verifier:
   name: testinfra
