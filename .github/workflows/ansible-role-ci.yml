@@ -1,0 +1,63 @@
+# .github/workflows/ansible-role-ci.yml
+name: ansible-role-ci
+
+on:
+  push:
+    paths:
+      - 'ansible_molecule/**'
+      - '.github/workflows/ansible-role-ci.yml'
+  pull_request:
+    paths:
+      - 'ansible_molecule/**'
+      - '.github/workflows/ansible-role-ci.yml'
+
+jobs:
+  lint:
+    name: Lint (ansible-lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Install tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible ansible-lint
+
+      - name: Run ansible-lint
+        working-directory: ansible_molecule
+        run: ansible-lint
+
+  molecule:
+    name: Molecule tests (Ubuntu 24.04)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Install tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible molecule "molecule-plugins[docker]" pytest testinfra
+
+      - name: Molecule create/prepare/converge/idempotence/verify
+        working-directory: ansible_molecule/roles/nginx_reverse_proxy
+        run: |
+          molecule create
+          molecule prepare
+          molecule converge
+          molecule idempotence
+          molecule verify
+
+      - name: Cleanup
+        if: always()
+        working-directory: ansible_molecule/roles/nginx_reverse_proxy
+        run: molecule destroy
