@@ -1,6 +1,0 @@
----
-- name: Apply nginx reverse proxy
-  hosts: web
-  gather_facts: true
-  roles:
-    - role: nginx_reverse_proxy
