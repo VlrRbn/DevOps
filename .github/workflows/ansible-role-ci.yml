@@ -48,19 +48,23 @@ jobs:
         working-directory: ansible_molecule/roles/nginx_reverse_proxy
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
           cache: pip
+
       - name: Install tooling
         run: |
           python -m pip install --upgrade pip
           pip install ansible molecule "molecule-plugins[docker]" pytest testinfra
-      - name: Pre-pull images
+
+      - name: Pre-pull images (faster CI)
         run: |
           docker pull jrei/systemd-ubuntu:24.04
           docker pull python:3.12-slim
-      - name: Molecule suite
+
+      - name: Molecule: create/prepare/converge/idempotence/verify
         env:
           ANSIBLE_CONFIG: ../../ansible.cfg
           ANSIBLE_COLLECTIONS_PATHS: ../../collections
@@ -70,6 +74,7 @@ jobs:
           molecule converge
           molecule idempotence
           molecule verify
+
       - name: Cleanup
         if: always()
         env:
