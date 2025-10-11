@@ -1,0 +1,17 @@
+exclude_paths:
+  - .venv/
+  - .git/
+  - .cache/
+  - "**/molecule/**"
+
+offline: true
+
+warn_list:
+  - command-instead-of-module
+  - yaml
+  - experimental
+
+skip_list:
+  - fqcn[action]
+  - name[missing]
+  - no-handler

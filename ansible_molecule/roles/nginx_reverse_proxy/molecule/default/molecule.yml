@@ -1,8 +1,7 @@
 ---
 dependency:
   name: galaxy
-  options:
-    requirements-file: collections.yml
+  enabled: false
 
 driver:
   name: docker
@@ -36,11 +35,11 @@ provisioner:
             ansible_python_interpreter: /usr/bin/python3
   config_options:
     defaults:
-      roles_path: /home/leprecha/ansible_molecule/roles
+      roles_path: "${MOLECULE_PROJECT_DIRECTORY}/roles"
       remote_tmp: /tmp
       deprecation_warnings: false
   env:
-    ANSIBLE_ROLES_PATH: /home/leprecha/ansible_molecule/roles
+    ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/roles"
     ANSIBLE_VERBOSITY: "2"
 
 verifier:

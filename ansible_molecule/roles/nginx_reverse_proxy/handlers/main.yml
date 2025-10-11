@@ -1,6 +1,22 @@
 ---
-- name: restart nginx
-  ansible.builtin.service:
+- name: Validate nginx config
+  listen: "restart nginx"
+  become: "{{ nginx_reverse_proxy_use_become | default(false) }}"
+  ansible.builtin.command: nginx -t
+  changed_when: false
+
+- name: Systemd restart nginx
+  listen: "restart nginx"
+  become: "{{ nginx_reverse_proxy_use_become | default(false) }}"
+  ansible.builtin.systemd:
     name: nginx
     state: restarted
-  become: "{{ nginx_reverse_proxy_use_become }}"
+    enabled: true
+    daemon_reload: true
+
+- name: Systemd reload nginx
+  listen: "reload nginx"
+  become: "{{ nginx_reverse_proxy_use_become | default(false) }}"
+  ansible.builtin.systemd:
+    name: nginx
+    state: reloaded

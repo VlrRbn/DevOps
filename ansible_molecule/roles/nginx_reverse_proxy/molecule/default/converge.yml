@@ -2,20 +2,22 @@
 - name: Converge
   hosts: all
   gather_facts: true
+
   vars:
-    nginx_reverse_proxy_use_become: false
+    role_dir: "{{ (playbook_dir ~ '/..' ~ '/..') | realpath }}"
+
     nginx_reverse_proxy_site_name: lab16
+    nginx_reverse_proxy_use_become: false
     nginx_reverse_proxy_backend_host: backend
     nginx_reverse_proxy_backend_port: 8081
     nginx_reverse_proxy_access_log_json: /var/log/nginx/access.log
     nginx_reverse_proxy_http_port: 80
     nginx_reverse_proxy_health_path: /health
-    role_path_abs: "{{ (playbook_dir + '/../..') | realpath }}"
-  tasks:
-    - name: SANITY — converge.yml is in effect
-      ansible.builtin.debug:
-        msg: "Converge running — include_role absolute path next"
 
-    - name: Apply role by absolute path (for ansible-lint)
-      ansible.builtin.include_role:
-        name: "{{ role_path_abs }}"
+  roles:
+    - role: "{{ role_dir }}"
+
+  tasks:
+    - name: Sanity — path resolved
+      ansible.builtin.debug:
+        msg: "Applying role from {{ role_dir }}"
