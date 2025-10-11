@@ -1,0 +1,83 @@
+name: ansible-role-ci
+
+on:
+  push:
+    paths:
+      - 'ansible_molecule/**'
+      - '.github/workflows/ansible-role-ci.yml'
+  pull_request:
+    paths:
+      - 'ansible_molecule/**'
+      - '.github/workflows/ansible-role-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint (ansible-lint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible_molecule
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: pip
+
+      - name: Install tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible ansible-lint
+
+      - name: Install collections (local, relative)
+        run: |
+          ansible-galaxy collection install -r collections.yml -p ./collections
+
+      - name: Run ansible-lint (relative config)
+        env:
+          ANSIBLE_CONFIG: ansible.cfg
+          ANSIBLE_COLLECTIONS_PATHS: ./collections
+        run: ansible-lint
+
+  molecule:
+    name: Molecule tests (Docker, Ubuntu 24.04)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible_molecule/roles/nginx_reverse_proxy
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: pip
+
+      - name: Install tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible molecule "molecule-plugins[docker]" pytest testinfra
+          
+      - name: Pre-pull images (faster CI)
+        run: |
+          docker pull jrei/systemd-ubuntu:24.04
+          docker pull python:3.12-slim
+
+      - name: Molecule: create/prepare/converge/idempotence/verify
+        run: |
+          molecule create
+          molecule prepare
+          molecule converge
+          molecule idempotence
+          molecule verify
+
+      - name: Cleanup
+        if: always()
+        run: molecule destroy
+        env:
+          ANSIBLE_CONFIG: ../../ansible.cfg
+          ANSIBLE_COLLECTIONS_PATHS: ../../collections
