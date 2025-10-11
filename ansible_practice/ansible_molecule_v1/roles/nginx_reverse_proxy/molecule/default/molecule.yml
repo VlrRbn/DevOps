@@ -2,7 +2,7 @@
 dependency:
   name: galaxy
   options:
-    requirements-file: ../../../collections.yml
+    requirements-file: collections.yml
 
 driver:
   name: docker
@@ -10,7 +10,7 @@ driver:
 platforms:
   - name: instance
     image: "jrei/systemd-ubuntu:24.04"
-    command: /sbin/init
+    command: "/lib/systemd/systemd"
     privileged: true
     pre_build_image: true
     volumes:
@@ -19,11 +19,6 @@ platforms:
       container: docker
     published_ports:
       - "8080:80"
-      
-  - name: backend
-    image: "python:3.12-slim"
-    command: "sleep infinity"
-    pre_build_image: true
 
 provisioner:
   name: ansible
@@ -32,19 +27,21 @@ provisioner:
     destroy: destroy.yml
     prepare: prepare.yml
     converge: converge.yml
-    verify: verify.yml
-    destroy: destroy.yml
   inventory:
     hosts:
       all:
         hosts:
-          instance: {}
-  config_options: {}
+          instance:
+            ansible_connection: docker
+            ansible_python_interpreter: /usr/bin/python3
+  config_options:
+    defaults:
+      roles_path: /home/leprecha/ansible_molecule/roles
+      remote_tmp: /tmp
+      deprecation_warnings: false
   env:
-    ANSIBLE_CONFIG: ../../../ansible.cfg
-    ANSIBLE_STDOUT_CALLBACK: yaml
-    ANSIBLE_ROLES_PATH: ../../../
-    ANSIBLE_COLLECTIONS_PATHS: ../../../collections
+    ANSIBLE_ROLES_PATH: /home/leprecha/ansible_molecule/roles
+    ANSIBLE_VERBOSITY: "2"
 
 verifier:
   name: testinfra

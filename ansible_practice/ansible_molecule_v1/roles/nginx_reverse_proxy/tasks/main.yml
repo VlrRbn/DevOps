@@ -1,0 +1,40 @@
+- name: Install nginx and tools
+  ansible.builtin.apt:
+    name:
+      - nginx
+      - curl
+      - iproute2
+    state: present
+    update_cache: true
+  become: "{{ nginx_reverse_proxy_use_become }}"
+
+- name: Deploy site config
+  ansible.builtin.template:
+    src: site.conf.j2
+    dest: "/etc/nginx/sites-available/{{ nginx_reverse_proxy_site_name }}.conf"
+    mode: "0644"
+  notify: restart nginx
+
+- name: Enable site
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ nginx_reverse_proxy_site_name }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ nginx_reverse_proxy_site_name }}.conf"
+    state: link
+  notify: restart nginx
+
+- name: Disable default site if present
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: restart nginx
+
+- name: Nginx syntax check
+  ansible.builtin.command: nginx -t
+  changed_when: false
+
+- name: Ensure nginx service
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  become: "{{ nginx_reverse_proxy_use_become }}"

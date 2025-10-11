@@ -1,4 +1,4 @@
 ---
 collections:
   - name: community.docker
-  - name: ">=3.9.0"
+  - name: ansible.posix

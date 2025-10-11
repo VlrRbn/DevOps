@@ -1,0 +1,16 @@
+---
+- name: Check health
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Health endpoint
+      ansible.builtin.uri:  
+        url: "http://127.0.0.1/health"
+        method: HEAD
+        status_code: 200
+        return_content: false
+
+    - name: Assert 200 in headers
+      ansible.builtin.assert:
+        that:
+          - "'200' in hc.stdout"
