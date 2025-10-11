@@ -1,12 +1,6 @@
 ---
-- name: reload nginx
-  become: "{{ role_use_become }}"
-  ansible.builtin.service:
-    name: nginx
-    state: reloaded
-
 - name: restart nginx
-  become: "{{ role_use_become }}"
   ansible.builtin.service:
     name: nginx
     state: restarted
+  become: "{{ nginx_reverse_proxy_use_become }}"

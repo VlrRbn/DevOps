@@ -1,58 +1,40 @@
----
-- name: Install nginx packages
-  become: "{{ role_use_become }}"
-  ansible.builtin.package:
+- name: Install nginx and tools
+  ansible.builtin.apt:
     name:
       - nginx
       - curl
       - iproute2
     state: present
-  register: nginx_pkg
-
-- name: Ensure log dir exists
-  become: "{{ role_use_become }}"
-  ansible.builtin.file:
-    path: /var/log/nginx
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
+    update_cache: true
+  become: "{{ nginx_reverse_proxy_use_become }}"
 
 - name: Deploy site config
-  become: "{{ role_use_become }}"
   ansible.builtin.template:
     src: site.conf.j2
-    dest: "/etc/nginx/sites-available/{{ nginx_site_name }}.conf"
-    owner: root
-    group: root
+    dest: "/etc/nginx/sites-available/{{ nginx_reverse_proxy_site_name }}.conf"
     mode: "0644"
-  notify: reload nginx
+  notify: restart nginx
 
 - name: Enable site
-  become: "{{ role_use_become }}"
   ansible.builtin.file:
-    src: "/etc/nginx/sites-available/{{ nginx_site_name }}.conf"
-    dest: "/etc/nginx/sites-enabled/{{ nginx_site_name }}.conf"
+    src: "/etc/nginx/sites-available/{{ nginx_reverse_proxy_site_name }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ nginx_reverse_proxy_site_name }}.conf"
     state: link
-    force: true
-  notify: reload nginx
+  notify: restart nginx
 
-- name: Disable default site if exists
-  become: "{{ role_use_become }}"
+- name: Disable default site if present
   ansible.builtin.file:
     path: /etc/nginx/sites-enabled/default
     state: absent
-  notify: reload nginx
+  notify: restart nginx
 
 - name: Nginx syntax check
-  become: "{{ role_use_become }}"
   ansible.builtin.command: nginx -t
-  register: nginx_test
   changed_when: false
 
-- name: Ensure nginx service started & enabled
-  become: "{{ role_use_become }}"
+- name: Ensure nginx service
   ansible.builtin.service:
     name: nginx
     state: started
     enabled: true
+  become: "{{ nginx_reverse_proxy_use_become }}"

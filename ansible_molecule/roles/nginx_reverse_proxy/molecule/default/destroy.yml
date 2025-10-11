@@ -7,21 +7,18 @@
     proxy_name: instance
     backend_name: backend
   tasks:
-    - name: Stop and remove proxy
+    - name: Remove proxy
       community.docker.docker_container:
         name: "{{ proxy_name }}"
         state: absent
         force_kill: true
-
-    - name: Stop and remove backend
+    - name: Remove backend
       community.docker.docker_container:
         name: "{{ backend_name }}"
         state: absent
         force_kill: true
-
-    - name: Remove network (ignore if in use/absent)
+    - name: Remove network
       community.docker.docker_network:
         name: "{{ net_name }}"
         state: absent
-      ignore_errors: true
-
+      failed_when: false

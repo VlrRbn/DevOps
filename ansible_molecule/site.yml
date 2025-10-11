@@ -1,5 +1,5 @@
 ---
-- name: Apply nginx reverse proxy
+- name: Lab16 - apply nginx reverse proxy
   hosts: web
   gather_facts: true
   roles:

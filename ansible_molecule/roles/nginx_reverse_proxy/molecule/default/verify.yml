@@ -1,15 +1,15 @@
 ---
-# Purpose: assert that the instance really ended up in the expected state.
-# Molecule calls this playbook with `molecule verify`.
-- name: Verify with Ansible
+- name: Check health
   hosts: all
-  gather_facts: false # Quicker, if you do not need facts
+  gather_facts: false
   tasks:
-    - name: Curl health
-      ansible.builtin.command: curl -sI http://127.0.0.1/health
-      register: hc
-      changed_when: faalse
-      
+    - name: Health endpoint
+      ansible.builtin.uri:  
+        url: "http://127.0.0.1/health"
+        method: HEAD
+        status_code: 200
+        return_content: false
+
     - name: Assert 200 in headers
       ansible.builtin.assert:
         that:
