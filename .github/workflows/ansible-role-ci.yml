@@ -46,38 +46,31 @@ jobs:
     defaults:
       run:
         working-directory: ansible_molecule/roles/nginx_reverse_proxy
+    # ← вынесли env на уровень job, никаких плясок с отступами в шагах
+    env:
+      ANSIBLE_CONFIG: ansible_molecule/ansible.cfg
+      ANSIBLE_COLLECTIONS_PATHS: ansible_molecule/collections
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
           cache: pip
-
       - name: Install tooling
         run: |
           python -m pip install --upgrade pip
           pip install ansible molecule "molecule-plugins[docker]" pytest testinfra
-
       - name: Pre-pull images (faster CI)
         run: |
           docker pull jrei/systemd-ubuntu:24.04
           docker pull python:3.12-slim
-
-      - name: Molecule: create/prepare/converge/idempotence/verify
-        env:
-          ANSIBLE_CONFIG: ../../ansible.cfg
-          ANSIBLE_COLLECTIONS_PATHS: ../../collections
+      - name: "Molecule: create/prepare/converge/idempotence/verify"
         run: |
           molecule create
           molecule prepare
           molecule converge
           molecule idempotence
           molecule verify
-
       - name: Cleanup
         if: always()
-        env:
-          ANSIBLE_CONFIG: ../../ansible.cfg
-          ANSIBLE_COLLECTIONS_PATHS: ../../collections
         run: molecule destroy
