@@ -10,17 +10,16 @@ concurrency:
 
 jobs:
   lint_and_test:
-    name: lint + molecule (${{ matrix.os }} / py ${{ matrix.py }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04]
-        py: ["3.12"]
+        os: [ubuntu-22.04, ubuntu-24.04]
+        py: ["3.11", "3.12"]
 
     env:
       XDG_CACHE_HOME: ${{ github.workspace }}/.cache
-      ANSIBLE_COLLECTIONS_PATHS: ${{ github.workspace }}/.lint-collections
+      ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}/.lint-collections
 
     steps:
       - name: Checkout
@@ -45,12 +44,12 @@ jobs:
               "molecule-plugins[docker]>=23.5.0" \
               "ansible-lint>=24" \
               "pytest>=8" \
-              "testinfra>=9"
+              "testinfra>=6,<7"
           fi
 
       - name: Prep caches and limits
         run: |
-          mkdir -p "$XDG_CACHE_HOME" "$ANsIBLE_COLLECTIONS_PATHS" || true
+          mkdir -p "$XDG_CACHE_HOME" "$ANSIBLE_COLLECTIONS_PATH" || true
           ulimit -n 4096 || true
           docker --version
           ansible --version
@@ -58,7 +57,7 @@ jobs:
 
       - name: Install minimal collections for lint
         run: |
-          ansible-galaxy collection install community.general community.docker -p "$ANsIBLE_COLLECTIONS_PATHS"
+          ansible-galaxy collection install community.general community.docker -p "$ANSIBLE_COLLECTIONS_PATH"
 
       - name: Ansible Lint (role only)
         working-directory: ansible_molecule
@@ -82,3 +81,4 @@ jobs:
             /home/runner/.ansible/tmp/**/*
             ansible_molecule/roles/nginx_reverse_proxy/molecule/**/.molecule/**/*
           if-no-files-found: ignore
+
