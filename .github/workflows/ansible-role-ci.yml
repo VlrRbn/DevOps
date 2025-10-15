@@ -2,7 +2,15 @@ name: Ansible Role CI
 
 on:
   push:
+    branches: [ main ]
+    paths:
+      - "ansible_molecule/**"
+      - ".github/workflows/ansible-role-ci.yml"
   pull_request:
+    paths:
+      - "ansible_molecule/**"
+      - ".github/workflows/ansible-role-ci.yml"
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
