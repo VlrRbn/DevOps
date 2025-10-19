@@ -21,4 +21,5 @@
 | 14 | 2025-10-02 | Ansible Fundamentals: Inventory, Playbooks, Roles, Idempotence |
 | 15 | 2025-10-04 | Ansible Advanced: Multi-Host, Vault, Rolling Updates, Health Checks |
 | 16 | 2025-10-06,07 | Ansible Role Testing: Molecule + Testinfra + CI |
-| 17 | 2025-10-09,10 | Monitoring Basics: Prometheus + Node Exporter (+ Grafana) |
+| * | 2025-10-09,10,11,13,14,15,17 | Extra practice, start new server (project) + CI, repeat Molecule, Testinfra, add cheatsheets, readthedocs.io, |
+| 17 | 2025-10-19,20 | Monitoring Basics: Prometheus + Node Exporter (+ Grafana) |
