@@ -306,7 +306,7 @@ become_ask_pass = True
 Запуск:
 
 ```bash
-ansible-playbook -i playbooks/deploy.yml --ask-become-pass
+ansible-playbook -i inventory.ini playbooks/deploy.yml --ask-become-pass
 ```
 
 Проверим подключение и использование файлов:

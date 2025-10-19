@@ -18,4 +18,4 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -V
-      - run: echo "CI it`s alive"
+      - run: echo "CI alive"
