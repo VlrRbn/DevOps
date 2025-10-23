@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s           # как часто опрашиваем
+  evaluation_interval: 30s       # как часто считаем правила/запросы
+
+rule_files:
+  - /etc/prometheus/alert.rules.yml
+
+scrape_configs:
+  - job_name: 'node'
+    static_configs:
+      - targets: ['127.0.0.1:9100']
+        labels:
+          instance: 'local'

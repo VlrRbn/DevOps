@@ -1,0 +1,11 @@
+groups:
+  - name: basic-alerts
+    rules:
+      - alert: NodeExporterDown
+        expr: up{job="node"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Node exporter is down"
+          description: "No scrape data from node_exporter for >1m."
