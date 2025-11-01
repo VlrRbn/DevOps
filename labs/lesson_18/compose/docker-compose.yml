@@ -1,0 +1,73 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: lab18-prometheus
+    ##network_mode: host
+    networks: [monitoring]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--storage.tsdb.wal-compression"
+      - "--web.listen-address=0.0.0.0:9090"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
+      - promdata:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      - alertmanager
+      - blackbox
+      - nginx_exporter
+    restart: unless-stopped
+    
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: lab18-alertmanager
+    ##network_mode: host
+    networks: [monitoring]
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--log.level=info"
+      - "--web.listen-address=0.0.0.0:9093"
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    ports:
+      - "127.0.0.1:9093:9093"
+    restart: unless-stopped
+    
+  nginx_exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: lab18-nginx-exporter
+    ##network_mode: host
+    networks: [monitoring]
+    command:
+      - "--nginx.scrape-uri=http://127.0.0.1:8080/nginx_status"
+      - "--web.listen-address=0.0.0.0:9113"
+    restart: unless-stopped
+
+  blackbox:
+    image: prom/blackbox-exporter:latest
+    container_name: lab18-blackbox
+    networks: [monitoring]
+    ##network_mode: host
+    command:
+      - "--config.file=/etc/blackbox/blackbox.yml"
+      - "--web.listen-address=0.0.0.0:9115"
+    ports:
+      - "127.0.0.1:9115:9115"
+    volumes:
+      - ./blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    restart: unless-stopped
+
+volumes:
+  promdata:
+  grafdata:
+  
+networks:
+  monitoring:
+    driver: bridge
