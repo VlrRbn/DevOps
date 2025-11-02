@@ -45,9 +45,13 @@ services:
     container_name: lab18-nginx-exporter
     ##network_mode: host
     networks: [monitoring]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command:
-      - "--nginx.scrape-uri=http://127.0.0.1:8080/nginx_status"
+      - "--nginx.scrape-uri=http://host.docker.internal:8080/nginx_status"
       - "--web.listen-address=0.0.0.0:9113"
+    ports:
+      - "127.0.0.1:9113:9113"
     restart: unless-stopped
 
   blackbox:

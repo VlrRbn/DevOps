@@ -8,4 +8,4 @@ route:
 receivers:
   - name: "stdout"
     webhook_configs:
-      - url: "http://httpbin.org/forms/post"
+      - url: "http://httpbin.org/post"
