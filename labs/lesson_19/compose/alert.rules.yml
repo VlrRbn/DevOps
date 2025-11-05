@@ -1,0 +1,46 @@
+groups:
+  - name: node-and-http
+    interval: 30s
+    rules:
+      - alert: NodeExporterDown
+        expr: up{job="node"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} on {{ $labels.instance }} is down"
+          description: "No scrape data for >1m."
+          
+      - alert: NginxExporterDown
+        expr: up{job="nginx"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Nginx exporter DOWN on {{ $labels.instance }}"
+      
+      - alert: HTTPProbeFailed
+        expr: probe_success{job="blackbox_http"} == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: "HTTP probe failed ({{ $labels.instance }})"
+          description: "Blackbox probe failed."
+          
+      - alert: NginxHigh5xxRate
+        expr: |
+          rate(nginx_http_requests_total{status=~"5.."}[2m]) > 0.5  # >0.5 rps 5xx за 2 минуты
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "Nginx 5xx elevated"
+          description: "5xx rate > 0.5 rps for 2m."
+          
+  - name: fs
+    rules:
+    - alert: RootFS80Percent
+      expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.80
+      for: 2m
+      labels: { severity: warning }
+      annotations:
+        summary: "Root FS > 80%"
