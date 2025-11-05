@@ -1,0 +1,71 @@
+services:
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: lab19-alertmanager
+    environment:
+      TELEGRAM_TOKEN: "${TELEGRAM_TOKEN}"
+      TELEGRAM_CHAT_ID: "${TELEGRAM_CHAT_ID}"
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./templates:/etc/alertmanager/templates:ro
+    ports:
+      - "9093:9093"
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    restart: always
+    
+  nginx_exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: lab19-nginx-exporter
+    networks: [monitoring]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command:
+      - "--nginx.scrape-uri=http://host.docker.internal:8080/nginx_status"
+      - "--web.listen-address=0.0.0.0:9113"
+    ports:
+      - "127.0.0.1:9113:9113"
+    restart: unless-stopped
+
+  blackbox:
+    image: prom/blackbox-exporter:latest
+    container_name: lab19-blackbox
+    networks: [monitoring]
+    command:
+      - "--config.file=/etc/blackbox/blackbox.yml"
+      - "--web.listen-address=0.0.0.0:9115"
+    ports:
+      - "127.0.0.1:9115:9115"
+    volumes:
+      - ./blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    restart: unless-stopped
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: lab19-prometheus
+    networks: [monitoring]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--storage.tsdb.wal-compression"
+      - "--web.listen-address=0.0.0.0:9090"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
+      - ./test-alert.yml:/etc/prometheus/test-alert.yml
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      - alertmanager
+      - blackbox
+      - nginx_exporter
+    restart: unless-stopped
+  
+networks:
+  monitoring:
+    driver: bridge
+
