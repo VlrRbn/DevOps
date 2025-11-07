@@ -7,96 +7,14 @@ My journey in DevOps from scratch to first job — daily notes, labs, and mini�
 ## 📂 Repository structure
 ```
 devops-notes/
- ├─ /lesson01_10/
- │   ├─ lesson_01.md
- │   ├─ lesson_02.md
- │   ├─ lesson_03.md
- │   ├─ lesson_04.md
- │   ├─ lesson_05.md
- │   ├─ lesson_06.md
- │   ├─ lesson_07.md
- │   ├─ lesson_08.md
- │   ├─ lesson_09.md
- │   └─ lesson_10.md
- ├─ /lesson11_20/
- │   ├─ lesson_11.md
- │   ├─ lesson_12.md
- │   ├─ lesson_13_v1.md
- │   ├─ lesson_14.md
- │   ├─ lesson_15.md
- │   ├─ lesson_16.md
- │   └─ lesson_17.md
- ├─ labs/
- │   └─ lesson_05/
- |      ├─ flaky.service
- |      ├─ hello.service
- |      ├─ hello.timer
- |      └─ persistent.conf
- │   └─ lesson_08/
- |      ├─ logs
- |         └─ sample
- |            └─ nginx_access.log
- |      └─ mock
- |         └─ sshd_config
- │   └─ lesson_09/
- |      ├─ captures
- |         ├─ http_20250915_200353.pcap
- |         └─ https_215724.pcap
- |      └─ netns
- |         ├─ run.sh
- |         └─ logs
- │   └─ lesson_10/
- |      ├─ captures
- |         ├─ https_231135.pcap
- |         ├─ https_234049.pcap
- |         └─ https_210356.pcap
- |      └─ netns
- |         ├─ netns-lab10.v1.sh
- |         └─ netns-lab10.v2.sh
-│   └─ lesson_11/
- |      ├─ captures
- |         ├─ http_205254.pcap
- |         └─ https_180630.pcap
- |      └─ netns
- |         └─ netns-nft.sh
- ├─ prep_evening/
- │   └─ prep_evening1_en.md
+ ├─ ansible_molecule
+ ├─ ansible_practice
  ├─ cheatsheets/
- |      ├─ backup_and_archives.md
- |      ├─ disks_and_filesystems.md
- |      ├─ files_and_search.md
- |      ├─ logs_and_monitoring.md
- |      ├─ network.md
- |      ├─ packages.md
- |      ├─ processes_and_memory.md
- |      ├─ security_and_hardening.md
- |      ├─ systemd.md
- |      ├─ users_and_permissions.md
- |      └─ variables_and_constructs.md
+ ├─ labs/
+ ├─ /lesson01_10/
+ ├─ /lesson11_20/
+ ├─ prep_evening/
  ├─ tools/
- |    ├─ apt-dry-upgrade.sh
- |    ├─ backup-dir.sh
- |    ├─ backup-dir.v2.sh
- |    ├─ capture-http.sh
- |    ├─ devops-tail.sh
- |    ├─ devops-tail.v2.sh
- |    ├─ dns-query.sh
- |    ├─ hello.sh
- |    ├─ log-grep.sh
- |    ├─ log-grep.v2.sh
- |    ├─ log-nginx-report.sh
- |    ├─ log-ssh-fail-report.sh
- |    ├─ log-ssh-fail-report.v2.sh
- |    ├─ mkshare.sh
- |    ├─ netns-nft.apply
- |    ├─ net-ports.sh
- |    ├─ nft-save-restore.sh
- |    ├─ pkg-restore.sh
- |    ├─ pkg-snapshot.sh
- |    ├─ rename-ext.sh
- |    ├─ rename-ext.v2.sh
- │    └─ _template.sh
- ├─ ansible/
  ├─ DevOps_Progress.md
  └─ README.md
 ```
@@ -106,7 +24,7 @@ devops-notes/
 ---
 
 ## 📅 Calendar
-| Day | Topic | Materials |
+| Lesson | Topic | Materials |
 |-----|-------|-----------|
 | **Lesson 1** | Environment Setup and Basic Linux Commands | [Materials_1](lesson01_10/lesson_01.md) |
 | **Lesson 2** | Nano basics; file ops; permissions; mini-lab project folder | [Materials_2](lesson01_10/lesson_02.md) |
@@ -127,6 +45,9 @@ devops-notes/
 | **Lesson 15** | Ansible Advanced: Multi-Host, Vault, Rolling Updates, Health Checks | [Materials_15](lesson11_20/lesson_15.md) |
 | **Lesson 16** | Ansible Role Testing: Molecule + Testinfra + CI | [Materials_16](lesson11_20/lesson_16.md) |
 | **Lesson 17** | Monitoring Basics: Prometheus + Node Exporter (+ Grafana) | [Materials_17](lesson11_20/lesson_17.md) |
+| **Lesson 18** | Alerts & Probes: Alertmanager + Blackbox + Nginx Exporter | [Materials_18](lesson11_20/lesson_18.md) |
+| **Lesson 19** | Alertmanager Notifications: Email/Telegram, Routing, Silences, Templates | [Materials_19](lesson11_20/lesson_19.md) |
+| **Lesson 20** | ** | [Materials_20](lesson11_20/lesson_20.md) |
 ---
 
 ## How to use
