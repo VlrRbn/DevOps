@@ -1,0 +1,11 @@
+groups:
+  - name: test
+    rules:
+      - alert: TelegramTest
+        expr: vector(1)
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Test alert to Telegram"
+          description: "Everything works"

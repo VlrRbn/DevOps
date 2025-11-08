@@ -47,7 +47,7 @@ devops-notes/
 | **Lesson 17** | Monitoring Basics: Prometheus + Node Exporter (+ Grafana) | [Materials_17](lesson11_20/lesson_17.md) |
 | **Lesson 18** | Alerts & Probes: Alertmanager + Blackbox + Nginx Exporter | [Materials_18](lesson11_20/lesson_18.md) |
 | **Lesson 19** | Alertmanager Notifications: Email/Telegram, Routing, Silences, Templates | [Materials_19](lesson11_20/lesson_19.md) |
-| **Lesson 20** | ** | [Materials_20](lesson11_20/lesson_20.md) |
+| **Lesson 20** | Centralized Logs: Loki + Promtail + Grafana (Nginx JSON) | [Materials_20](lesson11_20/lesson_20.md) |
 ---
 
 ## How to use

@@ -1,22 +1,22 @@
-# lesson_18
+# lesson_19
 
 ---
 
-# Alerts & Probes: Alertmanager + Blackbox + Nginx Exporter
+# Alertmanager Notifications: Email/Telegram, Routing, Silences, Templates
 
-**Date:** 2025-11-01
+**Date:** 2025-11-04
 
-**Topic:** Wire **Alertmanager**, add **blackbox_exporter** (HTTP probes) and **nginx-prometheus-exporter** (Nginx), create actionable alerts, and verify end-to-end
+**Topic:** Alertmanager receivers (email/Telegram), label-based routing, grouping, silences/inhibition, templates, test alerts with `amtool`, hot-reload
 
 ---
 
 ## Goals
 
-- Add **Alertmanager** to lesson_17 stack and route alerts.
-- Probe endpoints with **blackbox_exporter** (HTTP/HTTPS).
-- Expose Nginx metrics via **nginx-prometheus-exporter** + `/nginx_status`.
-- Create useful alerts (node, HTTP probes, Nginx 5xx/rate).
-- Prove alert lifecycle: **Pending → Firing → Resolved**.
+- Wire **real notifications**: SMTP email and Telegram (via webhook bot).
+- Organize routing by **severity** / **service** with grouping and **inhibition**.
+- Use **silences** and **durations** to pause noisy alerts safely.
+- Add **template** for concise messages.
+- Validate with `amtool` and forced-firing tests.
 
 ---
 
@@ -25,94 +25,183 @@
 | Command / File | What it does | Why |
 | --- | --- | --- |
 | `docker compose up -d` | Start/refresh stack | One command |
-| `http://127.0.0.1:9093` | Alertmanager UI | See alerts/routes |
-| `http://127.0.0.1:9115/probe?module=http_2xx&target=...` | Blackbox probe | Debug probes |
-| `curl -s 127.0.0.1:9113/metrics | head` | Nginx exporter metrics | Metrics |
-| `promtool check config` | Validate Prom config | Catch typos |
-| `curl -X POST 127.0.0.1:9090/-/reload` | Hot-reload Prom | Apply changes |
+| `curl -X POST 127.0.0.1:9090/-/reload` | Hot-reload Prom | No restart |
+| `amtool --alertmanager.url=http://127.0.0.1:9093 alert add ...` | Inject test alert | E2E test |
+| `amtool silence add --duration=2h alertname=…` | Silence alerts | Mute noise |
+| `amtool silence query` | List silences | See what’s muted |
+| `amtool check-config alertmanager.yml` | Validate AM config | Catch typos |
+| `route / receivers / inhibit_rules` | AM config keys | Control flow |
+| `templates/*.tmpl` | Message templates | Clean notifications |
 
 ---
 
 ## Notes
 
-- **Alertmanager** handles notifications and dedup/silences. We’ll set up basic **stdout** logging. Integrations (email/Telegram) will be next.
-- **blackbox_exporter** performs active probes (HTTP, ICMP, TCP). We’ll probe `/health` and the site root.
-- **nginx-prometheus-exporter** reads **`/nginx_status`** (stub_status) and exposes metrics on `:9113`.
-- Principle: **each new service = a new scrape job + an alert + a check**.
+- Alertmanager routes alerts using **labels** (e.g., `severity`, `service`).
+- **Grouping** reduces spam: batch many similar alerts into one notification.
+- **Inhibition**: suppress child alerts when a parent (e.g., `NodeDown`) is firing.
+- **Silences**: time-based mute with a comment and matchers — safer, auditable.
+- **Telegram:** use the popular **alertmanager-bot webhook** or any compatible shim; if that’s not available, fall back to email (SMTP app password).
+- **Keep secrets** in **`.env`**/Vault; do not commit them to Git.
 
 ---
 
 ## Security Checklist
 
-- Access to `/nginx_status` — only from `127.0.0.1`.
-- Alertmanager/Prometheus/Grafana — listen on `127.0.0.1` (don’t expose them publicly without protection).
-- Blackbox: don’t enable the `icmp` module unless needed/authorized.
-- Keep versions pinned in (Docker) Compose.
+- Secrets (SMTP auth, Telegram tokens) — в `.env` or Docker secrets; not in git.
+- Alertmanager UI on `127.0.0.1`.
+- Lock down permissions on `alertmanager.yml` and `.env` (`0600`).
+- Add clear comments to silences (who/why/until when).
 
 ---
 
 ## Pitfalls
 
-- The Prometheus container can’t see the host’s `127.0.0.1` — use `host.docker.internal` or the actual `HOST_IP`.
-- If `/nginx_status` is forgotten, the exporter returns zeros/errors.
-- Blackbox probes without a correct `module` will always fail.
-- Alerts “stuck in pending” — either the `for:` hasn’t elapsed yet, or the metric is too noisy/flappy.
+- Labels don’t match route matchers → notifications never arrive.
+- Missing `group_by`/`group_wait` → tons of emails for every tiny event.
+- Telegram: wrong webhook URL/token → no 200 OK, no messages.
+- `for:` too short → flapping alerts, lots of noise.
 
 ---
 
 ## Layout
 
 ```
-labs/lesson_18/
-└─ compose/
-   ├─ alert.rules.yml
-   ├─ alertmanager.yml
-   ├─ blackbox.yml         # modules for blackbox_exporter
-   ├─ docker-compose.yml
-   └─ prometheus.yml
+labs/lesson_19/compose/
+├─ alert.rules.yml
+├─ alertmanager.yml
+├─ blackbox.yml
+├─ docker-compose.yml
+├─ prometheus.yml
+├─ templates/
+│  └─ msg.tmpl
+└─ .env            # secrets (not in git)
 ```
 
-> Use `lesson_17` as the base: you can copy `labs/lesson_17/compose → labs/lesson_18/compose` and replace the files below.
+> Use `labs/lesson_18/compose` as the base and copy it to `labs/lesson_19/compose`, then replace the files listed below.
 > 
 
 ---
 
-## 1) Enable Nginx stub_status (host)
-
-Add the block to `/etc/nginx/sites-available/lesson_18.conf` and reload:
-
-```
-# Allow local metrics endpoint
-server {
-    listen 127.0.0.1:8080;
-    server_name localhost;
-    
-    location = /nginx_status {
-        stub_status;              # enables Nginx counters (active, reading, writing, waiting)
-        access_log off;           # don’t spam logs for every metrics hit
-        allow 127.0.0.1;          # allow only localhost
-        deny all;                 # deny everyone else (must-have protection)
-    }
-}
-```
+## 0) Node Exporter (systemd on host) from lesson_17
 
 ```bash
-sudo nginx -t && sudo systemctl reload nginx
-curl -s http://127.0.0.1:8080/nginx_status
+# Create user & dirs
+sudo useradd --no-create-home --system --shell /usr/sbin/nologin nodeexp || true
+sudo mkdir -p /opt/node_exporter /var/lib/node_exporter
+cd /opt/node_exporter
+
+# Download & install
+ver="1.8.1"
+curl -fsSL "https://github.com/prometheus/node_exporter/releases/download/v${ver}/node_exporter-${ver}.linux-amd64.tar.gz" -o /tmp/ne.tgz
+sudo mv /tmp/ne.tgz /opt/node_exporter/
+sudo tar -xzf ne.tgz --strip-components=1
+sudo chown -R nodeexp:nodeexp /opt/node_exporter
+sudo rm -f ne.tgz
+
+# Env file (flags)
+sudo tee /etc/default/node_exporter >/dev/null <<'ENV'
+NODE_EXPORTER_OPTS='
+  --collector.systemd
+  --collector.tcpstat
+  --web.listen-address=0.0.0.0:9100
+  --collector.disable-defaults
+  --collector.cpu
+  --collector.meminfo
+  --collector.filesystem
+  --collector.loadavg
+  --collector.netdev
+  --collector.diskstats
+'
+ENV
+
+# Systemd unit
+sudo tee /etc/systemd/system/node_exporter.service >/dev/null <<'UNIT'
+[Unit]
+Description=Prometheus Node Exporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=nodeexp
+Group=nodeexp
+EnvironmentFile=/etc/default/node_exporter
+ExecStart=/opt/node_exporter/node_exporter $NODE_EXPORTER_OPTS
+Restart=on-failure
+RestartSec=5
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectHome=yes
+PrivateTmp=yes
+ProtectControlGroups=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectClock=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now node_exporter
+systemctl --no-pager --full status node_exporter | sed -n '1,60p'
+curl -s 127.0.0.1:9100/metrics | head
 ```
 
 ---
 
-## 2) Compose stack (Prometheus + Alertmanager + Blackbox + Nginx exporter)
+## 1) Compose with Prometheus, env & templates
 
-`labs/**lesson_18**/compose/docker-compose.yml`
+`labs/lesson_19/compose/docker-compose.yml`
 
 ```yaml
 services:
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: lab19-alertmanager
+    environment:
+      TELEGRAM_TOKEN: "${TELEGRAM_TOKEN}"
+      TELEGRAM_CHAT_ID: "${TELEGRAM_CHAT_ID}"
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./templates:/etc/alertmanager/templates:ro
+    ports:
+      - "9093:9093"
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    restart: always
+    
+  nginx_exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: lab19-nginx-exporter
+    networks: [monitoring]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command:
+      - "--nginx.scrape-uri=http://host.docker.internal:8080/nginx_status"
+      - "--web.listen-address=0.0.0.0:9113"
+    ports:
+      - "127.0.0.1:9113:9113"
+    restart: unless-stopped
+
+  blackbox:
+    image: prom/blackbox-exporter:latest
+    container_name: lab19-blackbox
+    networks: [monitoring]
+    command:
+      - "--config.file=/etc/blackbox/blackbox.yml"
+      - "--web.listen-address=0.0.0.0:9115"
+    ports:
+      - "127.0.0.1:9115:9115"
+    volumes:
+      - ./blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    restart: unless-stopped
+  
   prometheus:
     image: prom/prometheus:latest
-    container_name: lab18-prometheus
-    ##network_mode: host
+    container_name: lab19-prometheus
     networks: [monitoring]
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -126,7 +215,7 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
-      - promdata:/prometheus
+      - ./test-alert.yml:/etc/prometheus/test-alert.yml
     ports:
       - "127.0.0.1:9090:9090"
     depends_on:
@@ -134,91 +223,13 @@ services:
       - blackbox
       - nginx_exporter
     restart: unless-stopped
-    
-  alertmanager:
-    image: prom/alertmanager:latest
-    container_name: lab18-alertmanager
-    ##network_mode: host
-    networks: [monitoring]
-    command:
-      - "--config.file=/etc/alertmanager/alertmanager.yml"
-      - "--log.level=info"
-      - "--web.listen-address=0.0.0.0:9093"
-    volumes:
-      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-    ports:
-      - "127.0.0.1:9093:9093"
-    restart: unless-stopped
-    
-  nginx_exporter:
-    image: nginx/nginx-prometheus-exporter:latest
-    container_name: lab18-nginx-exporter
-    ##network_mode: host
-    networks: [monitoring]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    command:
-      - "--nginx.scrape-uri=http://host.docker.internal:8080/nginx_status"
-      - "--web.listen-address=0.0.0.0:9113"
-    ports:
-      - "127.0.0.1:9113:9113"
-    restart: unless-stopped
-
-  blackbox:
-    image: prom/blackbox-exporter:latest
-    container_name: lab18-blackbox
-    networks: [monitoring]
-    ##network_mode: host
-    command:
-      - "--config.file=/etc/blackbox/blackbox.yml"
-      - "--web.listen-address=0.0.0.0:9115"
-    ports:
-      - "127.0.0.1:9115:9115"
-    volumes:
-      - ./blackbox.yml:/etc/blackbox/blackbox.yml:ro
-    restart: unless-stopped
-
-volumes:
-  promdata:
-  grafdata:
   
 networks:
   monitoring:
     driver: bridge
 ```
 
----
-
-## 3) Blackbox modules
-
-`labs/**lesson_18**/compose/blackbox.yml`
-
-```yaml
-modules:
-  http_2xx:
-    prober: http
-    timeout: 5s
-    http:
-      method: GET
-      preferred_ip_protocol: "ip4"
-      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
-      fail_if_not_ssl: false
-      follow_redirects: true
-
-  http_200_health:
-    prober: http
-    timeout: 3s
-    http:
-      method: GET
-      valid_status_codes: [200]
-      no_follow_redirects: true
-```
-
----
-
-## 4) Prometheus config (jobs & alerts & AM)
-
-`labs/**lesson_18**/compose/prometheus.yml`
+`labs/lesson_19/compose/prometheus.yml`
 
 ```yaml
 global:
@@ -227,6 +238,7 @@ global:
 
 rule_files:
   - /etc/prometheus/alert.rules.yml
+  - /etc/prometheus/test-alert.yml
   
 alerting:
   alertmanagers:
@@ -265,17 +277,29 @@ scrape_configs:
           
   - job_name: 'nginx'
     static_configs:
-      ##- targets: ['127.0.0.1:9113']
-      - targets: ['lab18-nginx-exporter:9113']
+      - targets: ['lab19-nginx-exporter:9113']
         labels:
           instance: 'local'
 ```
 
+`labs/lesson_19/compose/.env` (stop git.)
+
+```
+# SMTP
+AM_SMTP_FROM=post@mail.com
+AM_SMTP_SMARTHOST=smtp.post.com:587
+AM_SMTP_USER=post@mail.com
+AM_SMTP_PASS=******
+
+# Telegram (via webhook-compatible bridge)
+# AM_TG_WEBHOOK_URL=https://telegram-bridge.local/alert
+```
+
 ---
 
-## 5) Alerts (practical & testable)
+## 2) Alertmanager config: routes, email, telegram, inhibition; Alertrules and Blackbox
 
-`labs/lesson_18/compose/alert.rules.yml`
+`labs/lesson_19/compose/alert.rules.yml`
 
 ```yaml
 groups:
@@ -326,39 +350,82 @@ groups:
         summary: "Root FS > 80%"
 ```
 
----
-
-## 6) Alertmanager (stdout receiver + grouping)
-
-`labs/lesson_18/compose/alertmanager.yml`
+`labs/lesson_19/compose/alertmanager.yml`
 
 ```yaml
+global:
+  resolve_timeout: 5m
+  
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
 route:
-  group_by: ["alertname", "instance"]
+  receiver: 'telegram'
+  group_by: ['alertname','job','instance']
   group_wait: 10s
-  group_interval: 2m
+  group_interval: 1m
   repeat_interval: 2h
-  receiver: "stdout"
 
 receivers:
-  - name: "stdout"
-    webhook_configs:
-      - url: "http://httpbin.org/post"   # loopback for demo; AM logs events
-
-# For next lesson: add real receivers (email, telegram) here.
+  - name: 'telegram'
+    telegram_configs:
+      - bot_token: '***********'
+        chat_id: ***********
+        parse_mode: 'HTML'
+        message: '{{ template "body_html" . }}'
 ```
-
-> Here we’re using a “pseudo-receiver”: Alertmanager will still log events (and show them in the UI).
-> 
 
 ---
 
-## 7) Run
+`labs/lesson_19/compose/blackbox.yml`
+
+```yaml
+modules:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      preferred_ip_protocol: "ip4"
+      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+      fail_if_not_ssl: false
+      follow_redirects: true
+
+  http_200_health:
+    prober: http
+    timeout: 3s
+    http:
+      method: GET
+      valid_status_codes: [200]
+      no_follow_redirects: true
+```
+
+---
+
+## 3) Templates
+
+`labs/lesson_19/compose/templates/msg.tmpl`
+
+```
+{{ define "body_html" }}
+<b>{{ .CommonLabels.alertname }}</b> ({{ .Status }})
+{{ range .Alerts }}
+<b>{{ .Annotations.summary }}</b>
+{{ .Annotations.description }}
+Labels: {{ .Labels }}
+{{ end }}
+{{ end }}
+```
+
+---
+
+Run:
 
 ```bash
-cd labs/lesson_18/compose
 docker compose up -d
 docker compose ps
+docker compose logs -f prometheus | sed -n '1,80p'
+
 # Prom
 curl -s http://127.0.0.1:9090/-/ready
 # AM
@@ -371,72 +438,179 @@ curl -s 127.0.0.1:9113/metrics | head
 
 ---
 
-## 8) Validate (UI + queries)
+## 4) Validate
 
-- Prometheus: `http://127.0.0.1:9090/targets` — all **UP**.
-- Alertmanager: `http://127.0.0.1:9093` — empty or active (alerts).
-- Queries:
-    - `probe_success{job="blackbox_http"}` → `1`
-    - `nginx_http_requests_total` → the counter should be increasing (make a couple of requests: `curl /` and `curl /health`).
-    - `up` → all `1`.
+```bash
+# Validate AM config
+docker exec -it lab19-alertmanager amtool check-config /etc/alertmanager/alertmanager.yml
 
----
+# List routes/receivers in UI
+xdg-open http://127.0.0.1:9093 || true
+```
 
-## 9) Force alerts (firing test)
-
-- **HTTPProbeFailed**: temporarily break `/health`:
-    
-    ```bash
-    sudo nginx -t && sudo sed -i 's/return 200/return 500/' /etc/nginx/sites-available/lab18.conf
-    sudo systemctl reload nginx
-    sleep 40
-    # AM UI should show Firing; restore 200 and reload
-    sudo git checkout -- /etc/nginx/sites-available/lab18.conf || true
-    sudo systemctl reload nginx
-    ```
-    
-- **NodeExporterDown**: `sudo systemctl stop node_exporter && sleep 70 && sudo systemctl start node_exporter`
-
-Check the statuses at `http://127.0.0.1:9090/alerts` and in the Alertmanager UI.
+> If email isn’t delivered: check the SMTP host/port, the app password, and the `lab19-alertmanager` container logs.
+> 
 
 ---
 
-## Pitfalls
+## 5) Fire test alerts (with labels)
 
-- Don’t leave `/nginx_status` exposed to the public.
-- Don’t forget `web.enable-lifecycle` for Prometheus hot reload.
-- Mind the `for:` — short windows make alerts flap.
+Let’s inject synthetic alerts:
+
+```bash
+# sudo apt-get install -y alertmanager
+
+# amtool --alertmanager.url=http://127.0.0.1:9093 alert add TestWarning \
+#  alertname=TestWarning severity=warning service=nginx instance=local \
+#  --annotation summary="Warning test" --annotation description="Synthetic warn"
+
+# Docker + --entrypoint /bin/amtool
+docker run --rm --network host \
+  --entrypoint /bin/amtool \
+  prom/alertmanager:latest \
+  --alertmanager.url=http://127.0.0.1:9093 \
+  alert add TestWarning severity=warning service=nginx instance=local \
+  --annotation summary="Warning test" \
+  --annotation description="Synthetic warn"
+
+# amtool --alertmanager.url=http://127.0.0.1:9093 alert add TestCritical \
+#  alertname=TestCritical severity=critical service=infra instance=local \
+#  --annotation summary="Critical test" --annotation description="Synthetic crit"
+
+# Docker + --entrypoint /bin/amtool
+docker run --rm --network host \
+  --entrypoint /bin/amtool \
+  prom/alertmanager:latest \
+  --alertmanager.url=http://127.0.0.1:9093 \
+  alert add TestCritical severity=critical service=infra instance=local \
+  --annotation summary="Critical test" \
+  --annotation description="Synthetic crit"
+  
+curl -s http://127.0.0.1:9093/api/v2/alerts | jq .
+```
+
+Resolve this alert:
+
+```bash
+curl -sS -X POST -H 'Content-Type: application/json' \
+  -d '[{
+    "labels": {
+      "alertname": "TestWarning",
+      "severity": "warning",
+      "service": "nginx",
+      "instance": "local"
+    },
+    "status": { "state": "resolved" },
+    "endsAt": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"
+  }]' \
+  http://127.0.0.1:9093/api/v2/alerts
+
+  
+curl -sS -X POST -H 'Content-Type: application/json' \
+  -d '[{
+    "labels": {
+      "alertname": "TestCritical",
+      "severity": "critical",
+      "service": "infra",
+      "instance": "local"
+    },
+    "status": { "state": "resolved" },
+    "endsAt": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"
+  }]' \
+  http://127.0.0.1:9093/api/v2/alerts
+```
+
+Check:
+
+- **Alertmanager UI:** both alerts are **firing**; verify the **receiver** (warning → `mail-warning`; critical → `telegram-critical`).
+- **Webhook/email logs:** a notification was received.
+
+```bash
+# amtool --alertmanager.url=http://127.0.0.1:9093 alert query
+
+docker run --rm --network host \
+  --entrypoint /bin/amtool \
+  prom/alertmanager:latest \
+  --alertmanager.url=http://127.0.0.1:9093 \
+  alert query --active
+```
+
+---
+
+## 6) Silences & inhibition sanity
+
+Create a 30-minute silence (all nginx warnings):
+
+```bash
+# amtool --alertmanager.url=http://127.0.0.1:9093 silence add --duration=30m \
+#  --comment="maintenance nginx" --author="you" severity=warning service=nginx
+
+# Docker + --entrypoint /bin/amtool
+docker run --rm --network host \
+  --entrypoint /bin/amtool \
+  prom/alertmanager:latest \
+  --alertmanager.url=http://127.0.0.1:9093 \
+  silence add --duration=30m \
+  --comment="maintenance nginx" --author="you" \
+  severity=warning service=nginx
+
+  
+# amtool --alertmanager.url=http://127.0.0.1:9093 silence query
+docker run --rm --network host --entrypoint /bin/amtool prom/alertmanager:latest \
+  --alertmanager.url=http://127.0.0.1:9093 \
+  silence query
+  
+# amtool --alertmanager.url=http://127.0.0.1:9093 --output=json silence query | jq .     # JSON (easy for parsing)
+docker run --rm --network host --entrypoint /bin/amtool prom/alertmanager:latest \
+  --alertmanager.url=http://127.0.0.1:9093 --output=json \
+  silence query
+  
+# Expire silence by ID
+docker run --rm --network host --entrypoint /bin/amtool prom/alertmanager:latest \
+  --alertmanager.url=http://127.0.0.1:9093 \
+  silence expire <SILENCE_ID>
+
+```
+
+Testing inhibition is simple: stop `node_exporter` (as in lesson_18), and in parallel trigger the `RootFS80Percent` condition — the latter will be inhibited when the `instance` label matches.
+
+---
+
+## Acceptance Criteria
+
+- [ ]  **Email receiver:** test alert with `severity=warning` delivered to inbox.
+- [ ]  **Telegram/webhook receiver:** message received for `severity=critical`.
+- [ ]  **Routes:** `warning → mail-warning`, `service=nginx` also → `mail-nginx` (fan-out), `critical → telegram-critical`.
+- [ ]  **Silences:** can be added, visible, and effective (no notification arrives).
+- [ ]  **Inhibition:** when `NodeExporterDown` fires, “child” alerts on the same `instance` are suppressed.
+- [ ]  **Templates:** applied — emails have a clean subject and body.
 
 ---
 
 ## Summary
 
-- Hooked up **Alertmanager** and set up basic routing.
-- Added **blackbox_exporter** for active HTTP checks.
-- Brought up **nginx-prometheus-exporter** and enabled `stub_status`.
-- Built practical alerts and tested the full cycle from firing to recovery.
+- Alertmanager is configured with email/Telegram (webhook) and label-based routing.
+- Grouping, silences, and inhibition are in place to tame noise.
+- Message templates make alerts easier to read.
+- E2E tests run via `amtool` and the “real” alerts from lesson_18.
+
+## To repeat
+
+- Add distinct channels per service/team (DB, web).
+- Split **receivers** into separate files and `include` them (when the config grows).
+- Set up on-call rotation (use `team`/`oncall` labels).
+- Keep a “silence template” for maintenance windows.
+
+## Pitfalls
+
+- Don’t keep real passwords in Git; use `.env`/Vault.
+- Stick to a **single label schema** (`service`, `severity`, `team`) — otherwise routing will drift.
+- Don’t set `repeat_interval` too small — you’ll get spam.
+- Always document silences (who/why/until when).
 
 ---
 
 ## Artifacts
 
-- `lesson_18.md` (this file)
-- `labs/lesson_18/compose/{docker-compose.yml,prometheus.yml,blackbox.yml,alert.rules.yml,alertmanager.yml}`
-
----
-
-## To repeat
-
-- Add more blackbox targets (internal services/ports).
-- Enable **latency** alerts via `probe_duration_seconds`.
-- In next lesson — real notifications (email/Telegram) and alert labels.
-
----
-
-## Acceptance Criteria (self-check)
-
-- [ ]  **Alertmanager UI** is reachable; Prometheus sees it as an **alerting target**.
-- [ ]  **blackbox_exporter** exposes metrics; `probe_success==1` for `/` and `/health`.
-- [ ]  **nginx-prometheus-exporter** metrics are available; `/nginx_status` is not accessible externally.
-- [ ]  Forcing a `/health` failure triggers **HTTPProbeFailed (Firing)** and then **Resolved**.
-- [ ]  **NodeExporterDown** is easily reproducible by stopping the systemd unit and clears after starting it back up.
+- `lesson_19.md` (this file)
+- `labs/lesson_19/compose/{docker-compose.yml,alertmanager.yml,templates/msg.tmpl}`
