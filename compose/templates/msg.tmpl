@@ -1,8 +1,0 @@
-{{ define "body_html" }}
-<b>{{ .CommonLabels.alertname }}</b> ({{ .Status }})
-{{ range .Alerts }}
-<b>{{ .Annotations.summary }}</b>
-{{ .Annotations.description }}
-Labels: {{ .Labels }}
-{{ end }}
-{{ end }}
