@@ -13,6 +13,7 @@ devops-notes/
  ├─ labs/
  ├─ /lesson01_10/
  ├─ /lesson11_20/
+ ├─ /lesson21_30/
  ├─ prep_evening/
  ├─ tools/
  ├─ DevOps_Progress.md
@@ -48,6 +49,7 @@ devops-notes/
 | **Lesson 18** | Alerts & Probes: Alertmanager + Blackbox + Nginx Exporter | [Materials_18](lesson11_20/lesson_18.md) |
 | **Lesson 19** | Alertmanager Notifications: Email/Telegram, Routing, Silences, Templates | [Materials_19](lesson11_20/lesson_19.md) |
 | **Lesson 20** | Centralized Logs: Loki + Promtail + Grafana (Nginx JSON) | [Materials_20](lesson11_20/lesson_20.md) |
+| **Lesson 21** | Grafana as Code: Provisioning Datasources, Dashboards & Alerts | [Materials_21](lesson21_30/lesson_21.md) |
 ---
 
 ## How to use

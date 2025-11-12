@@ -1,0 +1,29 @@
+{
+  "uid": "node-mini",
+  "title": "Node Mini",
+  "tags": ["lab", "node"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "CPU by mode",
+      "datasource": {"type":"prometheus","uid":"ds_prom"},
+      "targets": [
+        {"expr":"avg by (mode) (rate(node_cpu_seconds_total[2m]))","legendFormat":"{{mode}}"}
+      ],
+      "gridPos": {"h":8,"w":24,"x":0,"y":0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory used %",
+      "datasource": {"type":"prometheus","uid":"ds_prom"},
+      "targets": [
+        {"expr":"(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100","legendFormat":"used%"}
+      ],
+      "gridPos": {"h":8,"w":24,"x":0,"y":8}
+    }
+  ]
+}
