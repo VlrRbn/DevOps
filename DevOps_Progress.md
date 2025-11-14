@@ -24,7 +24,9 @@
 | * | 2025-10-(09,10,11,13,14,15,17) | Extra practice, start new server (project) + CI, repeat Molecule, Testinfra, add cheatsheets, readthedocs |
 | 17 | 2025-10-(19,20) | Monitoring Basics: Prometheus + Node Exporter (+ Grafana) |
 | 18 | 2025-10-(23,24) | Alerts & Probes: Alertmanager + Blackbox + Nginx Exporter |
-| * | 2025-10-(27,28,30) | Practice on work with system administrator |
-| 19 | 2025-11-04,05 | Alertmanager Notifications: Email/Telegram, Routing, Silences, Templates |
-| 20 | 2025-11-07,08 | Centralized Logs: Loki + Promtail + Grafana (Nginx JSON) |
-| 21 | 2025-11-10,11 | Grafana as Code: Provisioning Datasources, Dashboards & Alerts |
+| * | 2025-10-(27,28,30) | Practice with system administrator "SITA" |
+| 19 | 2025-11-(04,05) | Alertmanager Notifications: Email/Telegram, Routing, Silences, Templates |
+| 20 | 2025-11-(07,08) | Centralized Logs: Loki + Promtail + Grafana (Nginx JSON) |
+| 21 | 2025-11-(10,11) | Grafana as Code: Provisioning Datasources, Dashboards & Alerts |
+| * | 2025-11-12 | Practice, cheatsheets |
+| 22 | 2025-11-(14,15) | End-to-End Observability: Golden Signals, SLOs & Runbook |
