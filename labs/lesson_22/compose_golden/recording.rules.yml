@@ -1,0 +1,19 @@
+groups:
+- name: labweb-sli
+  interval: 30s
+  rules:
+    # Traffic (RPS)
+    - record: labweb:http_requests_total_5m
+      expr: sum(rate(nginx_http_requests_total{service="labweb"}[5m]))
+
+    # 5xx errors (RPS)
+    - record: labweb:http_5xx_rate_5m
+      expr: sum(rate(nginx_http_requests_total{service="labweb",status=~"5.."}[5m]))
+
+    # Error ratio (5xx / all)
+    - record: labweb:http_error_ratio_5m
+      expr: labweb:http_5xx_rate_5m / clamp_min(labweb:http_requests_total_5m, 0.0001)
+
+    # Rough saturation: CPU usage (node)
+    - record: labweb:cpu_usage_ratio_5m
+      expr: 1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m]))
