@@ -1,0 +1,37 @@
+{
+  "uid": "nginx-mini",
+  "title": "Nginx Mini",
+  "tags": ["lab","nginx"],
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type":"timeseries",
+      "title":"Nginx requests (rate)",
+      "datasource":{"type":"prometheus","uid":"ds_prom"},
+      "targets":[
+        {"expr":"rate(nginx_http_requests_total[2m])","legendFormat":"all"}
+      ],
+      "gridPos":{"h":8,"w":24,"x":0,"y":0}
+    },
+    {
+      "type":"timeseries",
+      "title":"5xx rate",
+      "datasource":{"type":"prometheus","uid":"ds_prom"},
+      "targets":[
+        {"expr":"rate(nginx_http_requests_total{status=~\"5..\"}[2m])","legendFormat":"5xx"}
+      ],
+      "gridPos":{"h":8,"w":24,"x":0,"y":8}
+    },
+    {
+      "type":"logs",
+      "title":"Nginx logs (Loki)",
+      "datasource":{"type":"loki","uid":"ds_loki"},
+      "targets":[
+        {"expr":"{job=\"nginx\"} | json"}
+      ],
+      "gridPos":{"h":10,"w":24,"x":0,"y":16}
+    }
+  ]
+}

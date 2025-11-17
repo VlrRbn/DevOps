@@ -1,0 +1,55 @@
+{
+  "uid": "labweb-golden",
+  "title": "Labweb Golden Signals",
+  "tags": ["lab", "labweb", "golden"],
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Traffic (RPS)",
+      "datasource": {"type": "prometheus", "uid": "ds_prom"},
+      "targets": [
+        {"expr": "labweb:http_requests_total_5m", "legendFormat": "RPS"}
+      ],
+      "gridPos": {"h": 6, "w": 12, "x": 0, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Error ratio (5m)",
+      "datasource": {"type": "prometheus", "uid": "ds_prom"},
+      "targets": [
+        {"expr": "labweb:http_error_ratio_5m", "legendFormat": "5xx ratio"}
+      ],
+      "gridPos": {"h": 6, "w": 12, "x": 12, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU usage (node)",
+      "datasource": {"type": "prometheus", "uid": "ds_prom"},
+      "targets": [
+        {"expr": "labweb:cpu_usage_ratio_5m * 100", "legendFormat": "CPU %"}
+      ],
+      "gridPos": {"h": 6, "w": 12, "x": 0, "y": 6}
+    },
+    {
+      "type": "timeseries",
+      "title": "5xx rate",
+      "datasource": {"type": "prometheus", "uid": "ds_prom"},
+      "targets": [
+        {"expr": "labweb:http_5xx_rate_5m", "legendFormat": "5xx rps"}
+      ],
+      "gridPos": {"h": 6, "w": 12, "x": 12, "y": 6}
+    },
+    {
+      "type": "logs",
+      "title": "Labweb logs (5xx only)",
+      "datasource": {"type": "loki", "uid": "ds_loki"},
+      "targets": [
+        {"expr": "{service=\"labweb\"} | json | status=~\"5..\""}
+      ],
+      "gridPos": {"h": 9, "w": 24, "x": 0, "y": 12}
+    }
+  ]
+}
