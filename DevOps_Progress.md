@@ -29,4 +29,5 @@
 | 20 | 2025-11-(07,08) | Centralized Logs: Loki + Promtail + Grafana (Nginx JSON) |
 | 21 | 2025-11-(10,11) | Grafana as Code: Provisioning Datasources, Dashboards & Alerts |
 | * | 2025-11-12 | Practice, cheatsheets |
-| 22 | 2025-11-(14,15) | End-to-End Observability: Golden Signals, SLOs & Runbook |
+| 22 | 2025-11-(14,17) | End-to-End Observability: Golden Signals, SLOs & Runbook |
+| 23 | 2025-11-19 | Docker Images & Dockerfiles: Build, Tag, Run, Inspect |

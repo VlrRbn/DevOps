@@ -50,7 +50,8 @@ devops-notes/
 | **Lesson 19** | Alertmanager Notifications: Email/Telegram, Routing, Silences, Templates | [Materials_19](lesson11_20/lesson_19.md) |
 | **Lesson 20** | Centralized Logs: Loki + Promtail + Grafana (Nginx JSON) | [Materials_20](lesson11_20/lesson_20.md) |
 | **Lesson 21** | Grafana as Code: Provisioning Datasources, Dashboards & Alerts | [Materials_21](lesson21_30/lesson_21.md) |
-| **Lesson 22** | End-to-End Observability: Golden Signals, SLOs & Runbook | [Materials_22](lesson22_30/lesson_22.md) |
+| **Lesson 22** | End-to-End Observability: Golden Signals, SLOs & Runbook | [Materials_22](lesson21_30/lesson_22.md) |
+| **Lesson 23** | Docker Images & Dockerfiles: Build, Tag, Run, Inspect | [Materials_23](lesson21_30/lesson_23.md) |
 ---
 
 ## How to use
