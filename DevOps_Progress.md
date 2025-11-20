@@ -31,3 +31,4 @@
 | * | 2025-11-12 | Practice, cheatsheets |
 | 22 | 2025-11-(14,17) | End-to-End Observability: Golden Signals, SLOs & Runbook |
 | 23 | 2025-11-19 | Docker Images & Dockerfiles: Build, Tag, Run, Inspect |
+| * | 2025-11-20 | Docker Images & Dockerfiles: Upgrade v2 |
