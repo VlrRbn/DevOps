@@ -1,0 +1,19 @@
+services:
+  lab23-dev:
+    build:
+      context: ../app
+      dockerfile: Dockerfile.dev
+    image: lab23:dev
+    container_name: lab23-dev
+    environment:
+      LAB_ENV: "dev"
+      PORT: "8080"
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped

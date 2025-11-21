@@ -1,0 +1,32 @@
+services:
+  lab23-prod:
+    build:
+      context: ../app
+      dockerfile: Dockerfile.prod
+      args:
+        BUILD_VERSION: "prod-1"
+    image: lab23:prod
+    container_name: lab23-prod
+    environment:
+      LAB_ENV: "prod"
+      GUNICORN_WORKERS: "2"
+      GUNICORN_TIMEOUT: 30
+    ports:
+      - "18080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health || exit 1"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
+        reservations:
+          cpus: "0.25"
+          memory: "128M"
+    volumes:
+      - ../logs:/var/log/app

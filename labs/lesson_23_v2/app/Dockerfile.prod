@@ -1,0 +1,64 @@
+# ---------- builder stage ----------
+FROM python:3.12-slim AS builder
+
+ARG BUILD_VERSION=dev
+
+# Metadata
+LABEL stage="builder" \
+      build_version="${BUILD_VERSION}"
+      
+# System deps + cleanup
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Working dir
+WORKDIR /build
+
+# Install Python deps into a separate prefix
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt \
+    && pip install --no-cache-dir --prefix=/install gunicorn
+
+# Copy app code
+COPY app.py .
+
+# ---------- runtime stage ----------
+FROM python:3.12-slim AS runtime
+ARG BUILD_VERSION=dev
+
+LABEL maintainer="you@yourdomain.net" \
+      service="lab23-prod" \
+      env="prod" \
+      build_version="${BUILD_VERSION}"
+      
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd --create-home --shell /usr/sbin/nologin appuser
+
+WORKDIR /app
+
+# Copy only installed python deps and app
+COPY --from=builder /install /usr/local
+COPY app.py .
+
+# Environment (runtime)
+ENV PORT=8080 \
+    LAB_ENV=prod \
+    GUNICORN_WORKERS=2 \
+    GUNICORN_TIMEOUT=30
+
+# Expose port
+EXPOSE 8080
+
+# Healthcheck (simple HTTP)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:${PORT}/health || exit 1
+
+# Drop privileges
+USER appuser
+
+# Default command
+CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:8080", "app:app"]
