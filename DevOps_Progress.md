@@ -32,3 +32,4 @@
 | 22 | 2025-11-(14,17) | End-to-End Observability: Golden Signals, SLOs & Runbook |
 | 23 | 2025-11-19 | Docker Images & Dockerfiles: Build, Tag, Run, Inspect |
 | * | 2025-11-20 | Docker Images & Dockerfiles: Upgrade v2 |
+| 24 | 2025-11-21 | Docker Compose: Multi-Container App, Networks, Volumes & Health |

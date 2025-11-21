@@ -30,7 +30,6 @@ devops-notes/
 | **Lesson 1** | Environment Setup and Basic Linux Commands | [Materials_1](lesson01_10/lesson_01.md) |
 | **Lesson 2** | Nano basics; file ops; permissions; mini-lab project folder | [Materials_2](lesson01_10/lesson_02.md) |
 | **Lesson 3** | Networking basics; network tools; network diagnostics lab | [Materials_3](lesson01_10/lesson_03.md) |
-| **Lesson !** | Prep evening: revision Day1–3; extra practice | [Materials_EV](prep_evening/prep_evening1_en.md) |
 | **Lesson 4** | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds) | [Materials_4](lesson01_10/lesson_04.md) | 
 | **Lesson 5** | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit | [Materials_5](lesson01_10/lesson_05.md) |
 | **Lesson 6** | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) | [Materials_6](lesson01_10/lesson_06.md) |
@@ -50,7 +49,8 @@ devops-notes/
 | **Lesson 20** | Centralized Logs: Loki + Promtail + Grafana (Nginx JSON) | [Materials_20](lesson11_20/lesson_20.md) |
 | **Lesson 21** | Grafana as Code: Provisioning Datasources, Dashboards & Alerts | [Materials_21](lesson21_30/lesson_21.md) |
 | **Lesson 22** | End-to-End Observability: Golden Signals, SLOs & Runbook | [Materials_22](lesson21_30/lesson_22.md) |
-| **Lesson 23** | Docker Images & Dockerfiles: Build, Tag, Run, Inspect | [Materials_23](lesson21_30/lesson_23.md) |
+| **Lesson 23** | Docker Images & Dockerfiles: Build, Tag, Run, Inspect | [Materials_23](lesson21_30/lesson_23_v1.md) |
+| **Lesson 24** | Docker Compose: Multi-Container App, Networks, Volumes & Health | [Materials_24](lesson21_30/lesson_24.md) |
 ---
 
 ## How to use
