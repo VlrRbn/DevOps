@@ -1,0 +1,10 @@
+# labs/lesson_24/compose/docker-compose.override.yml
+services:
+  web:
+    environment:
+      LAB_ENV: "dev"
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "127.0.0.1:18080:80"

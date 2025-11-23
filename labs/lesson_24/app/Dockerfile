@@ -5,7 +5,7 @@ LABEL maintainer="you@yourdomain.net" \
       env="lab"
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl \
+    && apt-get install -y --no-install-recommends ca-certificates curl iputils-ping redis-tools \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd --create-home --shell /usr/sbin/nologin appuser
