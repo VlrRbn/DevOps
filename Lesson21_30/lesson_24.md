@@ -6,7 +6,7 @@
 
 **Date:** 2025-11-21
 
-**Topic:** Use Docker Compose to run a small multi-container app:  web image + Redis, with named volumes, custom networks, healthchecks, and `depends_on` conditions.
+**Topic:** Use Docker Compose to run a small multi-container app: web image + Redis, with named volumes, custom networks, healthchecks, and `depends_on` conditions.
 
 ---
 
