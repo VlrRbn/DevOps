@@ -33,3 +33,5 @@
 | 23 | 2025-11-19 | Docker Images & Dockerfiles: Build, Tag, Run, Inspect |
 | * | 2025-11-20 | Docker Images & Dockerfiles: Upgrade v2 |
 | 24 | 2025-11-21 | Docker Compose: Multi-Container App, Networks, Volumes & Health |
+| 25 | 2025-11-24 | Docker Multi-Stage Builds & Registry (GitHub Actions CI) |
+| 26 | 2025-11-25 | Ansible + Docker: Deploying a Docker Compose Stack to a Host |
