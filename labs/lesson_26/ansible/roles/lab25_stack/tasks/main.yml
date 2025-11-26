@@ -1,0 +1,29 @@
+---
+- name: Ensure lab25 stack directory exists
+  become: true
+  file:
+    path: "{{ lab25_stack_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy lab25 docker-compose.yml
+  become: true
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ lab25_stack_dir }}/{{ lab25_compose_filename }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - redeploy lab25 stack
+
+- name: Ensure lab25 stack is up (docker compose up -d)
+  become: true
+  args:
+    chdir: "{{ lab25_stack_dir }}"
+  ansible.builtin.command: >
+    docker compose -f {{ lab25_compose_filename }} up -d
+  register: compose_up
+  changed_when: "'Creating' in compose_up.stdout or 'Recreating' in compose_up.stdout or 'Pulling' in compose_up.stdout"

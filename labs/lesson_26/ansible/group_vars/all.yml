@@ -1,0 +1,12 @@
+# Docker package settings
+docker_package_state: present
+
+# Lab25 image settings
+lab25_image: "ghcr.io/vlrrbn/lab25-web-workflows:latest"
+
+lab25_stack_dir: "/opt/lab25"
+lab25_compose_filename: "docker-compose.yml"
+
+lab25_web_port: 8080
+lab25_lab_env: "lab"
+lab25_redis_image: "redis:7-alpine"

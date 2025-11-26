@@ -1,0 +1,9 @@
+# Handlers for redeploy
+- name: redeploy lab25 stack
+  become: true
+  args:
+    chdir: "{{ lab25_stack_dir }}"
+  ansible.builtin.command: >
+    docker compose -f {{ lab25_compose_filename }} down
+    docker compose -f {{ lab25_compose_filename }} up -d
+  listen: "redeploy lab25 stack"

@@ -1,0 +1,47 @@
+services:
+  web:
+    image: {{ lab25_image | quote }}
+    container_name: lab25-web-workflows
+    environment:
+      LAB_ENV: {{ lab25_lab_env | quote }}
+      PORT: "8080"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_DB: "0"
+    ports:
+      - "127.0.0.1:{{ lab25_web_port }}:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health || exit 1"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    networks:
+      - backend
+
+  redis:
+    image: {{ lab25_redis_image | quote }}
+    container_name: lab25-redis
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  redis_data:
