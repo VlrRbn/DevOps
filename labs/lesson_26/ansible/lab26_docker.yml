@@ -1,11 +1,21 @@
 ---
+# Host & Deploy
 - name: Provision Docker host and deploy lab25 stack
   hosts: lab_docker_hosts
   become: true
-  
+
   vars:
     docker_package_state: present
 
   roles:
     - docker_host
+    - lab25_stack
+
+# Update only
+- name: Update lab25 stack only
+  hosts: lab_docker_hosts
+  become: true
+  tags: update
+
+  roles:
     - lab25_stack
