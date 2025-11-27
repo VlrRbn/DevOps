@@ -1,0 +1,21 @@
+---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Remove existing lab_evening-ubuntu container if present
+      ansible.builtin.command: docker rm -f lab_evening-ubuntu
+      register: rm_result
+      failed_when: rm_result.rc not in [0, 1]
+      changed_when: rm_result.rc == 0
+
+    - name: Start lab_evening-ubuntu container
+      ansible.builtin.command: >
+        docker run -d
+        --name lab_evening-ubuntu
+        geerlingguy/docker-ubuntu2204-ansible:latest
+        sleep infinity
+      register: run_result
+      changed_when: true

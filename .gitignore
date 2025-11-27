@@ -1,0 +1,15 @@
+# виртуальные окружения
+.venv/
+venv/
+env/
+*/.venv/
+*/venv/
+*/env/
+
+# байткод и кэш
+__pycache__/
+*.py[cod]
+
+# pytest / прочие
+*.pyc
+.pytest_cache/

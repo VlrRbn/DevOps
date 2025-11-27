@@ -1,0 +1,10 @@
+---
+# Purpose: bring the instance to the desired state by running the role under test.
+# Molecule calls this playbook with `molecule converge`.
+- name: Converge lab_common
+  hosts: all
+  become: true
+  roles:
+    - role: lab_common
+      vars:
+        lab_common_motd_message: "Welcome to Molecule lab host"

@@ -1,3 +1,13 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# defaults file for lab_common
+lab_common_packages:
+  - curl
+  - vim
+  - htop
+
+lab_common_user: "labops"
+lab_common_group: "labops"
+lab_common_create_user: true
+
+lab_common_motd_enabled: true
+lab_common_motd_message: "Welcome to lab host (managed by lab_common)"
