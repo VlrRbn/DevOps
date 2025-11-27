@@ -5,10 +5,10 @@
 | 1 | 2025-08-19 | Environment Setup and Basic Linux Commands |
 | 2 | 2025-08-20 | Nano basics, file ops, permissions, mini-lab project folder |
 | 3 | 2025-08-21 | Networking basics, network tools, network diagnostics lab |
-| * | 2025-08-22 | Prep evening: revision lesson_01–03, extra practice, repo cleanup |
+| * | 2025-08-22 | Prep evening: revision lesson_01-03, extra practice, repo cleanup |
 | 4 | 2025-08-23 | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds) |
-| 5 | 2025-08-25 | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit |
-| 6 | 2025-08-26 | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) |
+| 5 | 2025-08-25 | Processes & Services - systemd basics; journalctl; custom service+timer; restart policy; transient unit |
+| 6 | 2025-08-26 | APT/dpkg search/show/policy; versions; files & owners; holds; snapshot/restore; unattended-upgrades (dry-run) |
 | 7 | 2025-08-27 | Bash Scripting (template, rename, backup, logs) |
 | 8 | 2025-08-30 | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools |
 | * | 2025-09-(01,02,05,06,09,11,12) | Light study (personal reasons), cheatsheets, minor fixes; prep for Networking lessons |
@@ -21,7 +21,7 @@
 | 14 | 2025-10-02 | Ansible Fundamentals: Inventory, Playbooks, Roles, Idempotence |
 | 15 | 2025-10-04 | Ansible Advanced: Multi-Host, Vault, Rolling Updates, Health Checks |
 | 16 | 2025-10-(06,07) | Ansible Role Testing: Molecule + Testinfra + CI |
-| * | 2025-10-(09,10,11,13,14,15,17) | Extra practice, start new server (project) + CI, repeat Molecule, Testinfra, add cheatsheets, readthedocs |
+| * | 2025-10-(09,10,11,13,14,15,17) | Extra practice, start new server (project) + CI, add cheatsheets, readthedocs |
 | 17 | 2025-10-(19,20) | Monitoring Basics: Prometheus + Node Exporter (+ Grafana) |
 | 18 | 2025-10-(23,24) | Alerts & Probes: Alertmanager + Blackbox + Nginx Exporter |
 | * | 2025-10-(27,28,30) | Practice with system administrator "SITA" |
@@ -35,3 +35,4 @@
 | 24 | 2025-11-21 | Docker Compose: Multi-Container App, Networks, Volumes & Health |
 | 25 | 2025-11-24 | Docker Multi-Stage Builds & Registry (GitHub Actions CI) |
 | 26 | 2025-11-25 | Ansible + Docker: Deploying a Docker Compose Stack to a Host |
+| * | 2025-11-27 | Prep evening: Ansible Roles Testing: Molecule + Testinfra + ansible-lint |

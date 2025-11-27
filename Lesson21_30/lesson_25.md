@@ -515,7 +515,7 @@ After the first successful run:
 - [ ]  Registry-only Compose file (`docker-compose.registry.yml`) works on a **fresh machine** (no local build).
 - [ ]  GitHub Actions workflow built & pushed image automatically after push to `main`.
 - [ ]  Different tags exist (branch-name, SHA, `latest`), and you can run with each.
-- [ ]  You inspected `docker history` and understand which layers come from builder vs runtime.
+- [ ]  Inspected `docker history` and understand which layers come from builder vs runtime.
 
 ---
 

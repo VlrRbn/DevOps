@@ -461,7 +461,7 @@ ansible-playbook -i inventory.ini lab26_docker.yml --tags update
 
 ## Summary
 
-- Wired **Ansible** together with **Docker/Compose**: now you can not only build images locally and in CI, but also **roll out stacks to hosts** declaratively.
+- Wired **Ansible** together with **Docker/Compose**, also **roll out stacks to hosts** declaratively.
 - Split the logic into two roles:
     - `docker_host` — installs and prepares the host.
     - `lab25_stack` — deploys and updates the specific Compose stack.

@@ -338,7 +338,7 @@ Extended tasks:
 - [ ]  The application runs under a non-root user (`appuser`).
 - [ ]  A `.dockerignore` file is present and correctly configured.
 - [ ]  `docker compose up -d` from `labs/lesson_23/compose` brings the service up and the healthcheck is **healthy**.
-- [ ]  You can inspect the image’s layer history and basic metadata.
+- [ ]  Can inspect the image’s layer history and basic metadata.
 
 ---
 

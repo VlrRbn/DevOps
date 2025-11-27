@@ -456,15 +456,15 @@ docker compose down
 - [ ]  The multi-container stack works: `web` ↔ `redis` over the network, and Redis is **not** exposed to the outside world.
 - [ ]  The named volume `redis_data` keeps data between restarts.
 - [ ]  Healthchecks for both `redis` and `web` are green; `depends_on` uses `service_healthy`.
-- [ ]  You know how to inspect networks, volumes, and logs using `docker compose *` commands.
+- [ ]  Know how to inspect networks, volumes, and logs using `docker compose *` commands.
 
 ---
 
 ## Summary
 
-- You’ve moved from a single container to a **full Compose stack**: web + Redis + networks + volume.
-- You practiced healthchecks, `depends_on` with `condition: service_healthy`, and basic diagnostics.
-- You’ve prepared the ground for the next steps: multi-stage builds, a registry, CI/CD for images, and more complex stacks.
+- Moved from a single container to a **full Compose stack**: web + Redis + networks + volume.
+- Practiced healthchecks, `depends_on` with `condition: service_healthy`, and basic diagnostics.
+- Prepared the ground for the next steps: multi-stage builds, a registry, CI/CD for images, and more complex stacks.
 
 ---
 
