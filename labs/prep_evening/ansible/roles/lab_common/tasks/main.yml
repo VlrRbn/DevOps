@@ -1,22 +1,18 @@
-#SPDX-License-Identifier: MIT-0
 ---
-
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
-    
+
 - name: Ensure common packages are installed
   ansible.builtin.package:
     name: "{{ lab_common_packages }}"
     state: present
-  become: true
 
 - name: Ensure lab_common group exists
   ansible.builtin.group:
     name: "{{ lab_common_group }}"
     state: present
-  become: true
   when: lab_common_create_user
 
 - name: Ensure lab_common user exists
@@ -26,7 +22,6 @@
     shell: /bin/bash
     create_home: true
     state: present
-  become: true
   when: lab_common_create_user
 
 - name: Deploy /etc/motd if enabled
@@ -36,5 +31,4 @@
     owner: root
     group: root
     mode: "0644"
-  become: true
   when: lab_common_motd_enabled

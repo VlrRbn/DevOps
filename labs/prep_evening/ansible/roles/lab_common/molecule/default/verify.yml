@@ -1,7 +1,5 @@
 ---
-# Purpose: assert that the instance really ended up in the expected state.
-# Molecule calls this playbook with `molecule verify`.
 - name: Verify using Testinfra
   hosts: all
-  gather_facts: false # Quicker, if you do not need facts
+  gather_facts: false
   tasks: []

@@ -1,12 +1,11 @@
-#SPDX-License-Identifier: MIT-0
 ---
 lab_common_packages:
   - curl
   - vim
   - htop
 
-lab_common_user: "labops"
-lab_common_group: "labops"
+lab_common_user: "labops_user"
+lab_common_group: "labops_group"
 lab_common_create_user: true
 
 lab_common_motd_enabled: true

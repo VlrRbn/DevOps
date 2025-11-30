@@ -9,10 +9,10 @@ def test_packages_installed(host):
 
 
 def test_lab_user_exists(host):
-    user = host.user("labops")
+    user = host.user("labops_user")
     assert user.exists
-    assert user.group == "labops"
-    assert "/home/labops" in user.home
+    assert user.group == "labops_group"
+    assert "/home/labops_user" in user.home
 
 
 def test_motd_content(host):
@@ -25,4 +25,4 @@ def test_motd_content(host):
     content = motd.content_string
     assert "Welcome to Molecule lab host" in content
     assert "lab_common" in content
-    assert "labops" in content
+    assert "labops_user" in content
