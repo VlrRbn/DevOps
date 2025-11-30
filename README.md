@@ -49,10 +49,11 @@ devops-notes/
 | **Lesson 20** | Centralized Logs: Loki + Promtail + Grafana (Nginx JSON) | [Materials_20](lesson11_20/lesson_20.md) |
 | **Lesson 21** | Grafana as Code: Provisioning Datasources, Dashboards & Alerts | [Materials_21](lesson21_30/lesson_21.md) |
 | **Lesson 22** | End-to-End Observability: Golden Signals, SLOs & Runbook | [Materials_22](lesson21_30/lesson_22.md) |
-| **Lesson 23** | Docker Images & Dockerfiles: Build, Tag, Run, Inspect | [Materials_23](lesson21_30/lesson_23_v1.md) |
+| **Lesson 23** | Docker Images & Dockerfiles: Build, Tag, Run, Inspect | [Materials_23](lesson21_30/lesson_23.md) |
 | **Lesson 24** | Docker Compose: Multi-Container App, Networks, Volumes & Health | [Materials_24](lesson21_30/lesson_24.md) |
 | **Lesson 25** | Docker Multi-Stage Builds & Registry (GitHub Actions CI) | [Materials_25](lesson21_30/lesson_25.md) |
 | **Lesson 26** | Ansible + Docker: Deploying a Docker Compose Stack to a Host | [Materials_26](lesson21_30/lesson_26.md) |
+| **Lesson 27** | Kubernetes Intro: Run lab Web + Redis on a Local k8s Cluster | [Materials_27](lesson21_30/lesson_27.md) |
 ---
 
 ## How to use
