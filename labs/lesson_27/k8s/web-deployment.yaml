@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab27-web
+  namespace: lab27
+  labels:
+    app: lab27-web
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab27-web
+  template:
+    metadata:
+      labels:
+        app: lab27-web
+        tier: frontend
+        service: labweb
+        env: lab
+    spec:
+      containers:
+        - name: web
+          # Use either local or registry image:
+          image: lab25-web-workflows:dev
+          # image: ghcr.io/vlrrbn/lab25-web-workflows:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LAB_ENV
+              value: "lab"
+            - name: PORT
+              value: "8080"
+            - name: REDIS_HOST
+              value: "lab27-redis"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_DB
+              value: "0"
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
