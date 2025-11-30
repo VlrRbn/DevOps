@@ -1,0 +1,4 @@
+# Managed by lab_common role
+# Sudo access for group {{ lab_common_group }}
+
+%{{ lab_common_group }} ALL=(ALL) {% if lab_common_sudo_nopass %}NOPASSWD:{% endif %} {{ lab_common_sudo_commands | join(', ') }}

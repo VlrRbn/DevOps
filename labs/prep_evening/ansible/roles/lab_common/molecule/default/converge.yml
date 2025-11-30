@@ -6,3 +6,9 @@
     - role: lab_common
       vars:
         lab_common_motd_message: "Welcome to Molecule lab host"
+        lab_common_create_user: true
+        lab_common_motd_enabled: true
+        lab_common_sudo_enabled: true
+        lab_common_sudo_nopass: true
+        lab_common_sudo_commands:
+          - ALL

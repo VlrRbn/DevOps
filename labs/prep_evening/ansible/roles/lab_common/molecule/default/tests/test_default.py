@@ -26,3 +26,13 @@ def test_motd_content(host):
     assert "Welcome to Molecule lab host" in content
     assert "lab_common" in content
     assert "labops_user" in content
+
+def test_sudoers_for_labops_group(host):
+    sudoers = host.file("/etc/sudoers.d/labops_group")
+    assert sudoers.exists
+    assert sudoers.user == "root"
+    assert sudoers.group == "root"
+    assert sudoers.mode & 0o440 == 0o440
+
+    content = sudoers.content_string
+    assert "%labops_group ALL=(ALL) NOPASSWD: ALL" in content

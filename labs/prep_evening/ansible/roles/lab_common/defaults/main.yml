@@ -10,3 +10,8 @@ lab_common_create_user: true
 
 lab_common_motd_enabled: true
 lab_common_motd_message: "Welcome to lab host (managed by lab_common)"
+
+lab_common_sudo_enabled: false
+lab_common_sudo_nopass: true
+lab_common_sudo_commands:
+  - ALL

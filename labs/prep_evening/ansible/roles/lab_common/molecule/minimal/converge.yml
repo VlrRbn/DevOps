@@ -1,0 +1,10 @@
+---
+- name: Converge lab_common (minimal)
+  hosts: all
+  become: true
+  roles:
+    - role: lab_common
+      vars:
+        lab_common_create_user: false
+        lab_common_motd_enabled: false
+        lab_common_sudo_enabled: false

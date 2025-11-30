@@ -9,7 +9,7 @@ driver:
   name: docker
 
 platforms:
-  - name: lab_evening-ubuntu
+  - name: lab_minimal-ubuntu
     image: geerlingguy/docker-ubuntu2204-ansible:latest
     pre_build_image: true
     privileged: true
@@ -37,7 +37,7 @@ provisioner:
     ANSIBLE_REMOTE_TMP: /tmp
 
 scenario:
-  name: default
+  name: minimal
   test_sequence:
     - destroy
     - create
