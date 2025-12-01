@@ -37,3 +37,4 @@
 | 26 | 2025-11-25 | Ansible + Docker: Deploying a Docker Compose Stack to a Host |
 | * | 2025-11-27 | Prep evening: Ansible Roles Testing: Molecule + Testinfra + ansible-lint |
 | 27 | 2025-11-30 | Kubernetes Intro: Run lab Web + Redis on a Local k8s Cluster |
+| 28 | 2025-12-01 | Kubernetes Config: ConfigMap, Secret & Ingress for lab27 Web |
