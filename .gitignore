@@ -13,3 +13,5 @@ __pycache__/
 # pytest / прочие
 *.pyc
 .pytest_cache/
+
+/labs/lesson_29/compose/grafana-data/

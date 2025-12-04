@@ -37,7 +37,7 @@ data:
 
           - alert: Lab27PodRestarts
             expr: increase(kube_pod_container_status_restarts_total{namespace="lab27"}[5m]) > 0
-            for: 1m
+            for: 5m
             labels:
               severity: warning
               service: lab27

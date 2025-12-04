@@ -55,6 +55,7 @@ devops-notes/
 | **Lesson 26** | Ansible + Docker: Deploying a Docker Compose Stack to a Host | [Materials_26](lesson21_30/lesson_26.md) |
 | **Lesson 27** | Kubernetes Intro: Run lab Web + Redis on a Local k8s Cluster | [Materials_27](lesson21_30/lesson_27.md) |
 | **Lesson 28** | Kubernetes Config: ConfigMap, Secret & Ingress | [Materials_28](lesson21_30/lesson_28.md) |
+| **Lesson 29** | Kubernetes Monitoring: Prometheus + kube-state-metrics + Grafana | [Materials_29](lesson21_30/lesson_29.md) |
 ---
 
 ## How to use
