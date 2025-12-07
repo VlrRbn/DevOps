@@ -33,6 +33,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Полезно для отладки один раз
+      - name: Debug pwd
+        run: |
+          pwd
+          ls
+          ls ansible
+          ls ansible/ansible_molecule
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -40,7 +48,7 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        working-directory: ansible_molecule
+        working-directory: ansible/ansible_molecule
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then
@@ -60,22 +68,22 @@ jobs:
           mkdir -p "$XDG_CACHE_HOME" "$ANSIBLE_COLLECTIONS_PATH" || true
           ulimit -n 4096 || true
           docker --version
-          ansible --version
-          molecule --version
+          ansible --version || true
+          molecule --version || true
 
       - name: Install minimal collections for lint
         run: |
           ansible-galaxy collection install community.general community.docker -p "$ANSIBLE_COLLECTIONS_PATH"
 
       - name: Ansible Lint (role only)
-        working-directory: ansible_molecule
+        working-directory: ansible/ansible_molecule
         run: |
           ansible-lint roles/nginx_reverse_proxy
 
       - name: Molecule test (default scenario)
-        working-directory: ansible_molecule/roles/nginx_reverse_proxy
+        working-directory: ansible/ansible_molecule/roles/nginx_reverse_proxy
         env:
-          ANSIBLE_ROLES_PATH: ${{ github.workspace }}/ansible_molecule/roles
+          ANSIBLE_ROLES_PATH: ${{ github.workspace }}/ansible/ansible_molecule/roles
           MOLECULE_NO_LOG: "false"
         run: |
           molecule test -s default
@@ -87,5 +95,5 @@ jobs:
           name: molecule-logs-${{ matrix.os }}-py${{ matrix.py }}
           path: |
             /home/runner/.ansible/tmp/**/*
-            ansible_molecule/roles/nginx_reverse_proxy/molecule/**/.molecule/**/*
+            ansible/ansible_molecule/roles/nginx_reverse_proxy/molecule/**/.molecule/**/*
           if-no-files-found: ignore
