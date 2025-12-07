@@ -16,6 +16,12 @@ service:
   type: ClusterIP
   port: 8080
 
+ingress:
+  enabled: true
+  className: nginx
+  host: lab27.local
+  path: /
+
 labels:
   tier: frontend
   service: labweb

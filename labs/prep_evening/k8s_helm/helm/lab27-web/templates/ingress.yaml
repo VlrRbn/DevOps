@@ -1,0 +1,23 @@
+{{if .Values.ingress.enabled}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{include "lab27-web.fullname" .}}
+  labels:
+    {{include "lab27-web.labels" . | nindent 4}}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: {{.Values.ingress.className}}
+  rules:
+    - host: {{.Values.ingress.host}}
+      http:
+        paths:
+          - path: {{.Values.ingress.path}}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{include "lab27-web.fullname" .}}
+                port:
+                  number: {{.Values.service.port}}
+{{end}}

@@ -3,8 +3,11 @@ kind: ConfigMap
 metadata:
   name: lab29-prometheus-config
   namespace: monitoring
+  labels:
+    env: lab
+    managed-by: kustomize
 data:
-  prometheus.yml: |
+  prometheus.yml: |-
     global:
       scrape_interval: 30s
       evaluation_interval: 30s
@@ -21,14 +24,14 @@ data:
         static_configs:
           - targets: ["kube-state-metrics.monitoring.svc.cluster.local:8080"]
 
-  alert.rules.yml: |
+  alert.rules.yml: |-
     groups:
       - name: lab27-k8s
         rules:
           - alert: Lab27DeploymentNotReady
-              expr: >
-                kube_deployment_status_replicas_available{namespace="lab27"}
-                  < kube_deployment_spec_replicas{namespace="lab27"}
+            expr: |
+              kube_deployment_status_replicas_available{namespace="lab27"}
+                < kube_deployment_spec_replicas{namespace="lab27"}
             for: 2m
             labels:
               severity: warning

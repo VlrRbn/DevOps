@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lab29-prometheus-config
+  namespace: monitoring
+  labels:
+    env: lab
+    managed-by: kustomize
+data:
+  prometheus.yml: |-
+    global:
+      scrape_interval: 30s
+      evaluation_interval: 30s
+
+    rule_files:
+      - /etc/prometheus/alert.rules.yml
+
+    scrape_configs:
+      - job_name: "prometheus"
+        static_configs:
+          - targets: ["127.0.0.1:9090"]
+
+      - job_name: "kube-state-metrics"
+        static_configs:
+          - targets: ["kube-state-metrics.monitoring.svc.cluster.local:8080"]
+
+  alert.rules.yml: |-
+    groups:
+      - name: lab27-k8s
+        rules:
+          - alert: Lab27DeploymentNotReady
+            expr: |
+              kube_deployment_status_replicas_available{namespace="lab27"}
+                < kube_deployment_spec_replicas{namespace="lab27"}
+            for: 2m
+            labels:
+              severity: warning
+              service: lab27
+            annotations:
+              summary: "Deployment in lab27 not fully available"
+              description: "Some replicas are not available in namespace lab27."
+
+          - alert: Lab27PodRestarts
+            expr: increase(kube_pod_container_status_restarts_total{namespace="lab27"}[5m]) > 0
+            for: 5m
+            labels:
+              severity: warning
+              service: lab27
+            annotations:
+              summary: "Pod container restarts detected in lab27"
+              description: "One or more containers in namespace lab27 restarted in the last 5 minutes."

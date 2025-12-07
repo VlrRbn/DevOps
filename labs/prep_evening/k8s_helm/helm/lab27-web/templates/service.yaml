@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{include "lab27-web.fullname" .}}
   labels:
-    {{include "lab27-web.labels" . | nindent 4 }}
+    {{include "lab27-web.labels" . | nindent 4}}
 spec:
   type: {{.Values.service.type}}
   ports:

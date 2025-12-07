@@ -1,8 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: lab27
-
 resources:
  - namespace.yaml
  - redis-deployment.yaml
@@ -10,6 +8,12 @@ resources:
  - web-deployment.yaml
  - web-service.yaml
  - web-config.yaml
+ - monitoring/kube-state-metrics-deployment.yaml
+ - monitoring/kube-state-metrics-rbac.yaml
+ - monitoring/monitoring-namespace.yaml
+ - monitoring/prometheus-config.yaml
+ - monitoring/prometheus-deployment.yaml
+ - monitoring/prometheus-service.yaml
 
 labels:
  - includeSelectors: true
