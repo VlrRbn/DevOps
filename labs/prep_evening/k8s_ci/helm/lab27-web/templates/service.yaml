@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{include "lab27-web.fullname" .}}
+  labels:
+    {{include "lab27-web.labels" . | nindent 4 }}
+spec:
+  type: {{.Values.service.type}}
+  ports:
+    - port: {{.Values.service.port}}
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{include "lab27-web.name" .}}
+    app.kubernetes.io/instance: {{.Release.Name}}

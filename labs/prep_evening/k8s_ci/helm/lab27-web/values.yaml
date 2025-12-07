@@ -1,0 +1,26 @@
+image:
+  repository: ghcr.io/vlrrbn/lab25-web-workflows
+  tag: sha-8bfd05b
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+env:
+  LAB_ENV: "lab"
+  PORT: "8080"
+  REDIS_HOST: "lab27-redis"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+labels:
+  tier: frontend
+  service: labweb
+  env: lab
+
+namespaceOverride: ""
+
+resources: {}

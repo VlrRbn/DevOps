@@ -1,0 +1,9 @@
+apiVersion: 1
+
+datasources:
+  - name: lab29-prometheus
+    type: prometheus
+    access: proxy
+    url: http://host.docker.internal:9090
+    isDefault: false
+    editable: true
