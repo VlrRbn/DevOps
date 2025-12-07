@@ -1,0 +1,61 @@
+name: k8s-ci
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+jobs:
+  k8s-lint-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python for yamllint
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Run yamllint on k8s and workflows
+        run: |
+          yamllint labs/lesson_27 labs/lesson_28 labs/lesson_29 labs/prep_evening .github/workflows
+
+      - name: Install kubeconform
+        run: |
+          curl -L https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
+            | tar xz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate raw k8s manifests with kubeconform
+        run: |
+          kubeconform -summary -ignore-missing-schemas -strict \
+            labs/lesson_27/k8s/*.yaml \
+            labs/lesson_28/k8s/*.yaml \
+            labs/lesson_29/k8s/monitoring/*.yaml
+
+      - name: Validate kustomize dev overlay
+        run: |
+          cd labs/prep_evening/k8s_kustomize/kustomize/overlays/dev
+          kubectl kustomize . | kubeconform -summary -ignore-missing-schemas -strict -
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.15.0
+
+      - name: Helm lint lab27-web chart
+        run: |
+          cd labs/prep_evening/k8s_helm/helm/lab27-web
+          helm lint .
+
+      - name: Validate Helm rendered manifests
+        run: |
+          cd labs/prep_evening/k8s_helm/helm/lab27-web
+          helm template lab27-web . | kubeconform -summary -ignore-missing-schemas -strict -
