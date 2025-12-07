@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{include "lab27-web.fullname" .}}
+  labels:
+    {{include "lab27-web.labels" . | nindent 4}}
+spec:
+  replicas: {{.Values.replicaCount}}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{include "lab27-web.name" .}}
+      app.kubernetes.io/instance: {{.Release.Name}}
+  template:
+    metadata:
+      labels:
+        {{include "lab27-web.labels" . | nindent 8}}
+    spec:
+      containers:
+        - name: web
+          image: "{{.Values.image.repository}}:{{.Values.image.tag}}"
+          imagePullPolicy: {{.Values.image.pullPolicy}}
+          env:
+            - name: LAB_ENV
+              value: {{.Values.env.LAB_ENV | quote}}
+            - name: PORT
+              value: {{.Values.env.PORT | quote}}
+            - name: REDIS_HOST
+              value: {{.Values.env.REDIS_HOST | quote}}
+            - name: REDIS_PORT
+              value: {{.Values.env.REDIS_PORT | quote}}
+            - name: REDIS_DB
+              value: {{.Values.env.REDIS_DB | quote}}
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10

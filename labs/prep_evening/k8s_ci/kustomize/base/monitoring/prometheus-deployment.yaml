@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab29-prometheus
+  namespace: monitoring
+  labels:
+    app: lab29-prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab29-prometheus
+  template:
+    metadata:
+      labels:
+        app: lab29-prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.54.0
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+          ports:
+            - name: http
+              containerPort: 9090
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+      volumes:
+        - name: config
+          configMap:
+            name: lab29-prometheus-config
+            items:
+              - key: prometheus.yml
+                path: prometheus.yml
+              - key: alert.rules.yml
+                path: alert.rules.yml
