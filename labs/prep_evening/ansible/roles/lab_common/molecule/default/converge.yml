@@ -1,4 +1,3 @@
----
 - name: Converge lab_common
   hosts: all
   become: true

@@ -12,7 +12,6 @@ data:
   FEATURE_FLAG_SHOW_HITS: "true"
 
 ---
-
 apiVersion: v1
 kind: Secret
 metadata:

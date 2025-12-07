@@ -15,7 +15,7 @@ services:
       - ./alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
       - promdata:/prometheus                                   # данные
     restart: unless-stopped
-    
+
   node_exporter:
     image: quay.io/prometheus/node-exporter:latest
     container_name: lab17-node-exporter
@@ -26,7 +26,7 @@ services:
     volumes:
       - /:/host:ro,rslave
     restart: unless-stopped
-    
+
   nginx_exporter:
     image: nginx/nginx-prometheus-exporter:1.3.0
     container_name: lab17-nginx-exporter

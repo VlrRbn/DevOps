@@ -24,7 +24,7 @@ services:
     networks:
       - frontend
       - backend
-      
+
   redis:
     image: redis:7-alpine
     container_name: lab24-redis
@@ -61,12 +61,12 @@ services:
     restart: unless-stopped
     networks:
       - frontend
-      
+
 networks:
-    frontend:
-      driver: bridge
-    backend:
-      driver: bridge
-      
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
 volumes:
-    redis_data:
+  redis_data:

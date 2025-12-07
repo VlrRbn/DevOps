@@ -1,11 +1,11 @@
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
-  
+
 rule_files:
   - /etc/prometheus/rules/*.yml
   - /etc/prometheus/recording.rules.yml
-  
+
 alerting:
   alertmanagers:
     - static_configs:
@@ -22,24 +22,24 @@ scrape_configs:
       - targets: ['host.docker.internal:9100']
         labels:
           instance: 'local'
-          
+
   - job_name: 'blackbox_http'
     metrics_path: /probe
     params:
       module: ["http_2xx"]
     static_configs:
       - targets:
-        - http://prometheus:9090/-/healthy
+          - http://prometheus:9090/-/healthy
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
-        
+
       - source_labels: [__param_target]
         target_label: instance
-        
+
       - target_label: __address__
         replacement: blackbox:9115
-          
+
   - job_name: 'nginx'
     static_configs:
       - targets: ['nginx_exporter:9113']

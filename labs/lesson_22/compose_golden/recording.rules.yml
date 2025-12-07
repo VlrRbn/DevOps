@@ -1,7 +1,7 @@
 groups:
-- name: labweb-sli
-  interval: 30s
-  rules:
+ - name: labweb-sli
+   interval: 30s
+   rules:
     # Traffic (RPS)
     - record: labweb:http_requests_total_5m
       expr: sum(rate(nginx_http_requests_total{service="labweb"}[5m]))

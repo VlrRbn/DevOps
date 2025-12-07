@@ -46,7 +46,7 @@ services:
     depends_on:
       - loki
     restart: unless-stopped
-  
+
   nginx_exporter:
     image: nginx/nginx-prometheus-exporter:latest
     container_name: golden-nginx-exporter
@@ -72,7 +72,7 @@ services:
     volumes:
       - ./blackbox.yml:/etc/blackbox/blackbox.yml:ro
     restart: unless-stopped
-    
+
   alertmanager:
     image: prom/alertmanager:latest
     container_name: golden-alertmanager
@@ -87,7 +87,7 @@ services:
     ports:
       - "127.0.0.1:9093:9093"
     restart: unless-stopped
-  
+
   prometheus:
     image: prom/prometheus:latest
     container_name: golden-prometheus
@@ -119,7 +119,7 @@ services:
 volumes:
   grafdata:
   lokidata:
-  
+
 networks:
   monitoring:
     driver: bridge

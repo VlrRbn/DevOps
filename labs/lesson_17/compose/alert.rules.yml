@@ -9,7 +9,7 @@ groups:
           severity: critical
         annotations:
           summary: "{{ $labels.job }} on {{ $labels.instance }} is down"
-          
+
       - alert: NginxExporterDown
         expr: up{job="nginx"} == 0
         for: 1m
@@ -17,7 +17,7 @@ groups:
           severity: warning
         annotations:
           summary: "Nginx exporter DOWN on {{ $labels.instance }}"
-      
+
       - alert: NginxHighRPS
         expr: rate(nginx_http_requests_total[5m]) > 200
         for: 10m
@@ -25,11 +25,11 @@ groups:
           severity: info
         annotations:
           summary: "High RPS on {{ $labels.instance }}"
-          
+
       - alert: HighCPU
         expr: sum by (instance) (rate(node_cpu_seconds_total{mode!="idle"}[5m])) > 1
         for: 5m
-        labels: 
+        labels:
           severity: warning
         annotations:
           summary: "High CPU on {{ $labels.instance }} (>1 core)"

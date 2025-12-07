@@ -13,7 +13,7 @@ contactPoints:
 policies:
   - orgId: 1
     receiver: lab-default
-    group_by: ["alertname","instance","service","severity"]
+    group_by: ["alertname", "instance", "service", "severity"]
     routes: []
 
 groups:

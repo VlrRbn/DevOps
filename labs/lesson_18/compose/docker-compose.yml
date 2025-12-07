@@ -2,7 +2,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: lab18-prometheus
-    ##network_mode: host
+    ## network_mode: host
     networks: [monitoring]
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -24,11 +24,11 @@ services:
       - blackbox
       - nginx_exporter
     restart: unless-stopped
-    
+
   alertmanager:
     image: prom/alertmanager:latest
     container_name: lab18-alertmanager
-    ##network_mode: host
+    ## network_mode: host
     networks: [monitoring]
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
@@ -39,11 +39,11 @@ services:
     ports:
       - "127.0.0.1:9093:9093"
     restart: unless-stopped
-    
+
   nginx_exporter:
     image: nginx/nginx-prometheus-exporter:latest
     container_name: lab18-nginx-exporter
-    ##network_mode: host
+    ## network_mode: host
     networks: [monitoring]
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -58,7 +58,7 @@ services:
     image: prom/blackbox-exporter:latest
     container_name: lab18-blackbox
     networks: [monitoring]
-    ##network_mode: host
+    ## network_mode: host
     command:
       - "--config.file=/etc/blackbox/blackbox.yml"
       - "--web.listen-address=0.0.0.0:9115"
@@ -71,7 +71,7 @@ services:
 volumes:
   promdata:
   grafdata:
-  
+
 networks:
   monitoring:
     driver: bridge

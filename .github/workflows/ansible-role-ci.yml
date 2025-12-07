@@ -2,13 +2,13 @@ name: Ansible Role CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - "ansible_molecule/**"
+      - "ansible/ansible_molecule/**"
       - ".github/workflows/ansible-role-ci.yml"
   pull_request:
     paths:
-      - "ansible_molecule/**"
+      - "ansible/ansible_molecule/**"
       - ".github/workflows/ansible-role-ci.yml"
   workflow_dispatch:
 
@@ -89,4 +89,3 @@ jobs:
             /home/runner/.ansible/tmp/**/*
             ansible_molecule/roles/nginx_reverse_proxy/molecule/**/.molecule/**/*
           if-no-files-found: ignore
-

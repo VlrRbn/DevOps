@@ -1,0 +1,15 @@
+extends: default
+
+rules:
+  line-length:
+    max: 120
+    level: warning
+  truthy:
+    level: warning
+  document-start:
+    present: false
+
+ignore: |
+  .git/
+  .venv/
+  **/__pycache__/

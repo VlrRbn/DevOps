@@ -37,7 +37,7 @@ scrape_configs:
           fallback_formats:
             - RFC3339
             - Unix
-            
+
   - job_name: auth
     static_configs:
       - targets: [localhost]

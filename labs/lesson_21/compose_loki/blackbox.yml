@@ -16,4 +16,3 @@ modules:
       method: GET
       valid_status_codes: [200]
       no_follow_redirects: true
-

@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     networks:
       - backend
-      
+
   redis:
     image: redis:7-alpine
     container_name: lab25-redis
@@ -38,10 +38,10 @@ services:
     restart: unless-stopped
     networks:
       - backend
-      
+
 networks:
-    backend:
-      driver: bridge
-      
+  backend:
+    driver: bridge
+
 volumes:
-    redis_data:
+  redis_data:

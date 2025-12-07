@@ -1,12 +1,12 @@
 global:
   resolve_timeout: 5m
-  
+
 templates:
   - '/etc/alertmanager/templates/*.tmpl'
 
 route:
   receiver: 'telegram'
-  group_by: ['alertname','job','instance']
+  group_by: ['alertname', 'job', 'instance']
   group_wait: 10s
   group_interval: 1m
   repeat_interval: 2h
@@ -15,6 +15,6 @@ receivers:
   - name: 'telegram'
     telegram_configs:
       - bot_token: '*****'
-        chat_id: *****
+        chat_id: 000000
         parse_mode: 'HTML'
         message: '{{ template "body_html" . }}'

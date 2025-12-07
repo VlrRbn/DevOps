@@ -4,7 +4,3 @@ name: lab27
 nodes:
   - role: control-plane
     extraPortMappings:
-      # Optional: map NodePort range
-      # - containerPort: 30080
-      #   hostPort: 30080
-      #   protocol: TCP

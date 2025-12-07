@@ -4,7 +4,7 @@ global:
 
 rule_files:
   - /etc/prometheus/alert.rules.yml
-  
+
 alerting:
   alertmanagers:
     - static_configs:
@@ -21,28 +21,27 @@ scrape_configs:
       - targets: ['host.docker.internal:9100']
         labels:
           instance: 'local'
-          
+
   - job_name: 'blackbox_http'
     metrics_path: /probe
     params:
       module: ["http_2xx"]
     static_configs:
       - targets:
-        - http://prometheus:9090/-/healthy
-        - http://alertmanager:9093/-/ready
+          - http://prometheus:9090/-/healthy
+          - http://alertmanager:9093/-/ready
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
-        
+
       - source_labels: [__param_target]
         target_label: instance
-        
+
       - target_label: __address__
         replacement: blackbox:9115
-          
+
   - job_name: 'nginx'
     static_configs:
-      ##- targets: ['127.0.0.1:9113']
       - targets: ['lab18-nginx-exporter:9113']
         labels:
           instance: 'local'

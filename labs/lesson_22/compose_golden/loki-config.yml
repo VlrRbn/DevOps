@@ -49,4 +49,3 @@ limits_config:
 
 query_range:
   parallelise_shardable_queries: true
-

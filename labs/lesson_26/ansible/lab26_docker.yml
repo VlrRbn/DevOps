@@ -1,4 +1,3 @@
----
 # Host & Deploy
 - name: Provision Docker host and deploy lab25 stack
   hosts: lab_docker_hosts

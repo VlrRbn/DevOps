@@ -46,7 +46,7 @@ services:
     depends_on:
       - loki
     restart: unless-stopped
-  
+
   nginx_exporter:
     image: nginx/nginx-prometheus-exporter:latest
     container_name: lab21-nginx-exporter
@@ -72,7 +72,7 @@ services:
     volumes:
       - ./blackbox.yml:/etc/blackbox/blackbox.yml:ro
     restart: unless-stopped
-  
+
   prometheus:
     image: prom/prometheus:latest
     container_name: lab21-prometheus
@@ -101,7 +101,7 @@ services:
 volumes:
   grafdata:
   lokidata:
-  
+
 networks:
   monitoring:
     driver: bridge
