@@ -26,7 +26,7 @@
 
 ---
 
-## Pocket Cheat (table-first)
+## Pocket Cheat
 
 | Thing / File | What it does | Why |
 | --- | --- | --- |
