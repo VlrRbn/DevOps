@@ -7,20 +7,18 @@ My journey in DevOps from scratch to first job — daily notes, labs, and mini�
 ## 📂 Repository structure
 ```
 devops-notes/
- ├─ ansible_molecule
- ├─ ansible_practice
+ ├─ ansible/
  ├─ cheatsheets/
  ├─ labs/
  ├─ /lesson01_10/
  ├─ /lesson11_20/
  ├─ /lesson21_30/
- ├─ prep_evening/
  ├─ tools/
  ├─ DevOps_Progress.md
  └─ README.md
 ```
 
-> If some files are missing yet — they’ll be added later.
+> If some files are missing yet — they'll be added later.
 
 ---
 
@@ -56,11 +54,12 @@ devops-notes/
 | **Lesson 27** | Kubernetes Intro: Run lab Web + Redis on a Local k8s Cluster | [Materials_27](lesson21_30/lesson_27.md) |
 | **Lesson 28** | Kubernetes Config: ConfigMap, Secret & Ingress | [Materials_28](lesson21_30/lesson_28.md) |
 | **Lesson 29** | Kubernetes Monitoring: Prometheus + kube-state-metrics + Grafana | [Materials_29](lesson21_30/lesson_29.md) |
+| **Lesson 30** | Kubernetes Observability for lab27-web: App Metrics & Dashboard | [Materials_30](lesson21_30/lesson_30.md) |
 ---
 
 ## How to use
 - Each lesson: **Goals → Practice → Mini-lab → Summary** in `lesson_N.md`.
-- Labs under `labs/lesson_N/…`, scripts under `tools/`.
+- Labs under `labs/lesson_N/...`, scripts under `tools/`.
 - If copied from `/etc` or `/usr/local/bin` with sudo, fix ownership before commit:
   ```bash
   sudo chown -R "$(id -un)":"$(id -gn)" labs tools
@@ -71,16 +70,8 @@ devops-notes/
   ```
 ---
 
-## Example — lesson_05 quick check
-```bash
-sudo systemctl enable --now hello.timer
-systemctl list-timers --all | grep hello
-journalctl -u hello.service -n 10 --no-pager
-```
-
 ## 📈 Progress
 - Daily log: [DevOps Progress](DevOps_Progress.md)
-
 ---
 
 ## 🎯 Goal

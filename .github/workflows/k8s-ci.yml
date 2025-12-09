@@ -3,8 +3,18 @@ name: k8s-ci
 on:
   push:
     branches: ["main"]
+    paths:
+      - "labs/lesson_27/**"
+      - "labs/lesson_28/**"
+      - "labs/lesson_29/**"
+      - "labs/prep_evening/**"
   pull_request:
     branches: ["main"]
+    paths:
+      - "labs/lesson_27/**"
+      - "labs/lesson_28/**"
+      - "labs/lesson_29/**"
+      - "labs/prep_evening/**"
   workflow_dispatch: {}
 
 jobs:

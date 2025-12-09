@@ -40,3 +40,4 @@
 | 28 | 2025-12-01 | Kubernetes Config: ConfigMap, Secret & Ingress for lab27 Web |
 | 29 | 2025-12-03 | Kubernetes Monitoring: Prometheus + kube-state-metrics + Grafana |
 | * | 2025-12-07 | Prep evening: K8s CI Polish: Lint, Kustomize & Helm |
+| 30 | 2025-12-09 | Kubernetes Observability for lab27-web: App Metrics & Dashboard |
