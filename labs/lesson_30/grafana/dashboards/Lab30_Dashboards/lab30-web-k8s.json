@@ -1,0 +1,58 @@
+{
+  "uid": "lab30-web-k8s",
+  "title": "Lab30-Web (k8s) - App & K8s",
+  "tags": ["lab", "k8s", "lab30", "labweb"],
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "HTTP RPS by endpoint",
+      "datasource": {"type": "prometheus", "uid": "ds_prom"},
+      "targets": [
+        {
+          "expr": "sum by (endpoint) (rate(labweb_http_requests_total[5m]))",
+          "legendFormat": "{{endpoint}}"
+        }
+      ],
+      "gridPos": {"h": 6, "w": 12, "x": 0, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP 2xx rate",
+      "datasource": {"type": "prometheus", "uid": "ds_prom"},
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(labweb_http_requests_total{status=~\"2..\"}[5m]))",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "gridPos": {"h": 6, "w": 12, "x": 12, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Request latency p99",
+      "datasource": {"type": "prometheus", "uid": "ds_prom"},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(labweb_http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "p99 latency"
+        }
+      ],
+      "gridPos": {"h": 6, "w": 12, "x": 0, "y": 6}
+    },
+    {
+      "type": "timeseries",
+      "title": "Pod restarts (lab30 namespace)",
+      "datasource": {"type": "prometheus", "uid": "ds_prom"},
+      "targets": [
+        {
+          "expr": "increase(kube_pod_container_status_restarts_total{namespace=\"lab30\"}[10m])",
+          "legendFormat": "{{pod}}"
+        }
+      ],
+      "gridPos": {"h": 6, "w": 12, "x": 12, "y": 6}
+    }
+  ]
+}

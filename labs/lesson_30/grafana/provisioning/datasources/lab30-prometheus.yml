@@ -1,0 +1,11 @@
+apiVersion: 1
+datasources:
+  - name: lab30-prometheus
+    type: prometheus
+    uid: ds_prom
+    access: proxy
+    url: http://host.docker.internal:9090
+    isDefault: true
+    jsonData:
+      httpMethod: GET
+    editable: true
