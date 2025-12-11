@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lab30-web-config
+  namespace: lab30
+data:
+  LAB_ENV: "lab"
+  PORT: "8080"
+  REDIS_HOST: "lab30-redis"
+  # REDIS_PORT is not an int, app may crash depending on code
+  REDIS_PORT: "not-a-number"
+  REDIS_DB: "0"

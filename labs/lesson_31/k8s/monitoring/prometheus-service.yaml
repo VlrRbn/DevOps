@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab30-prometheus
+  namespace: monitoring
+  labels:
+    app: lab30-prometheus
+spec:
+  type: ClusterIP
+  selector:
+    app: lab30-prometheus
+  ports:
+    - name: http
+      port: 9090
+      targetPort: 9090
