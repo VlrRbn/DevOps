@@ -15,3 +15,4 @@ __pycache__/
 .pytest_cache/
 
 /labs/lesson_29/compose/grafana-data/
+/labs/lesson_30/grafana/grafana-data/
