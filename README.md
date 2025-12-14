@@ -56,6 +56,7 @@ devops-notes/
 | **Lesson 29** | Kubernetes Monitoring: Prometheus + kube-state-metrics + Grafana | [Materials_29](lesson21_30/lesson_29.md) |
 | **Lesson 30** | Kubernetes Observability for lab27-web: App Metrics & Dashboard | [Materials_30](lesson21_30/lesson_30.md) |
 | **Lesson 31** | K8s Incidents I: CrashLoopBackOff & ImagePullBackOff | [Materials_31](lesson31_40/lesson_31.md) |
+| **Lesson 32** | K8s Incidents II: OOMKilled, CPU Throttle & QoS | [Materials_32](lesson31_40/lesson_32.md) |
 ---
 
 ## How to use
