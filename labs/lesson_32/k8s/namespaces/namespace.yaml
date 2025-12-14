@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab32-resources
+  labels:
+    env: lab
+    topic: resources

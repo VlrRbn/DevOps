@@ -216,7 +216,7 @@ Make the container pull successfully but crash on startup.
 
 ### 3.1 Broken env (e.g. invalid REDIS_PORT)
 
-Create `labs/lesson_31/k8s/web-bad-env.yaml`:
+Create `labs/lesson_31/k8s/bad-redis-arg.yaml`:
 
 ```yaml
 apiVersion: apps/v1

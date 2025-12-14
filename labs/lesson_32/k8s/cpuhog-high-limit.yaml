@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab32-cpuhog
+  namespace: lab32-resources
+  labels:
+    app: lab32-cpuhog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab32-cpuhog
+  template:
+    metadata:
+      labels:
+        app: lab32-cpuhog
+    spec:
+      containers:
+        - name: cpuhog
+          image: alpine:3.20
+          command: ["/bin/sh", "-c"]
+          args:
+            - "yes > /dev/null"
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "200m"     # 0.2
+            limits:
+              memory: "256Mi"
+              cpu: "1"
