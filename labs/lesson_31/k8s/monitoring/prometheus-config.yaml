@@ -57,3 +57,14 @@ data:
             annotations:
               summary: "Pod container restarts detected in lab30"
               description: "One or more containers in namespace lab30 restarted in the last 5 minutes."
+
+          - alert: Lab31PodCrashLoopBackOff
+            expr: kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff",namespace="lab30"} > 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Pod in CrashLoopBackOff"
+              description: |
+                Pod {{ $labels.pod }} (container {{ $labels.container }})
+                in namespace {{ $labels.namespace }} is in CrashLoopBackOff state.

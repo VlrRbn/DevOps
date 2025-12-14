@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab30-redis
+  namespace: lab30
+  labels:
+    app: lab30-redis
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab30-redis
+  template:
+    metadata:
+      labels:
+        app: lab30-redis
+        tier: backend
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          # 1st args not-a-number "redis-server"
+          args: ["9090", "--save", "60", "1", "--loglevel", "warning"]
+          ports:
+            - containerPort: 6379
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 10
+            periodSeconds: 10
