@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lab34-redis-backup-pvc
+  namespace: lab33-storage
+  labels:
+    app: lab34-redis-backup-pvc
+    tier: backend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: lab34-redis-backup
+  namespace: lab33-storage
+  labels:
+    app: lab34-redis-backup
+spec:
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: lab34-redis-backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: redis:7-alpine
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -eu
+                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Starting Redis backup...";
+                  mkdir -p /backup;
+                  FILENAME="/backup/redis-lab33-$(date -u +%Y%m%dT%H%M%SZ).rdb";
+                  # connect to lab33-redis in same namespace
+                  redis-cli -h lab33-redis --rdb "${FILENAME}";
+                  echo "Backup finished: ${FILENAME}";
+                  ls -lh /backup;
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: backup
+              persistentVolumeClaim:
+                claimName: lab34-redis-backup-pvc
