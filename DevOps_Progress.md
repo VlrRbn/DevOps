@@ -43,3 +43,4 @@
 | 30 | 2025-12-09 | Kubernetes Observability for lab30-web: App Metrics & Dashboard |
 | 31 | 2025-12-11 | K8s Incidents I: CrashLoopBackOff & ImagePullBackOff |
 | 32 | 2025-12-14 | K8s Incidents II: OOMKilled, CPU Throttle & QoS |
+| 33 | 2025-12-15 | K8s Storage: PVC, PV & Redis StatefulSet |
