@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab30-web
+  namespace: lab33-storage
+  labels:
+    app: lab30-web
+spec:
+  type: ClusterIP
+  selector:
+    app: lab30-web
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
