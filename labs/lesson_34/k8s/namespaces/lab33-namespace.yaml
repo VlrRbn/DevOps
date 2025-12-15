@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab33-storage
+  labels:
+    env: lab
+    topic: storage

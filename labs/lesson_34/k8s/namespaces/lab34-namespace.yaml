@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab34-jobs
+  labels:
+    env: lab
+    topic: jobs

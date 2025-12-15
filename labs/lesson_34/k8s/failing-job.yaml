@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lab34-fail
+  namespace: lab34-jobs
+  labels:
+    job: lab34-fail
+    tier: backend
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        job: lab34-fail
+        tier: backend
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: fail
+          image: alpine:3.20
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Lab34 will failed...";
+              exit 1;
