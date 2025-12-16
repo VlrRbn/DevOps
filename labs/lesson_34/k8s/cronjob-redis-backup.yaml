@@ -18,25 +18,29 @@ spec:
           labels:
             app: lab34-redis-backup
         spec:
-          restartPolicy: OnFailure
+          restartPolicy: Never
+          activeDeadlineSeconds: 300
           containers:
             - name: backup
               image: redis:7-alpine
               command: ["/bin/sh", "-c"]
               args:
                 - |
-                  set -eu
+                  set -eux
                   echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Starting Redis backup...";
                   mkdir -p /backup;
-                  FILENAME="/backup/redis-lab33-$(date -u +%Y%m%dT%H%M%SZ).rdb";
-                  # connect to lab33-redis in same namespace
-                  redis-cli -h lab33-redis --rdb "${FILENAME}";
-                  echo "Backup finished: ${FILENAME}";
+                  BACKUP_FILE="/backup/redis-lab33-$(date -u +%Y%m%dT%H%M%SZ).rdb";
+                  # connect to lab33-redis in lab33-storage namespace
+                  redis-cli -h lab33-redis --rdb "${BACKUP_FILE}";
+                  echo "Backup finished: ${BACKUP_FILE}";
+                  # keep only last 7 days
+                  busybox find /backup -type f -name "*.rdb" -mtime +7 -delete
+                  echo "Current backups:"
                   ls -lh /backup;
               volumeMounts:
-                - name: backup
+                - name: backup-pvc
                   mountPath: /backup
           volumes:
-            - name: backup
+            - name: backup-pvc
               persistentVolumeClaim:
                 claimName: lab34-redis-backup-pvc

@@ -5,7 +5,6 @@ metadata:
   namespace: lab33-storage
   labels:
     app: lab34-redis-backup-pvc
-    tier: backend
 spec:
   accessModes:
     - ReadWriteOnce

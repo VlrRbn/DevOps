@@ -58,6 +58,7 @@ devops-notes/
 | **Lesson 31** | K8s Incidents I: CrashLoopBackOff & ImagePullBackOff | [Materials_31](lesson31_40/lesson_31.md) |
 | **Lesson 32** | K8s Incidents II: OOMKilled, CPU Throttle & QoS | [Materials_32](lesson31_40/lesson_32.md) |
 | **Lesson 33** | K8s Storage: PVC, PV & Redis StatefulSet | [Materials_33](lesson31_40/lesson_33.md) |
+| **Lesson 34** | K8s Jobs & CronJobs: One-off Tasks & Redis Backups | [Materials_34](lesson31_40/lesson_34.md) |
 ---
 
 ## How to use

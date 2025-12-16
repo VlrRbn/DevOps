@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: redis-backup-job
+  namespace: lab33-storage
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: backup
+          image: busybox
+          command: ["sh", "-c", "date > /backup/backup.txt"]
+          volumeMounts:
+        - name: backup-pvc
+          mountPath: /backup
+      volumes:
+        - name: backup-pvc
+          persistentVolumeClaim:
+            claimName: lab34-redis-backup-pvc

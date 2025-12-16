@@ -5,7 +5,6 @@ metadata:
   namespace: lab33-storage
   labels:
     app: lab33-redis
-    tier: backend
 spec:
   serviceName: lab33-redis-headless
   replicas: 1
@@ -16,7 +15,6 @@ spec:
     metadata:
       labels:
         app: lab33-redis
-        tier: backend
     spec:
       containers:
         - name: redis

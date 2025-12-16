@@ -5,14 +5,12 @@ metadata:
   namespace: lab34-jobs
   labels:
     job: lab34-fail
-    tier: backend
 spec:
   backoffLimit: 3
   template:
     metadata:
       labels:
         job: lab34-fail
-        tier: backend
     spec:
       restartPolicy: Never
       containers:
