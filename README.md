@@ -13,6 +13,8 @@ devops-notes/
  ├─ /lesson01_10/
  ├─ /lesson11_20/
  ├─ /lesson21_30/
+ ├─ /lesson31_40/
+ ├─ runbook/
  ├─ tools/
  ├─ DevOps_Progress.md
  └─ README.md
@@ -59,6 +61,7 @@ devops-notes/
 | **Lesson 32** | K8s Incidents II: OOMKilled, CPU Throttle & QoS | [Materials_32](lesson31_40/lesson_32.md) |
 | **Lesson 33** | K8s Storage: PVC, PV & Redis StatefulSet | [Materials_33](lesson31_40/lesson_33.md) |
 | **Lesson 34** | K8s Jobs & CronJobs: One-off Tasks & Redis Backups | [Materials_34](lesson31_40/lesson_34.md) |
+| **Lesson 35** | K8s RBAC Basics: ServiceAccounts, Roles & RoleBindings | [Materials_35](lesson31_40/lesson_35.md) |
 ---
 
 ## How to use
@@ -79,4 +82,4 @@ devops-notes/
 ---
 
 ## 🎯 Goal
-Learn Linux, networking, scripting, CI/CD, containers, cloud, and automation to get a DevOps engineer job.  
+Learn Linux, networking, scripting, CI/CD, containers, cloud, and automation to get a DevOps job.  
