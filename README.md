@@ -62,6 +62,7 @@ devops-notes/
 | **Lesson 33** | K8s Storage: PVC, PV & Redis StatefulSet | [Materials_33](lesson31_40/lesson_33.md) |
 | **Lesson 34** | K8s Jobs & CronJobs: One-off Tasks & Redis Backups | [Materials_34](lesson31_40/lesson_34.md) |
 | **Lesson 35** | K8s RBAC Basics: ServiceAccounts, Roles & RoleBindings | [Materials_35](lesson31_40/lesson_35.md) |
+| **Lesson 36** | K8s NetworkPolicies: Default Deny & Allow Rules | [Materials_36](lesson31_40/lesson_36.md) |
 ---
 
 ## How to use

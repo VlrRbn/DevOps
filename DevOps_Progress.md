@@ -46,3 +46,4 @@
 | 33 | 2025-12-15 | K8s Storage: PVC, PV & Redis StatefulSet |
 | 34 | 2025-12-16 | K8s Jobs & CronJobs: One-off Tasks & Redis Backups |
 | 35 | 2025-12-18 | K8s RBAC Basics: ServiceAccounts, Roles & RoleBindings |
+| 36 | 2025-12-20 | K8s NetworkPolicies: Default Deny & Allow Rules |
