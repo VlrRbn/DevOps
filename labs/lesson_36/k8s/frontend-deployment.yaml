@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab36-frontend
+  namespace: lab36-netpol
+  labels:
+    app: lab36-frontend
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab36-frontend
+  template:
+    metadata:
+      labels:
+        app: lab36-frontend
+        tier: frontend
+    spec:
+      containers:
+        - name: client
+          image: curlimages/curl:8.11.1
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Lab36 frontend started, sleeping...";
+              sleep 3600;
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

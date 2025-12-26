@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lab36-allow-frontend-egress-to-backend
+  namespace: lab36-netpol
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+      app: lab36-frontend
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              tier: backend
+              app: lab36-backend
+      ports:
+        - protocol: TCP
+          port: 80

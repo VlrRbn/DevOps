@@ -1,0 +1,9 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lab36-default-deny-ingress
+  namespace: lab36-netpol
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress

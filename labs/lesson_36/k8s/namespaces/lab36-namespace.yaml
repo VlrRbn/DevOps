@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab36-netpol
+  labels:
+    env: lab
+    topic: netpol

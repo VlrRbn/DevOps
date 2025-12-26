@@ -12,3 +12,5 @@ ignore: |
   .venv/
   **/__pycache__/
   labs/prep_evening/k8s_helm/helm/lab27-web/templates/
+  labs/lesson_36/k8s/ingress/
+  labs/lesson_36/kind/calico-manifests/

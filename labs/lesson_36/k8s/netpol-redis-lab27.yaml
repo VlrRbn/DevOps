@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lab27-redis-ingress
+  namespace: lab27
+spec:
+  podSelector:
+    matchLabels:
+      app: lab27-redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: lab27-web
+      # - podSelector:
+      # matchLabels:
+      # app: lab34-redis-backup
+      ports:
+        - protocol: TCP
+          port: 6379

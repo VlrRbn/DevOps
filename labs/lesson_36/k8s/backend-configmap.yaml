@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lab36-backend-nginx-conf
+  namespace: lab36-netpol
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name _;
+
+      location = /health {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+      }
+
+      location / {
+        access_log off;
+        default_type text/html;
+        return 200 "Welcome to lab36-backend\n";
+      }
+    }
