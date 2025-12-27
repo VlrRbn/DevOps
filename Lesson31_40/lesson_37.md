@@ -261,7 +261,7 @@ curl -I http://lab37.local --resolve lab37.local:80:127.0.0.1
 Look for:
 
 - In the `curl` output: certificate details (CN, validity, etc.).
-- The HTTP response from your `lab37-ingress`.
+- The HTTP response from your `lab37-web`.
 
 With a self-signed cert you’ll get a warning, but `-k` skips certificate chain verification.
 
@@ -319,7 +319,7 @@ mkcert -cert-file lab37.local.crt -key-file lab37.local.key lab37.local
 
 kubectl create secret tls lab37-tls -n lab37 \
   --cert=lab37.local.crt \
-  --key=lab37.local-key
+  --key=lab37.local.key
 
 kubectl describe secret lab37-tls -n lab37
 ```
@@ -340,8 +340,8 @@ kubectl describe secret lab37-tls -n lab37
 
 - [ ]  Generated a self-signed or mkcert certificate for `lab37.local`.
 - [ ]  Created the TLS Secret `lab37-tls` in the `lab37` namespace.
-- [ ]  The `lab28-web` Ingress was updated with a `tls:` block and applied.
-- [ ]  `curl -vk https://lab37.local` works and returns the `lab37-ingress` response.
+- [ ]  The `lab37-web` Ingress was updated with a `tls:` block and applied.
+- [ ]  `curl -vk https://lab37.local` works and returns the `lab37-web` response.
 - [ ]  Tried the mkcert option so the browser trusts the certificate.
 - [ ]  Documented the full local cert generation/rotation process in `tls-notes.md`.
 - [ ]  Verified that plain HTTP (the old Ingress without TLS) is no longer being used.
