@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab37-web
+  namespace: lab37
+  labels:
+    app: lab37-web
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab37-web
+  template:
+    metadata:
+      labels:
+        app: lab37-web
+        tier: frontend
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/vlrrbn/lab30-web-metrics:0.2.1
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: lab37-web-config
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
