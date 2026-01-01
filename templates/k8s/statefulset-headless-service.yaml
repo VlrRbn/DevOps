@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: APP_NAME-headless
+  namespace: APP_NAMESPACE
+  labels:
+    app: APP_NAME
+spec:
+  clusterIP: None
+  selector:
+    app: APP_NAME
+  ports:
+    - name: app
+      port: APP_PORT
+      targetPort: APP_PORT

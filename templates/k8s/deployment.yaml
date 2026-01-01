@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: APP_NAME
+  namespace: APP_NAMESPACE
+  labels:
+    app: APP_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: APP_NAME
+  template:
+    metadata:
+      labels:
+        app: APP_NAME
+    spec:
+      containers:
+        - name: APP_NAME
+          image: APP_IMAGE
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: APP_PORT
+          envFrom:
+            - configMapRef:
+                name: APP_NAME-config
+            - secretRef:
+                name: APP_NAME-secret
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: APP_PORT
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: APP_PORT
+            initialDelaySeconds: 15
+            periodSeconds: 10

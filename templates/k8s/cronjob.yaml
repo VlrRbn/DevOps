@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: APP_NAME-cron
+  namespace: APP_NAMESPACE
+spec:
+  schedule: "0 2 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: APP_NAME
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: APP_NAME
+              image: APP_IMAGE
+              imagePullPolicy: IfNotPresent
+              command: ["/bin/sh", "-c"]
+              args: ["echo cron job run; sleep 5"]
