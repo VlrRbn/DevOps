@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: lab38-local-tls
+  namespace: lab37
+spec:
+  secretName: lab38-local-tls
+  duration: 2160h
+  renewBefore: 720h
+  issuerRef:
+    name: labca
+    kind: ClusterIssuer
+  dnsNames:
+    - lab38.local

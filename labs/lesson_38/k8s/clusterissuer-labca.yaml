@@ -1,0 +1,7 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: labca
+spec:
+  ca:
+    secretName: labca-root-tls

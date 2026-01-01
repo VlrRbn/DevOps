@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: labca-root
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: "lab38.local Root CA"
+  secretName: labca-root-tls
+  duration: 8760h
+  renewBefore: 720h
+  issuerRef:
+    name: labca-selfsigned-root
+    kind: ClusterIssuer
