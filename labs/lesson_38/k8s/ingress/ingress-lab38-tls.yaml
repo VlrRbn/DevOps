@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lab38-ingress
+  namespace: lab37
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - lab38.local
+      secretName: lab38-local-tls
+  rules:
+    - host: lab38.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lab37-web
+                port:
+                  number: 8080
