@@ -86,3 +86,25 @@
 
 - DB in private subnet:
   - SG: allow DB port only from web SG (no direct internet)
+
+## 4. IAM basics (cloud)
+
+Entities:
+- IAM User: a human with long-term credentials (long-lived access keys are evil)
+- IAM Role: an identity for services (VMs, k8s nodes, Lambda, CI) without passwords
+- Policy: JSON riles: with "Effect / Action / Resource"
+
+Patterns:
+- Human → logs into console or uses CLI via IAM user or SSO
+- VM or k8s node → gets IAM Role attached (no hardcoded keys)
+- CI pipeline → uses IAM Role to push images, apply Terraform, etc.
+
+Mapping to k8s:
+- IAM Role ≈ ServiceAccount
+- IAM Policy ≈ Role/ClusterRole
+- Role attachment to EC2/Node ≈ ServiceAccount + RoleBinding, at the VM/cloud API level
+
+
+“Least privilege” here is very concrete:
+- CI roles should have only what they need, e.g., `ecr:PutImage`, `s3:GetObject` etc., not `AdministratorAccess` 
+- That’s like giving your entire pipeline the `cluster-admin` ClusterRole…

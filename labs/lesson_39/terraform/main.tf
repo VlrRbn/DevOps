@@ -156,7 +156,10 @@ resource "aws_nat_gateway" "nat_gw" {
     Name = "${var.project_name}-nat_gw-${each.key}"
   })
 
-  depends_on = [aws_internet_gateway.igw]
+  depends_on = [
+    aws_internet_gateway.igw,
+    aws_route_table_association.public_subnet_assoc
+  ]
 }
 
 # ***** Security Groups (stateful L4) *****
@@ -241,7 +244,7 @@ resource "aws_security_group" "db" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description     = "Postgress from Web SG"
+    description     = "Postgres from Web SG"
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"

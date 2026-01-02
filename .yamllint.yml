@@ -16,4 +16,3 @@ ignore: |
   labs/lesson_37/k8s/ingress/
   labs/lesson_36/kind/calico-manifests/
   labs/lesson_38/k8s/ingress/
-  
