@@ -16,3 +16,5 @@ __pycache__/
 
 /labs/lesson_29/compose/grafana-data/
 /labs/lesson_30/grafana/grafana-data/
+/labs/lesson_39/terraform/.terraform
+/labs/lesson_39/terraform/.terraform.lock.hcl

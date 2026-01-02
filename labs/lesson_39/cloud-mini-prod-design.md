@@ -43,7 +43,7 @@
 |                                                                       |
 +-----------------------------------------------------------------------+
 
-### 2 Traffic flow: “how I SSH in, and why the DB isn’t reachable from the internet”
+## 2. Traffic flow: “how I SSH in, and why the DB isn’t reachable from the internet”
 
 1) Laptop → Bastion: via the bastion’s public IP (it’s in a public subnet, with a `0.0.0.0/0` route to the IGW, and its SG "inbound tcp/22" allows SSH only from my piblic IP).
 
@@ -55,3 +55,34 @@
   * the DB has no public IP,
   * the private subnet has no route through the IGW, NO (0.0.0.0/0 → IGW absent)
   * the DB SG has no `0.0.0.0/0` ingress rule, only from SG web.
+
+## 3. Mini-prod VPC design
+
+### 3.1 VPC and CIDR
+
+- VPC CIDR: 10.10.0.0/16
+
+### 3.2 Subnets
+
+- Public subnet A: 10.10.1.0/24
+- Public subnet B: 10.10.2.0/24
+- Private subnet A: 10.10.11.0/24
+- Private subnet B: 10.10.12.0/24
+
+### 3.3 Internet access
+
+- Internet Gateway attached to VPC
+- Public subnets route 0.0.0.0/0 → IGW
+- Private subnets route 0.0.0.0/0 → NAT gateway in public subnet A
+
+### 3.4 Typical instances / roles
+
+- Bastion host in public subnet A:
+  - Security group: ssh from my IP only, maybe k8s control-plane access
+
+- Web nodes in public or private subnets:
+  - SG: allow 80/443 from internet (public case) or from load balancer
+  - SSH only from Bastion SG
+
+- DB in private subnet:
+  - SG: allow DB port only from web SG (no direct internet)
