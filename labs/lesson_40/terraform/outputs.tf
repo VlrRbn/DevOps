@@ -25,3 +25,11 @@ output "nat_gateway_ids" {
 output "azs" {
   value = module.network.azs
 }
+
+output "bastion_public_ip" {
+  value = module.network.bastion_public_ip
+}
+
+output "web_private_ip" {
+  value = module.network.web_private_ip
+}

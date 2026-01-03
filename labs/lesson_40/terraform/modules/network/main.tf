@@ -6,8 +6,56 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners = ["099720109477"] # Canonical
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+/*
+data "aws_ami" "ubuntu" {
+  count       = var.use_localstack ? 0 : 1
+  most_recent = true
+  owners      = ["099720109477"] # Canonical (AWS)
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+*/
+
+resource "aws_key_pair" "lab40" {
+  key_name   = var.key_name
+  public_key = file(pathexpand(var.public_key_path))
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-keypair"
+  })  
+}
+
 locals {
   azs = slice(data.aws_availability_zones.available.names, 0, length(var.public_subnet_cidrs))
+
+/*
+  ubuntu = {
+    id = var.use_localstack ? var.ami_id : data.aws_ami.ubuntu[0].id
+  }
+*/
 
   tags = {
     Project     = var.project_name
@@ -181,6 +229,38 @@ resource "aws_security_group" "bastion" {
   })
 }
 
+# --- Bastion: EC2 Public Subnet ---
+
+resource "aws_instance" "bastion" {
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = var.instance_type_bastion
+  subnet_id                   = aws_subnet.public_subnet["a"].id
+  key_name                    = aws_key_pair.lab40.key_name
+  vpc_security_group_ids      = [aws_security_group.bastion.id]
+  associate_public_ip_address = true
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-bastion"
+    Role = "bastion"
+  })
+}
+
+/*
+resource "aws_instance" "bastion" {
+  ami                         = local.ubuntu.id
+  instance_type               = var.instance_type_bastion
+  subnet_id                   = aws_subnet.public_subnet["a"].id
+  key_name                    = aws_key_pair.lab40.key_name
+  vpc_security_group_ids      = [aws_security_group.bastion.id]
+  associate_public_ip_address = true
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-bastion"
+    Role = "bastion"
+  })
+}
+*/
+
 # --- Web: allow 80/443 from anywhere (lab), SSH only from the bastion SG ---
 
 resource "aws_security_group" "web" {
@@ -224,6 +304,42 @@ resource "aws_security_group" "web" {
     Name = "${var.project_name}-web_sg"
   })
 }
+
+# --- Web: EC2 Private Subnet ---
+
+resource "aws_instance" "web" {
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = var.instance_type_web
+  subnet_id                   = aws_subnet.private_subnet["a"].id
+  key_name                    = aws_key_pair.lab40.key_name
+  vpc_security_group_ids      = [aws_security_group.web.id]
+  associate_public_ip_address = false
+
+  user_data = file("${path.module}/scripts/web-userdata.sh")
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-web"
+    Role = "web"
+  })
+}
+
+/*
+resource "aws_instance" "web" {
+  ami                         = local.ubuntu.id
+  instance_type               = var.instance_type_web
+  subnet_id                   = aws_subnet.private_subnet["a"].id
+  key_name                    = aws_key_pair.lab40.key_name
+  vpc_security_group_ids      = [aws_security_group.web.id]
+  associate_public_ip_address = false
+
+  user_data = file("${path.module}/scripts/web-userdata.sh")
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-web"
+    Role = "web"
+  })
+}
+*/
 
 # --- DB: allow only from Web SG ---
 

@@ -1,4 +1,4 @@
-# lesson_40
+# lesson_40a
 
 ---
 
@@ -74,7 +74,6 @@ labs/lesson_40/
    ├─ main.tf                # uses module "network"
    ├─ variables.tf           # root-level inputs: region, env, tags
    ├─ outputs.tf             # outputs from root (pass-through from module)
-   ├─ terraform.tfstate
    ├─ envs/
    │  └─ dev.tfvars
    └─ modules/
@@ -769,4 +768,3 @@ Commands:
 - `labs/lesson_40/terraform/modules/network/main.tf`
 - `labs/lesson_40/terraform/modules/network/variables.tf`
 - `labs/lesson_40/terraform/modules/network/outputs.tf`
-- `labs/lesson_40/terraform/terraform.tfstate`

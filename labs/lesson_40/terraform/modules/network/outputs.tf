@@ -36,3 +36,13 @@ output "azs" {
   description = "Availability Zones"
   value       = local.azs
 }
+
+output "bastion_public_ip" {
+  description = "Public IP of Bastion"
+  value       = aws_instance.bastion.public_ip
+}
+
+output "web_private_ip" {
+  description = "Private IP of Web"
+  value       = aws_instance.web.private_ip
+}

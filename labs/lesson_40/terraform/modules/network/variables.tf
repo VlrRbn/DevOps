@@ -37,5 +37,41 @@ variable "private_subnet_cidrs" {
 variable "allowed_ssh_cidr" {
   type        = string
   description = "My public IP/CIDR for SSH to bastion (e.g. 203.0.113.10/32)"
-  default     = "0.0.0.0/32" # WARNING
+  default     = "0.0.0.0/32"      # WARNING
 }
+
+variable "key_name" {
+  type        = string
+  description = "SSH key pair name in AWS to use for EC2 instances"
+  default     = "lab40-key"
+}
+
+variable "public_key_path" {
+  type        = string
+  description = "Path to the public key file for the SSH key pair"
+  default     = "~/.ssh/lab40_terraform.pub"
+}
+
+variable "instance_type_bastion" {
+  type        = string
+  description = "EC2 instance type for bastion host"
+  default     = "t3.micro"
+}
+
+variable "instance_type_web" {
+  type        = string
+  description = "EC2 instance type for web server"
+  default     = "t3.micro"
+}
+
+/*
+variable "use_localstack" {
+  type    = bool
+  default = false
+}
+
+variable "ami_id" {
+  type    = string
+  default = null
+}
+*/
