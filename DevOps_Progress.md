@@ -50,3 +50,8 @@
 | 37 | 2025-12-21 | K8s TLS: Ingress HTTPS with Self-Signed / mkcert |
 | * | 2025-12-(22-30) | Anuual leave |
 | 38 | 2026-01-01 | K8s cert-manager: Automatic TLS Certificates |
+| 39 | 2026-01-02 | Cloud 101: VPC, Subnets, Security Groups & IAM (Terraform-ready) |
+| 40 | 2026-01-03 | A: Terraform in Practice: Structure, Variables, tfvars & Modules |
+|    |            | B: Terraform: Add Compute on Top of VPC (Bastion + Web) + Connectivity Tests |
+| 41 | 2026-01-04 | Terraform CI: fmt/validate + plan in GitHub Actions | 
+

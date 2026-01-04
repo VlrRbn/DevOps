@@ -65,6 +65,10 @@ devops-notes/
 | **Lesson 36** | K8s NetworkPolicies: Default Deny & Allow Rules | [Materials_36](lesson31_40/lesson_36.md) |
 | **Lesson 37** | K8s TLS: Ingress HTTPS with Self-Signed / mkcert | [Materials_37](lesson31_40/lesson_37.md) |
 | **Lesson 38** | K8s cert-manager: Automatic TLS Certificates | [Materials_38](lesson31_40/lesson_38.md) |
+| **Lesson 39** | Cloud 101: VPC, Subnets, Security Groups & IAM (Terraform-ready) | [Materials_39](lesson31_40/lesson_39.md) |
+| **Lesson 40a** | A: Terraform in Practice: Structure, Variables, tfvars & Modules | [Materials_40a](lesson31_40/lesson_40a.md) |
+| **Lesson 40b** | B: Terraform: Add Compute on Top of VPC (Bastion + Web) + Connectivity Tests | [Materials_40b](lesson31_40/lesson_40b.md)|
+| **Lesson 41** | Terraform CI: fmt/validate + plan in GitHub Actions | [Materials_41](lesson41_50/lesson_41.md) |
 ---
 
 ## How to use
