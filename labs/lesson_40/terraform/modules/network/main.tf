@@ -48,7 +48,7 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_key_pair" "lab40" {
   key_name   = var.key_name
-  public_key = file(pathexpand(var.public_key_path))
+  public_key = var.public_key
 
   tags = merge(local.tags, {
     Name = "${var.project_name}-keypair"

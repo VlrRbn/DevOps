@@ -13,9 +13,9 @@ module "network" {
   private_subnet_cidrs  = var.private_subnet_cidrs
   allowed_ssh_cidr      = var.allowed_ssh_cidr
   key_name              = var.key_name
-  public_key_path       = var.public_key_path
   instance_type_bastion = var.instance_type_bastion
   instance_type_web     = var.instance_type_web
+  public_key            = var.public_key
   /*
   use_localstack        = var.use_localstack
   ami_id                = var.ami_id
