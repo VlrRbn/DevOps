@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: terraform-ci-${{ github.ref }}
@@ -65,3 +66,14 @@ jobs:
 
       - name: TFLint
         run: tflint -f compact
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::179151669003:role/GitHub
+          aws-region: eu-west-1
+
+      - name: Terraform plan (OIDC, PR same-repo only)
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        run: terraform plan -input=false -no-color -var-file=envs/dev.tfvars
