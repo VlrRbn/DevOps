@@ -1,0 +1,67 @@
+name: terraform-ci
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "labs/lesson_40/terraform/**"
+      - ".github/workflows/terraform-ci.yml"
+  pull_request:
+    paths:
+      - "labs/lesson_40/terraform/**"
+      - ".github/workflows/terraform-ci.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+  TF_WORKING_DIR: "labs/lesson_40/terraform"
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.0"
+          terraform_wrapper: false
+
+      - name: Terraform fmt (check)
+        run: terraform fmt -check -diff -recursive
+
+      - name: Terraform init (no-backend)
+        run: terraform init -backend=false -input=false -no-color
+
+      - name: Terraform validate
+        run: terraform validate -no-color
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: "v0.60.0"
+          cache: true
+          tflint_config_path: ${{ env.TF_WORKING_DIR }}/.tflint.hcl
+
+      - name: TFLint init
+        run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: TFLint
+        run: tflint -f compact

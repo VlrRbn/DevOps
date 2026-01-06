@@ -8,7 +8,7 @@ data "aws_availability_zones" "available" {
 
 data "aws_ami" "ubuntu" {
   most_recent = true
-  owners = ["099720109477"] # Canonical
+  owners      = ["099720109477"] # Canonical
 
   filter {
     name   = "name"
@@ -45,13 +45,13 @@ resource "aws_key_pair" "lab40" {
 
   tags = merge(local.tags, {
     Name = "${var.project_name}-keypair"
-  })  
+  })
 }
 
 locals {
   azs = slice(data.aws_availability_zones.available.names, 0, length(var.public_subnet_cidrs))
 
-/*
+  /*
   ubuntu = {
     id = var.use_localstack ? var.ami_id : data.aws_ami.ubuntu[0].id
   }
