@@ -46,10 +46,9 @@ variable "key_name" {
   default     = "lab40-key"
 }
 
-variable "public_key_path" {
+variable "public_key" {
   type        = string
-  description = "Path to the public key file for the SSH key pair"
-  default     = "~/.ssh/lab40_terraform.pub"
+  description = "SSH public key"
 }
 
 variable "instance_type_bastion" {
