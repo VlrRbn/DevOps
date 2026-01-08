@@ -30,6 +30,10 @@
     - prefer refactor tools (`moved` blocks or `state mv`) instead of recreating
     - always know what workspace/env you’re running
 
+## Non-goals
+
+- Terraform workspaces (intentionally not used)
+
 ---
 
 ## Pocket Cheat
@@ -43,7 +47,239 @@
 | Destroy (env) | `terraform destroy -var-file=envs/cheap.tfvars` | Remove everything |
 | List state | `terraform state list` | See what TF owns |
 | Show resource | `terraform state show <addr>` | Debug exactly what exists |
-| Remove from state | `terraform state rm <addr>` | “Stop managing this” (careful) |
+| Remove from state | `terraform state rm <addr>` | “Stop managing this” (careful - it’s last chance) |
 | State move | `terraform state mv a b` | Refactor without recreate |
+
+---
+
+## Layout
+
+Inside Terraform root (lesson_40 structure or copy to lesson_42):
+
+```
+labs/lesson_42/terraform/
+├─ envs/
+│  ├─ cheap.tfvars
+│  └─ full.tfvars
+├─ README.md
+└─ RUNBOOK.md           # new: safe ops checklist
+
+```
+
+---
+
+## 1) Why “cheap vs full”
+
+**Full** network design is correct for reliability (multi-AZ, NAT per AZ), but:
+
+- NAT Gateways cost money while running
+- Easy to forget them
+
+So:
+
+- **cheap** = for 80% of learning (VPC + 1 public subnet + SG + maybe 1 instance)
+- **full** = for short bursts (NAT, private routing, multi-AZ)
+
+---
+
+## 2) Create envs/cheap.tfvars (low spend)
+
+Create `labs/lesson_42/terraform/envs/cheap.tfvars`:
+
+```hcl
+aws_region            = "eu-west-1"
+project_name          = "lab42"
+environment           = "cheap"
+
+# Keep it simple: still use /16 for VPC, but only use 1 subnet per tier
+vpc_cidr              = "10.40.0.0/16"
+
+# Only 1 public + 1 private subnet for cheap setup
+public_subnet_cidrs   = ["10.40.1.0/24"]
+private_subnet_cidrs  = ["10.40.11.0/24"]
+
+# IMPORTANT: set to real public IP /32 before apply
+allowed_ssh_cidr      = "0.0.0.0/0" # WARNING need PUBLIC_IP/32
+
+# No NAT at all is the cheapest
+# enable_nat          = false
+# enable_full_ha      = false
+enable_nat            = true
+
+key_name              = "lab40_terraform"
+instance_type_bastion = "t3.micro"
+instance_type_web     = "t3.micro"
+public_key            = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWsE+xq1dTRxdWIPtPlGqH6DgactNPMpZQeJlnZoI5M lab40"
+
+```
+
+### How becomes truly cheap
+
+Need one extra code in Terraform:
+
+- **feature flag** to disable NAT + second AZ resources.
+
+Add to `variables.tf`:
+
+```hcl
+variable "enable_full_ha" {
+  type        = bool
+  description = "Enable full HA setup. When true: multi-AZ + NAT gateways. When false: minimal/cheap mode."
+  default     = false
+}
+```
+
+Then implement conditional creation:
+
+- if `enable_full_ha = false`:
+    - create only `public_subnet["a"]` and `private_subnet["a"]`
+    - create only one NAT
+
+**No NAT at all** is the cheapest. Private instances won’t have outbound internet—fine for many labs.
+
+Cheap mode can still teach:
+
+- VPC + IGW + SG + bastion/web in public subnet
+- routing basics
+- IAM + tags + outputs
+
+But it won't work with:
+
+- `apt update` / `snap install` / `curl google.com` on web in private subnet
+
+---
+
+## 3) Create envs/full.tfvars (real setup)
+
+`labs/lesson_42/terraform/envs/full.tfvars`:
+
+```hcl
+aws_region            = "eu-west-1"
+project_name          = "lab42"
+environment           = "full"
+
+vpc_cidr              = "10.30.0.0/16"
+
+public_subnet_cidrs   = ["10.30.1.0/24", "10.30.2.0/24"]
+private_subnet_cidrs  = ["10.30.11.0/24", "10.30.12.0/24"]
+
+allowed_ssh_cidr      = "0.0.0.0/0" # WARNING need PUBLIC_IP/32
+
+enable_full_ha        = true
+enable_nat            = true
+
+key_name              = "lab40_terraform"
+instance_type_bastion = "t3.micro"
+instance_type_web     = "t3.micro"
+public_key            = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWsE+xq1dTRxdWIPtPlGqH6DgactNPMpZQeJlnZoI5M lab40"
+
+```
+
+---
+
+## 4) RUNBOOK.md — the safety net
+
+Create `labs/lesson_42/RUNBOOK.md`:
+
+```markdown
+# lab42 Terraform Safe Ops: cheap vs full envs, apply/destroy
+
+⚠️ This runbook assumes:
+- single environment per state
+- never switching cheap ↔ full on the same state
+
+## Before apply (every time)
+- [ ] I am in the correct folder: labs/lesson_42/terraform
+- [ ] I am using the intended tfvars file (cheap vs full)
+- [ ] allowed_ssh_cidr is my real public IP/32
+- [ ] I understand what will be created (terraform plan reviewed)
+
+## Commands (cheap)
+terraform fmt -recursive
+terraform init
+terraform validate
+terraform plan -var-file=envs/cheap.tfvars
+terraform apply -var-file=envs/cheap.tfvars
+
+## Commands (full)
+terraform plan -var-file=envs/full.tfvars
+terraform apply -var-file=envs/full.tfvars
+
+## After testing (same day)
+terraform destroy -var-file=envs/full.tfvars
+# or cheap.tfvars
+
+## If something looks wrong
+terraform state list
+terraform show
+terraform state show <resource_address>
+
+## Emergency stop
+If plan shows unexpected destroy:
+- STOP
+- do NOT apply
+- inspect state and addresses
+
+## Strict rule
+No manual changes in AWS console unless explicitly documented.
+
+```
+
+---
+
+## 5) State hygiene: what actually need now
+
+### Understand addresses
+
+Terraform tracks resources by addresses like:
+
+- `aws_vpc.main`
+- `module.network.aws_subnet.public_subnet["a"]`
+
+If you refactor (e.g., moved to modules, any changes), those addresses change.
+
+If TF can’t map old → new, it wants to recreate.
+
+### Two safe ways to refactor without recreation
+
+1. **`moved` blocks** (best in Terraform 1.1+)
+2. `terraform state mv` (manual - `terraform state mv aws_vpc.main module.network.aws_vpc.main`)
+- if plan shows “destroy + create” after refactor → need a `moved`/`state mv` step.
+
+---
+
+## 6) Destroy guard habit
+
+Before merging PR that changes network:
+
+- always run `terraform plan` and check:
+    - how many destroys?
+    - NAT Gateways?
+    - EIPs?
+    - route tables?
+
+If see unexpected destroys, stop and debug.
+
+---
+
+## Core
+
+- [ ]  Added `envs/cheap.tfvars` and `envs/full.tfvars`.
+- [ ]  Added `RUNBOOK.md`.
+- [ ]  Run `plan/apply/destroy` with a chosen env without confusion.
+- [ ]  Understand why NAT costs money and why “full mode” must be short-lived.
+- [ ]  Implemented `enable_full_ha` flag properly (cheap mode actually creates less).
+- [ ]  Confirmed cheap mode has **1 NAT or no NAT**, and full mode has 2 NAT.
+- [ ]  Practiced `terraform state list` / `state show` and can explain what state is.
+- [ ]  Intentionally trigger a refactor issue and explain “why plan wants to recreate”.
+
+---
+
+## Acceptance Criteria
+
+- [ ]  Can safely practice in AWS without leaving expensive resources running.
+- [ ]  Know exactly which env I’m deploying (cheap vs full).
+- [ ]  Have a written runbook what I can follow when tired.
+- [ ]  Can inspect state and understand what Terraform owns.
 
 ---
