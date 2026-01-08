@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "network" {
-  source = "./modules/network"
+  source = "../modules/network"
 
   aws_region            = var.aws_region
   project_name          = var.project_name
@@ -18,9 +18,5 @@ module "network" {
   public_key            = var.public_key
   enable_full_ha        = var.enable_full_ha
   enable_nat            = var.enable_nat
-  /*
-  use_localstack        = var.use_localstack
-  ami_id                = var.ami_id
-  */
 
 }

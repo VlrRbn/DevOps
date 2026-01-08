@@ -58,11 +58,25 @@ Inside Terraform root (lesson_40 structure or copy to lesson_42):
 
 ```
 labs/lesson_42/terraform/
-├─ envs/
-│  ├─ cheap.tfvars
-│  └─ full.tfvars
+├─ modules/
+│  └─ network/                 # (VPC/Subnets/RT/NAT/SG/EC2)
+│     ├─ main.tf
+│     ├─ variables.tf
+│     ├─ outputs.tf
+│     └─ scripts/
+│        └─ web-userdata.sh
+├─ env-cheap/
+│  ├─ main.tf
+│  ├─ providers.tf
+│  ├─ versions.tf
+│  └─ terraform.tfvars
+└─ env-full/
+│  ├─ main.tf
+│  ├─ providers.tf
+│  ├─ versions.tf
+│  └─ terraform.tfvars
 ├─ README.md
-└─ RUNBOOK.md           # new: safe ops checklist
+└─ RUNBOOK.md
 
 ```
 
@@ -82,34 +96,34 @@ So:
 
 ---
 
-## 2) Create envs/cheap.tfvars (low spend)
+## 2) Create env-cheap/terraform.tfvars (low spend)
 
-Create `labs/lesson_42/terraform/envs/cheap.tfvars`:
+Create `labs/lesson_42/terraform/env-cheap/terraform.tfvars`:
 
 ```hcl
-aws_region            = "eu-west-1"
-project_name          = "lab42"
-environment           = "cheap"
+aws_region   = "eu-west-1"
+project_name = "lab42"
+environment  = "cheap"
 
 # Keep it simple: still use /16 for VPC, but only use 1 subnet per tier
-vpc_cidr              = "10.40.0.0/16"
+vpc_cidr = "10.40.0.0/16"
 
 # Only 1 public + 1 private subnet for cheap setup
-public_subnet_cidrs   = ["10.40.1.0/24"]
-private_subnet_cidrs  = ["10.40.11.0/24"]
+public_subnet_cidrs  = ["10.42.1.0/24"]
+private_subnet_cidrs = ["10.43.11.0/24"]
 
 # IMPORTANT: set to real public IP /32 before apply
-allowed_ssh_cidr      = "0.0.0.0/0" # WARNING need PUBLIC_IP/32
+allowed_ssh_cidr = "0.0.0.0/0" # WARNING need PUBLIC_IP/32
 
 # No NAT at all is the cheapest
 # enable_nat          = false
 # enable_full_ha      = false
-enable_nat            = true
+enable_nat = true
 
 key_name              = "lab40_terraform"
 instance_type_bastion = "t3.micro"
 instance_type_web     = "t3.micro"
-public_key            = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWsE+xq1dTRxdWIPtPlGqH6DgactNPMpZQeJlnZoI5M lab40"
+public_key            = "*********"
 
 ```
 
@@ -149,9 +163,9 @@ But it won't work with:
 
 ---
 
-## 3) Create envs/full.tfvars (real setup)
+## 3) Create env-full/terraform.tfvars (real setup)
 
-`labs/lesson_42/terraform/envs/full.tfvars`:
+`labs/lesson_42/terraform/env-full/terraform.tfvars`:
 
 ```hcl
 aws_region            = "eu-west-1"
@@ -160,8 +174,8 @@ environment           = "full"
 
 vpc_cidr              = "10.30.0.0/16"
 
-public_subnet_cidrs   = ["10.30.1.0/24", "10.30.2.0/24"]
-private_subnet_cidrs  = ["10.30.11.0/24", "10.30.12.0/24"]
+public_subnet_cidrs   = ["10.32.1.0/24", "10.32.2.0/24"]
+private_subnet_cidrs  = ["10.33.11.0/24", "10.33.12.0/24"]
 
 allowed_ssh_cidr      = "0.0.0.0/0" # WARNING need PUBLIC_IP/32
 
@@ -171,9 +185,128 @@ enable_nat            = true
 key_name              = "lab40_terraform"
 instance_type_bastion = "t3.micro"
 instance_type_web     = "t3.micro"
-public_key            = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMWsE+xq1dTRxdWIPtPlGqH6DgactNPMpZQeJlnZoI5M lab40"
+public_key            = "*********"
 
 ```
+
+---
+
+Add to `variables.tf`:
+
+Enable NAT Gateway for private subnets to allow outbound Internet access. When false, private subnets have no Internet egress.
+
+```hcl
+variable "enable_nat" {
+  type        = bool
+  description = "If true: private subnets get outbound internet via NAT. If false: private has no internet."
+  default     = false
+}
+```
+
+---
+
+Change `main.tf`:
+
+```hcl
+# Added subnet map generation in `locals` based on the actual lists
+locals {
+  az_letters = ["a", "b", "c", "d", "e", "f"]
+  azs        = slice(data.aws_availability_zones.available.names, 0, max(length(var.public_subnet_cidrs), length(var.private_subnet_cidrs)))
+
+  public_subnet_map = {
+    for idx, cidr in var.public_subnet_cidrs :
+    local.az_letters[idx] => { cidr = cidr, az = local.azs[idx] }
+  }
+
+  private_subnet_map = {
+    for idx, cidr in var.private_subnet_cidrs :
+    local.az_letters[idx] => { cidr = cidr, az = local.azs[idx] }
+  }
+
+  public_subnet_keys = sort(keys(local.public_subnet_map))
+  
+  # fixed the NAT logic *single NAT vs per-AZ*
+  nat_keys = var.enable_nat ? (
+    var.enable_full_ha ? local.public_subnet_keys :
+    (length(local.public_subnet_keys) > 0 ? [local.public_subnet_keys[0]] : [])
+  ) : []
+
+  tags = {
+    Project     = var.project_name
+    Environment = var.environment
+  }
+}
+
+# --- Private Route Tables: 0.0.0.0/0 -> NAT ---
+
+resource "aws_route_table" "private_rt" {
+  for_each = local.private_subnet_map
+  vpc_id   = aws_vpc.main.id
+
+  dynamic "route" {
+    for_each = var.enable_nat ? [1] : []
+    content {
+      cidr_block     = "0.0.0.0/0"
+      nat_gateway_id = var.enable_full_ha ? aws_nat_gateway.nat_gw[each.key].id : aws_nat_gateway.nat_gw[local.public_subnet_keys[0]].id
+    }
+  }
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-private_rt-${each.key}"
+  })
+}
+```
+
+“NAT per AZ”.
+
+1. If `enable_full_ha = true`:
+- For private route table `"0"`, use NAT `"0"`.
+- For private route table `"1"`, use NAT `"1"`.
+1. If `enable_full_ha = false`:
+
+All private route tables point to a single NAT in the “first” public subnet: `local.public_subnet_keys[0]`
+
+This is the “cheaper” mode: 1 NAT instead of 2.
+
+---
+
+NAT Gateways are created in selected **public subnets**: either **one per AZ** (HA) or **a single shared NAT** in the first public subnet (cheap mode).
+
+```hcl
+# 1) EIP for NAT Gateway Public Subnet
+resource "aws_eip" "nat" {
+  for_each = toset(local.nat_keys)
+  domain   = "vpc"
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-nat_eip-${each.key}"
+  })
+}
+
+# 2) NAT Gateway in Public Subnet
+resource "aws_nat_gateway" "nat_gw" {
+  for_each = toset(local.nat_keys)
+
+  subnet_id     = aws_subnet.public_subnet[each.key].id
+  allocation_id = aws_eip.nat[each.key].id
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-nat_gw-${each.key}"
+  })
+
+  depends_on = [
+    aws_internet_gateway.igw,
+    aws_route_table_association.public_subnet_assoc
+  ]
+}
+```
+
+Public subnet: direct internet access via the IGW.
+
+Private subnet:
+
+- if `enable_nat = true` → `0.0.0.0/0` routes via NAT → outbound internet works (but no inbound access)
+- if `enable_nat = false` → no outbound route → no internet access (cheap mode)
 
 ---
 
@@ -183,6 +316,8 @@ Create `labs/lesson_42/RUNBOOK.md`:
 
 ```markdown
 # lab42 Terraform Safe Ops: cheap vs full envs, apply/destroy
+
+“This folder = one environment = one state. Never run full from env-cheap.”
 
 ⚠️ This runbook assumes:
 - single environment per state
@@ -264,7 +399,7 @@ If see unexpected destroys, stop and debug.
 
 ## Core
 
-- [ ]  Added `envs/cheap.tfvars` and `envs/full.tfvars`.
+- [ ]  Added `env-cheap` and `env-full`.
 - [ ]  Added `RUNBOOK.md`.
 - [ ]  Run `plan/apply/destroy` with a chosen env without confusion.
 - [ ]  Understand why NAT costs money and why “full mode” must be short-lived.

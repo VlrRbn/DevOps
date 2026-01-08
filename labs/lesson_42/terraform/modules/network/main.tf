@@ -37,6 +37,7 @@ resource "aws_key_pair" "lab40" {
   })
 }
 
+# Added subnet map generation in `locals` based on the actual lists
 locals {
   az_letters = ["a", "b", "c", "d", "e", "f"]
   azs        = slice(data.aws_availability_zones.available.names, 0, max(length(var.public_subnet_cidrs), length(var.private_subnet_cidrs)))
@@ -52,6 +53,8 @@ locals {
   }
 
   public_subnet_keys = sort(keys(local.public_subnet_map))
+  
+  # fixed the NAT logic single NAT vs per-AZ
   nat_keys = var.enable_nat ? (
     var.enable_full_ha ? local.public_subnet_keys :
     (length(local.public_subnet_keys) > 0 ? [local.public_subnet_keys[0]] : [])

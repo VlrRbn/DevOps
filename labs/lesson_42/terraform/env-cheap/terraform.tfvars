@@ -6,8 +6,8 @@ environment  = "cheap"
 vpc_cidr = "10.40.0.0/16"
 
 # Only 1 public + 1 private subnet for cheap setup
-public_subnet_cidrs  = ["10.40.1.0/24"]
-private_subnet_cidrs = ["10.40.11.0/24"]
+public_subnet_cidrs  = ["10.42.1.0/24"]
+private_subnet_cidrs = ["10.43.11.0/24"]
 
 # IMPORTANT: set to real public IP /32 before apply
 allowed_ssh_cidr = "0.0.0.0/0" # WARNING need PUBLIC_IP/32

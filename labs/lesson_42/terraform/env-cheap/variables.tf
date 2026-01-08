@@ -51,15 +51,3 @@ variable "enable_nat" {
   type    = bool
   default = false
 }
-
-/*
-variable "use_localstack" {
-  type    = bool
-  default = false
-}
-
-variable "ami_id" {
-  type    = string
-  default = null
-}
-*/

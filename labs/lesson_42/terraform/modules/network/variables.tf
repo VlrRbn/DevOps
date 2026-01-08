@@ -74,15 +74,3 @@ variable "enable_nat" {
   description = "If true: private subnets get outbound internet via NAT. If false: private has no internet."
   default     = false
 }
-
-/*
-variable "use_localstack" {
-  type    = bool
-  default = false
-}
-
-variable "ami_id" {
-  type    = string
-  default = null
-}
-*/
