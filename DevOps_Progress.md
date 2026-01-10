@@ -53,5 +53,7 @@
 | 39 | 2026-01-02 | Cloud 101: VPC, Subnets, Security Groups & IAM (Terraform-ready) |
 | 40 | 2026-01-03 | A: Terraform in Practice: Structure, Variables, tfvars & Modules |
 |    |            | B: Terraform: Add Compute on Top of VPC (Bastion + Web) + Connectivity Tests |
-| 41 | 2026-01-04 | Terraform CI: fmt/validate + OIDC plan in GitHub Actions | 
-| 42 | 2026-01-06 | Terraform Safe Ops: cheap vs full envs, state hygiene, apply/destroy runbook | 
+| 41 | 2026-01-04 | Terraform CI: fmt/validate + OIDC plan in GitHub Actions |
+| 42 | 2026-01-06 | Terraform Safe Ops: cheap vs full envs, state hygiene, apply/destroy runbook |
+| 43 | 2026-01-09 | GitHub OIDC → AWS IAM Role for Terraform CI from the start |
+| 44 | 2026-01-10 | AWS EC2 on VPC: Bastion + Private Web + Network Proof |
