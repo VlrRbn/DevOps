@@ -2,362 +2,224 @@
 
 ---
 
-# Repaet AWS EC2 on VPC: Bastion + Private Web + Network Proof
+# AWS SSM Session Manager: Access Private EC2 Without SSH (IAM + VPC Endpoints) IAM → SSM → Private EC2
 
-**Date:** 2025-01-10
+**Date:** 2025-01-11
 
-**Topic:** Deploy 2 EC2 instances using Terraform:
+**Topic:** Replace SSH-based access with **AWS Systems Manager Session Manager**:
 
-- **Bastion** in public subnet (SSH from your IP)
-- **Web** in private subnet (SSH only from bastion)
-    
-    Then prove:
-    
-- private instance has **outbound internet** via NAT
-- private instance has **no inbound from internet**
-- SSH hop works: laptop → bastion → web
+- Give EC2 an **instance profile** with `AmazonSSMManagedInstanceCore`
+- Ensure **SSM Agent** is present/running
+- Connect via **SSM Session Manager** (console or CLI)
+- Use **VPC Interface Endpoints** so private instances work **without NAT/Internet**
 
-> Outcome: you can explain cloud networking like a grown-up, not like a YouTube comment section.
-> 
+SSM prerequisites and agent requirements: ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-prerequisites.html))
+
+VPC endpoint approach: ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/setup-create-vpc.html))
+
+CLI start-session requires Session Manager plugin: ([awscli.amazonaws.com](https://awscli.amazonaws.com/v2/documentation/api/2.0.33/reference/ssm/start-session.html))
 
 ---
 
 ## Goals
 
-- Add EC2 resources on top of your existing `module.network` outputs.
-- Use **existing SGs**: bastion/web from your network module.
-- Use **user_data** to install nginx on web.
-- Validate routing behavior with simple tests.
+- Access **private EC2** without:
+    - public IP
+    - inbound 22/tcp
+    - bastion hopping
+- Enforce access via **IAM** (who can connect, when, why)
+- Make SSM work **even with no internet/NAT** using VPC endpoints
 
 ---
 
-## Pre-reqs
+## Pocket Cheat
 
-- You have AWS account ready + you can `terraform apply/destroy`.
-- You know your public IP (for `allowed_ssh_cidr = x.x.x.x/32`).
-- You already have lesson_40A module outputs like:
-    - `public_subnet_ids`, `private_subnet_ids`
-    - `security_groups.bastion_sg`, `security_groups.web_sg`
-
----
-
-## Layout
-
-```
-labs/lesson_44/terraform/
-├─ modules/
-│  └─ network/                 # (VPC/Subnets/RT/NAT/SG/EC2)
-│     ├─ main.tf
-│     ├─ variables.tf
-│     ├─ outputs.tf
-│     └─ scripts/
-│        └─ web-userdata.sh
-├─ env-cheap/
-│  ├─ main.tf
-│  ├─ providers.tf
-│  ├─ versions.tf
-│  └─ terraform.tfvars
-└─ env-full/
-   ├─ main.tf
-   ├─ providers.tf
-   ├─ versions.tf
-   └─ terraform.tfvars
-
-```
+| Task | Command / Place | Why |
+| --- | --- | --- |
+| Attach instance permissions | IAM Role + Instance Profile + `AmazonSSMManagedInstanceCore` | Required for Session Manager ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-instance-profile.html)) |
+| Start session (CLI) | `aws ssm start-session --target i-...` | SSH-like shell via SSM ([docs.aws.amazon.com](https://docs.aws.amazon.com/cli/latest/reference/ssm/start-session.html)) |
+| Start session (Console) | Systems Manager → Session Manager → Start session | Fast manual access ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html)) |
+| No internet access | Create VPC endpoints: `ssm`, `ssmmessages`, `ec2messages` | SSM works privately ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/setup-create-vpc.html)) |
+| Install agent (if missing) | Ubuntu SSM Agent install doc | Fix “instance not managed” ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/agent-install-ubuntu.html)) |
 
 ---
 
-## 1) SSH key: local-only, no secrets in git
+## 1) Terraform: Create IAM role + instance profile for SSM
 
-Generate once:
+Add to your Terraform (root, where EC2 resources are defined):
 
-```bash
-ssh-keygen -t ed25519 -f ~/.ssh/lab44_terraform  -C "lab44"
-
-```
-
----
-
-## 2) Variables (variables.tf)
-
-Add:
+### 1.1 IAM role (trust for EC2)
 
 ```hcl
-variable "ssh_key_name" {
-  type        = string
-  description = "SSH key pair name in AWS to use for EC2 instances"
-  default     = "lab44-key"
-}
+resource "aws_iam_role" "ec2_ssm_role" {
+  name = "${var.project_name}-ec2-ssm-role"
 
-variable "ssh_public_key" {
-  type        = string
-  description = "SSH public key"
-}
-
-variable "instance_type_bastion" {
-  type        = string
-  description = "EC2 instance type for bastion host"
-  default     = "t3.micro"
-}
-
-variable "instance_type_web" {
-  type        = string
-  description = "EC2 instance type for web server"
-  default     = "t3.micro"
-}
-
-```
-
----
-
-## 3) Get Ubuntu AMI (main.tf)
-
-```hcl
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}
-
-```
-
----
-
-## 4) Upload SSH public key to AWS (main.tf)
-
-```hcl
-resource "aws_key_pair" "lab44" {
-  key_name   = var.ssh_key_name
-  public_key = var.ssh_public_key
-
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-keypair"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+      Action = "sts:AssumeRole"
+    }]
   })
 }
 
 ```
 
----
+### 1.2 Attach AWS-managed policy
 
-## 5) User-data for Web (scripts/web-userdata.sh)
-
-```bash
-#!/usr/bin/env bash
-set -Eeuo pipefail
-
-apt-get update -y
-apt-get install -y nginx
-
-echo "lab44 web OK: $(hostname) $(date -u)" > /var/www/html/index.html
-systemctl enable --now nginx
-
-```
-
----
-
-## 6) Create Bastion (public) and Web (private)
-
-### Bastion instance (main.tf)
+`AmazonSSMManagedInstanceCore` is the standard baseline for managed instances. ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-instance-profile.html))
 
 ```hcl
-resource "aws_instance" "bastion" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = var.instance_type_bastion
-  subnet_id                   = aws_subnet.public_subnet["a"].id
-  key_name                    = aws_key_pair.lab44.key_name
-  vpc_security_group_ids      = [aws_security_group.bastion.id]
-  associate_public_ip_address = true
-
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-bastion"
-    Role = "bastion"
-  })
+resource "aws_iam_role_policy_attachment" "ec2_ssm_role_attach" {
+  role       = aws_iam_role.ec2_ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 ```
 
-### Web instance (private)
+### 1.3 Instance profile
 
 ```hcl
-resource "aws_instance" "web" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = var.instance_type_web
-  subnet_id                   = aws_subnet.private_subnet["a"].id
-  key_name                    = aws_key_pair.lab44.key_name
-  vpc_security_group_ids      = [aws_security_group.web.id]
-  associate_public_ip_address = false
-
-  user_data = file("${path.module}/scripts/web-userdata.sh")
-
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-web"
-    Role = "web"
-  })
+resource "aws_iam_instance_profile" "ec2_ssm_instance_profile" {
+  name = "${var.project_name}-ec2-ssm-instance-profile"
+  role = aws_iam_role.ec2_ssm_role.name
 }
 
 ```
 
 ---
 
-## 7) Outputs (outputs.tf)
+## 2) Terraform: Attach instance profile to your EC2 (private web is the main target)
+
+On  `aws_instance.web`:
 
 ```hcl
-output "bastion_public_ip" {
-  description = "Public IP of Bastion"
-  value       = aws_instance.bastion.public_ip
-}
+iam_instance_profile = aws_iam_instance_profile.ec2_ssm_instance_profile.name
 
-output "web_private_ip" {
-  description = "Private IP of Web"
-  value       = aws_instance.web.private_ip
-}
+```
+
+That’s it: instance now has IAM permissions for SSM.
+
+---
+
+## 3) Ensure SSM Agent is running
+
+Prereqs: SSM Agent version minimum requirements are documented by AWS. ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-prerequisites.html))
+
+### 3.1 Add to user_data (Ubuntu) as fallback
+
+In  `web-userdata.sh`, append:
+
+```bash
+# SSM Agent (fallback install)
+if ! command -v amazon-ssm-agent >/dev/null 2>&1; then
+  snap install amazon-ssm-agent --classic || true
+fi
+
+systemctl enable --now snap.amazon-ssm-agent.amazon-ssm-agent.service || true
+
+```
+
+If you prefer official AWS method, AWS documents Ubuntu install steps too. ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/agent-install-ubuntu.html))
+
+---
+
+## 4) Connectivity requirement: internet/NAT OR VPC endpoints
+
+SSM needs to talk to AWS APIs (Session Manager + message channels). AWS recommends using **Interface VPC endpoints** for better security posture, especially for private instances. ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/setup-create-vpc.html))
+
+### Option A — simplest (you already have NAT in full mode)
+
+Keep NAT: private instance can reach SSM endpoints via outbound internet.
+
+### Option B — best practice + cost saver
+
+Add VPC interface endpoints so **private subnet works without NAT/IGW**:
+
+Create endpoints for:
+
+- `com.amazonaws.<region>.ssm`
+- `com.amazonaws.<region>.ssmmessages`
+- `com.amazonaws.<region>.ec2messages`
+
+These endpoints are specifically involved in session channels and messaging. ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-setting-up-messageAPIs.html))
+
+**Terraform sketch:**
+
+- create a small SG for endpoints: allow inbound 443 from your private subnets
+- create `aws_vpc_endpoint` (type `Interface`) in your private subnets with `private_dns_enabled = true`
+
+---
+
+## 5) Start a session
+
+### 5.1 Console path
+
+Systems Manager → Session Manager → Start session → pick instance. ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html))
+
+### 5.2 CLI (Linux/macOS)
+
+AWS CLI interactive session requires the **Session Manager plugin**. ([awscli.amazonaws.com](https://awscli.amazonaws.com/v2/documentation/api/2.0.33/reference/ssm/start-session.html))
+
+```bash
+aws ssm describe-instance-information \
+  --query 'InstanceInformationList[].{Id:InstanceId,Ping:PingStatus,Platform:PlatformName}' \
+  --output table
+
+aws ssm start-session --target i-***
+
+# systemctl is-active snap.amazon-ssm-agent.amazon-ssm-agent.service
+```
+
+CLI reference: ([docs.aws.amazon.com](https://docs.aws.amazon.com/cli/latest/reference/ssm/start-session.html))
+
+“Bastion host is optional when AWS Systems Manager Session Manager is used, because SSM provides secure, auditable, keyless access over HTTPS without opening inbound ports.”
+
+```bash
+cd /tmp
+curl -fsSLO "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb"
+sudo dpkg -i session-manager-plugin.deb
+sudo apt -f install -y
+
+session-manager-plugin --version
 
 ```
 
 ---
 
-```bash
-Laptop
-  |
-  | SSH (22) from YOUR_IP/32
-  v
-[Bastion EC2]  <-- public subnet
-     |
-     | SSH (22) allowed only from bastion SG
-     v
-[Web EC2]      <-- private subnet
-     |
-     | 0.0.0.0/0 via NAT
-     v
-   Internet
+## 6) Kill SSH (the satisfying part)
 
-```
+After SSM works:
 
----
+- Remove inbound `22/tcp` rules from **bastion SG** and **web SG**
+- Or gate them behind a variable like `enable_ssh = false`
 
-## 8) Apply
+Result:
 
-```bash
-terraform fmt -recursive
-terraform init
-terraform validate
-terraform plan
-terraform apply
-
-```
-
----
-
-## 9) Tests
-
-### A) SSH to bastion
-
-```bash
-# WEB_IP="$(terraform output -raw web_private_ip)"
-# echo "$WEB_IP"
-# echo "$BASTION_IP"
-
-ssh -A -i ~/.ssh/lab44_terraform ubuntu@$(terraform output -raw bastion_public_ip)
-
-```
-
-### B) From bastion → web (private)
-
-On bastion:
-
-```bash
-# export WEB_IP="$(terraform output -raw web_private_ip)"
-# export BASTION_IP="$(terraform output -raw bastion_public_ip)"
-
-WEB_IP="<web_ip>"
-ssh ubuntu@"$WEB_IP"
-
-ssh -i ~/.ssh/lab44_terraform -J ubuntu@$(terraform output -raw bastion_public_ip) ubuntu@"$WEB_IP"
-
-# or connect to Web via Bastion
-ssh -i ~/.ssh/lab44_terraform -J ubuntu@"$BASTION_IP" ubuntu@"$WEB_IP"
-
-```
-
-### C) From web: outbound internet via NAT (expected in full mode)
-
-On web:
-
-```bash
-curl -I https://httpbin.org/get
-# HTTP/2 200
-
-```
-
-### D) From laptop: web should NOT be reachable directly
-
-From your laptop:
-
-```bash
-curl -m 3 "http://$WEB_IP" || echo "not reachable from outside (expected)"
-# curl: (28) Connection timed out after 3002 milliseconds
-# not reachable from outside (expected)
-
-```
-
-### E) Verify nginx running on web (from web itself)
-
-On web:
-
-```bash
-curl -s localhost | head
-# lab44 web: <web-ip> <date>
-
-systemctl status nginx --no-pager
-# Loaded: ... enabled
-
-```
+- no open port 22
+- all access is logged/audited by IAM + SSM
+- bastion becomes optional (or can be destroyed)
 
 ---
 
 ## Pitfalls
 
-- SSH fails to bastion → `allowed_ssh_cidr` wrong (must be a real public IP/32).
-- Bastion can’t reach web → web SG missing SSH-from-bastion rule.
-- Web has no internet → private route table not pointing to NAT (or NAT disabled in cheap mode).
-- user_data didn’t run → check:
-    
-    ```bash
-    sudo tail -n 200 /var/log/cloud-init-output.log
-    
-    ```
-    
-
----
-
-## IMPORTANT - DESTROY
-
-When done testing:
-
-```bash
-terraform destroy
-
-```
-
-Don’t leave NAT/instances overnight.
+- Instance not visible in Session Manager:
+    - SSM Agent missing/not running ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-prerequisites.html))
+    - missing instance profile permissions ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-instance-profile.html))
+    - no network path to SSM endpoints (fix: NAT or VPC endpoints) ([docs.aws.amazon.com](https://docs.aws.amazon.com/systems-manager/latest/userguide/setup-create-vpc.html))
+- CLI start-session fails:
+    - Session Manager plugin not installed locally ([awscli.amazonaws.com](https://awscli.amazonaws.com/v2/documentation/api/2.0.33/reference/ssm/start-session.html))
 
 ---
 
 ## Core
 
-- [ ]  Bastion reachable by SSH.
-- [ ]  Web reachable only via bastion.
-- [ ]  Web has outbound internet (full mode).
-- [ ]  nginx installed via user_data and returns a simple page.
-- [ ]  Add second web instance in private subnet B and compare AZ.
-- [ ]  Add `Name` tags everywhere and confirm in AWS console.
-- [ ]  Add `cheap.tfvars` run and confirm: web has **no** outbound internet (if NAT off) and understand why.
+- [ ]  Add IAM role + instance profile + attach `AmazonSSMManagedInstanceCore`.
+- [ ]  Attach instance profile to `aws_instance.web`.
+- [ ]  Confirm instance shows up as managed node / can start session.
+- [ ]  Get a shell via Session Manager (console or CLI).
+- [ ]  Implement VPC endpoints for SSM so private works **without NAT**.
+- [ ]  Remove all SSH ingress rules; bastion no longer needed.
+- [ ]  Write a tiny “Access policy” note: who can start sessions and why.

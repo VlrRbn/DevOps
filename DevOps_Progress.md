@@ -55,5 +55,6 @@
 |    |            | B: Terraform: Add Compute on Top of VPC (Bastion + Web) + Connectivity Tests |
 | 41 | 2026-01-04 | Terraform CI: fmt/validate + OIDC plan in GitHub Actions |
 | 42 | 2026-01-06 | Terraform Safe Ops: cheap vs full envs, state hygiene, apply/destroy runbook |
-| 43 | 2026-01-09 | GitHub OIDC → AWS IAM Role for Terraform CI from the start |
-| 44 | 2026-01-10 | AWS EC2 on VPC: Bastion + Private Web + Network Proof |
+| 43 | 2026-01-09 | A: GitHub OIDC → AWS IAM Role for Terraform CI from the start |
+| * | 2026-01-10 | B: AWS EC2 on VPC: Bastion + Private Web + Network Proof |
+| 44 | 2026-01-11 | AWS SSM Session Manager: Access Private EC2 Without SSH (IAM + VPC Endpoints) IAM → SSM → Private EC2 |

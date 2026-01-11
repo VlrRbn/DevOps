@@ -10,10 +10,6 @@ output "private_subnet_ids" {
   value = module.network.private_subnet_ids
 }
 
-output "public_subnet_ids_map" {
-  value = module.network.public_subnet_ids_map
-}
-
 output "security_groups" {
   value = module.network.security_groups
 }
@@ -24,10 +20,6 @@ output "nat_gateway_ids" {
 
 output "azs" {
   value = module.network.azs
-}
-
-output "bastion_public_ip" {
-  value = module.network.bastion_public_ip
 }
 
 output "web_private_ip" {

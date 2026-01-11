@@ -28,13 +28,28 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-resource "aws_key_pair" "lab44" {
-  key_name   = var.ssh_key_name
-  public_key = var.ssh_public_key
+# IAM Role and Instance Profile for SSM
+resource "aws_iam_role" "ec2_ssm_role" {
+  name = "${var.project_name}-ec2-ssm-role"
 
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-keypair"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
   })
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_ssm_role_attach" {
+  role       = aws_iam_role.ec2_ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "ec2_ssm_instance_profile" {
+  name = "${var.project_name}-ec2-ssm-instance-profile"
+  role = aws_iam_role.ec2_ssm_role.name
 }
 
 # Added subnet map generation in `locals` based on the actual lists
@@ -198,56 +213,11 @@ resource "aws_nat_gateway" "nat_gw" {
 }
 
 # ***** Security Groups (stateful L4) *****
-
-# --- Bastion: SSH from my IP only ---
-
-resource "aws_security_group" "bastion" {
-  name        = "${var.project_name}-bastion_sg"
-  description = "SSH from my IP only"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    description = "SSH from allowed IP"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.allowed_ssh_cidr]
-  }
-
-  egress {
-    description = "All outbound"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-bastion_sg"
-  })
-}
-
-# --- Bastion: EC2 Public Subnet ---
-
-resource "aws_instance" "bastion" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = var.instance_type_bastion
-  subnet_id                   = aws_subnet.public_subnet["a"].id
-  key_name                    = aws_key_pair.lab44.key_name
-  vpc_security_group_ids      = [aws_security_group.bastion.id]
-  associate_public_ip_address = true
-
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-bastion"
-    Role = "bastion"
-  })
-}
-
-# --- Web: allow 80/443 from anywhere (lab), SSH only from the bastion SG ---
+# --- Web: allow 80/443 from anywhere (lab)---
 
 resource "aws_security_group" "web" {
   name        = "${var.project_name}-web_sg"
-  description = "Allow HTTP/S from anywhere, SSH from Bastion"
+  description = "Web service access only"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -266,14 +236,6 @@ resource "aws_security_group" "web" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    description     = "SSH from Bastion"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.bastion.id]
-  }
-
   egress {
     description = "All outbound"
     from_port   = 0
@@ -290,14 +252,16 @@ resource "aws_security_group" "web" {
 # --- Web: EC2 Private Subnet ---
 
 resource "aws_instance" "web" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = var.instance_type_web
-  subnet_id                   = aws_subnet.private_subnet["a"].id
-  key_name                    = aws_key_pair.lab44.key_name
-  vpc_security_group_ids      = [aws_security_group.web.id]
-  associate_public_ip_address = false
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type_web
+  subnet_id              = aws_subnet.private_subnet["a"].id
+  vpc_security_group_ids = [aws_security_group.web.id]
 
-  user_data = file("${path.module}/scripts/web-userdata.sh")
+  associate_public_ip_address = false
+  iam_instance_profile        = aws_iam_instance_profile.ec2_ssm_instance_profile.name
+
+  user_data                   = file("${path.module}/scripts/web-userdata.sh")
+  user_data_replace_on_change = true
 
   tags = merge(local.tags, {
     Name = "${var.project_name}-web"

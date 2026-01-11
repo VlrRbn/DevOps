@@ -34,29 +34,6 @@ variable "private_subnet_cidrs" {
   default     = ["10.0.11.0/24", "10.0.12.0/24"]
 }
 
-variable "allowed_ssh_cidr" {
-  type        = string
-  description = "My public IP/CIDR for SSH to bastion (e.g. 203.0.113.10/32)"
-  default     = "0.0.0.0/32" # WARNING
-}
-
-variable "ssh_key_name" {
-  type        = string
-  description = "SSH key pair name in AWS to use for EC2 instances"
-  default     = "lab44-key"
-}
-
-variable "ssh_public_key" {
-  type        = string
-  description = "SSH public key"
-}
-
-variable "instance_type_bastion" {
-  type        = string
-  description = "EC2 instance type for bastion host"
-  default     = "t3.micro"
-}
-
 variable "instance_type_web" {
   type        = string
   description = "EC2 instance type for web server"
@@ -73,4 +50,10 @@ variable "enable_nat" {
   type        = bool
   description = "If true: private subnets get outbound internet via NAT. If false: private has no internet."
   default     = false
+}
+
+variable "enable_ssm" {
+  type        = bool
+  description = "Enable SSH ingress to bastion and web"
+  default     = true
 }

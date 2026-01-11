@@ -71,8 +71,10 @@ devops-notes/
 | **Lesson 40a** | A: Terraform in Practice: Structure, Variables, tfvars & Modules | [Materials_40a](lesson31_40/lesson_40a.md) |
 | **Lesson 40b** | B: Terraform: Add Compute on Top of VPC (Bastion + Web) + Connectivity Tests | [Materials_40b](lesson31_40/lesson_40b.md)|
 | **Lesson 41** | Terraform CI: fmt/validate + plan in GitHub Actions | [Materials_41](lesson41_50/lesson_41.md) |
-| **Lesson 42** | GitHub OIDC → AWS IAM Role for Terraform CI from the start| [Materials_42](lesson41_50/lesson_42.md) |
-| **Lesson 43** | AWS EC2 on VPC: Bastion + Private Web + Network Proof | [Materials_43](lesson41_50/lesson_43.md) |
+| **Lesson 42** | Terraform Safe Ops: cheap vs full envs, state hygiene | [Materials_42](lesson41_50/lesson_42.md) |
+| **Lesson 43a** | GitHub OIDC → AWS IAM Role for Terraform CI from the start | [Materials_43a](lesson41_50/lesson_43a.md) |
+| **Lesson 43b** | AWS EC2 on VPC: Bastion + Private Web + Network Proof | [Materials_43b](lesson41_50/lesson_43b.md) |
+| **Lesson 44** | AWS SSM Session Manager: Access Private EC2 Without SSH | [Materials_44](lesson41_50/lesson_44.md) |
 ---
 
 ## How to use
