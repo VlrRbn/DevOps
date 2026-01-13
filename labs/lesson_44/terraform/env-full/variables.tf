@@ -35,8 +35,3 @@ variable "enable_nat" {
   type    = bool
   default = false
 }
-
-variable "enable_ssm" {
-  type    = bool
-  default = true
-}

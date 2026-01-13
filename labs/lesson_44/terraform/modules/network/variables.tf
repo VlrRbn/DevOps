@@ -51,9 +51,3 @@ variable "enable_nat" {
   description = "If true: private subnets get outbound internet via NAT. If false: private has no internet."
   default     = false
 }
-
-variable "enable_ssm" {
-  type        = bool
-  description = "Enable SSH ingress to bastion and web"
-  default     = true
-}

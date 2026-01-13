@@ -13,6 +13,5 @@ private_subnet_cidrs = ["10.40.11.0/24"]
 # enable_nat          = false
 # enable_full_ha      = false
 enable_nat = true
-enable_ssm = true
 
 instance_type_web     = "t3.micro"
