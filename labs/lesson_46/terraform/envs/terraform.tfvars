@@ -8,7 +8,8 @@ public_subnet_cidrs  = ["10.30.1.0/24", "10.30.2.0/24"]
 private_subnet_cidrs = ["10.30.11.0/24", "10.30.12.0/24"]
 
 
-enable_full_ha = true
-enable_nat     = true
+enable_full_ha           = true
+enable_nat               = true
+enable_ssm_vpc_endpoints = true
 
 instance_type_web = "t3.micro"

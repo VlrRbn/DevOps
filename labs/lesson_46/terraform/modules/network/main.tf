@@ -149,14 +149,14 @@ resource "aws_security_group" "ssm_endpoint" {
   })
 }
 
-# --- Web: allow 80/443 from anywhere (lab)---
+# --- Web: allow HTTP/HTTPS from VPC CIDR ---
 resource "aws_security_group" "web" {
   name        = "${var.project_name}-web_sg"
   description = "Web service access only"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "HTTP 80 from anywhere"
+    description = "HTTP 80 from vpc CIDR"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -164,7 +164,7 @@ resource "aws_security_group" "web" {
   }
 
   ingress {
-    description = "HTTPS 443 from anywhere"
+    description = "HTTPS 443 from vpc CIDR"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
