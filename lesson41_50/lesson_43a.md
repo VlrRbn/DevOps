@@ -225,7 +225,7 @@ This is the official action for assuming roles (including OIDC).
 - [ ]  Tighten trust policy:
     - only allow `main` or only allow specific workflow
 - [ ]  Replace broad permissions with minimal policy based on what plan actually needs.
-- [ ]  Add a second role later for “apply” (but keep it disabled until explicitly decide).
+- [ ]  Add a second role later for “apply”.
 
 ---
 

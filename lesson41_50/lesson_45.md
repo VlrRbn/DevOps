@@ -340,10 +340,10 @@ SSM can work even if that fails — that’s the point.
 - [ ]  Added 3 interface endpoints + endpoints SG.
 - [ ]  Verified SSM session works to a private instance.
 - [ ]  `private_dns_enabled = true`
-- [ ]  SSM works **without NAT** (in cheap env)
+- [ ]  SSM works **without NAT**
 - [ ]  No SSH / no bastion
 - [ ]  Architecture documented as “SSM-only”
-- [ ]  Document “NAT vs Endpoints” tradeoff in your notes.
+- [ ]  Document “NAT vs Endpoints”.
 
 ---
 

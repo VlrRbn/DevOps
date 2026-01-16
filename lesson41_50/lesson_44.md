@@ -222,4 +222,4 @@ Result:
 - [ ]  Get a shell via Session Manager (console or CLI).
 - [ ]  Implement VPC endpoints for SSM so private works **without NAT**.
 - [ ]  Remove all SSH ingress rules; bastion no longer needed.
-- [ ]  Write a tiny “Access policy” note: who can start sessions and why.
+- [ ]  Write “access_policy.md”: who can start sessions and why.
