@@ -197,6 +197,12 @@ resource "aws_instance" "web" {
   user_data                   = file("${path.module}/scripts/web-userdata.sh")
   user_data_replace_on_change = true
 
+  metadata_options {
+    http_tokens                 = "required"
+    http_endpoint               = "enabled"
+    http_put_response_hop_limit = 1
+  }
+
   tags = merge(local.tags, {
     Name = "${var.project_name}-web"
     Role = "web"

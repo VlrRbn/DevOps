@@ -11,3 +11,5 @@
 *.py[cod]
 *.pyc
 **/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
