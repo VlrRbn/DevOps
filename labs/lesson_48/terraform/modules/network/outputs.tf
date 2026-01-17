@@ -34,5 +34,10 @@ output "azs" {
 
 output "web_private_ip" {
   description = "Private IP of Web"
-  value       = aws_instance.web.private_ip
+  value       = aws_instance.web_a.private_ip
+}
+
+output "alb_dns_name" {
+  description = "DNS name of the Application Load Balancer (open in browser to test)"
+  value       = aws_lb.app.dns_name
 }

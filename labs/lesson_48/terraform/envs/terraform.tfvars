@@ -1,5 +1,5 @@
 aws_region   = "eu-west-1"
-project_name = "lab44"
+project_name = "lab48"
 environment  = "full"
 
 vpc_cidr = "10.30.0.0/16"

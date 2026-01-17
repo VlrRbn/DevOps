@@ -9,12 +9,12 @@ terraform {
   }
 }
 
-# Discover available AZs
+#--- Discover available AZs ---
 data "aws_availability_zones" "available" {
   state = "available"
 }
 
-# Get the latest Ubuntu 24.04 AMI
+#--- Get the latest Ubuntu 24.04 AMI ---
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"] # Canonical
@@ -30,7 +30,7 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-# Derived subnet maps and helper lists
+#--- Derived subnet maps and helper lists ---
 locals {
   az_letters = ["a", "b", "c", "d", "e", "f"]
   azs        = slice(data.aws_availability_zones.available.names, 0, max(length(var.public_subnet_cidrs), length(var.private_subnet_cidrs)))
@@ -184,8 +184,123 @@ resource "aws_security_group" "web" {
   })
 }
 
-# --- Web: EC2 Private Subnet ---
-resource "aws_instance" "web" {
+# --- Web: allow HTTP from ALB SG ---
+resource "aws_security_group_rule" "web_from_alb" {
+  type                     = "ingress"
+  description              = "HTTP from ALB SG"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.web.id
+  source_security_group_id = aws_security_group.alb.id
+
+}
+
+# --- ALB Target Group for Web Instances ---
+resource "aws_lb_target_group" "web" {
+  name     = "${var.project_name}-web-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+
+  health_check {
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200-399"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-web-tg"
+  })
+
+}
+
+# --- ALB Target Group Attachments for both Web Instances ---
+resource "aws_lb_target_group_attachment" "web_a" {
+  target_group_arn = aws_lb_target_group.web.arn
+  target_id        = aws_instance.web_a.id
+  port             = 80
+
+}
+
+resource "aws_lb_target_group_attachment" "web_b" {
+  target_group_arn = aws_lb_target_group.web.arn
+  target_id        = aws_instance.web_b.id
+  port             = 80
+
+}
+
+# --- Application Load Balancer ---
+resource "aws_lb" "app" {
+  name               = "${var.project_name}-app-alb"
+  internal           = false
+  load_balancer_type = "application"
+
+  security_groups = [aws_security_group.alb.id]
+  subnets         = [for subnet in aws_subnet.public_subnet : subnet.id]
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-app-alb"
+  })
+
+}
+
+# --- ALB Listener for HTTP ---
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.app.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
+  }
+
+}
+
+# --- ALB SG: allow HTTP/HTTPS from Internet ---
+resource "aws_security_group" "alb" {
+  name        = "${var.project_name}-alb_sg"
+  description = "ALB SG: inbound HTTP/HTTPS from Internet"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description = "HTTP 80 from anywhere"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS 443 from anywhere"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "All outbound"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-alb_sg"
+  })
+}
+
+# ***** Web: EC2 Private Subnet *****
+
+# --- Create two web instances in two different private subnets ---
+resource "aws_instance" "web_a" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type_web
   subnet_id              = aws_subnet.private_subnet[local.private_subnet_keys[0]].id
@@ -204,9 +319,34 @@ resource "aws_instance" "web" {
   }
 
   tags = merge(local.tags, {
-    Name = "${var.project_name}-web"
+    Name = "${var.project_name}-web-a"
     Role = "web"
   })
+}
+
+resource "aws_instance" "web_b" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type_web
+  subnet_id              = aws_subnet.private_subnet[local.private_subnet_keys[1]].id
+  vpc_security_group_ids = [aws_security_group.web.id]
+
+  associate_public_ip_address = false
+  iam_instance_profile        = aws_iam_instance_profile.ec2_ssm_instance_profile.name
+
+  user_data                   = file("${path.module}/scripts/web-userdata.sh")
+  user_data_replace_on_change = true
+
+  metadata_options {
+    http_tokens                 = "required"
+    http_endpoint               = "enabled"
+    http_put_response_hop_limit = 1
+  }
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-web-b"
+    Role = "web"
+  })
+
 }
 
 # --- DB: allow only from Web SG ---

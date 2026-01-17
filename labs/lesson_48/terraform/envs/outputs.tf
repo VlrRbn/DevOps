@@ -25,3 +25,7 @@ output "azs" {
 output "web_private_ip" {
   value = module.network.web_private_ip
 }
+
+output "alb_dns_name" {
+  value = module.network.alb_dns_name
+}
