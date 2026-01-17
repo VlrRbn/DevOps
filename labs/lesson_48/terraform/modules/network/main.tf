@@ -149,27 +149,22 @@ resource "aws_security_group" "ssm_endpoint" {
   })
 }
 
+# --- SSM Proxy: allow all outbound to reach internal ALB ---
+resource "aws_security_group" "ssm_proxy" {
+  name        = "${var.project_name}-ssm-proxy-sg"
+  description = "Client SG used to reach internal ALB"
+  vpc_id      = aws_vpc.main.id
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-ssm-proxy-sg"
+  })
+}
+
 # --- Web: allow HTTP/HTTPS from VPC CIDR ---
 resource "aws_security_group" "web" {
   name        = "${var.project_name}-web_sg"
   description = "Web service access only"
   vpc_id      = aws_vpc.main.id
-
-  ingress {
-    description = "HTTP 80 from vpc CIDR"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
-  }
-
-  ingress {
-    description = "HTTPS 443 from vpc CIDR"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
-  }
 
   egress {
     description = "All outbound"
@@ -182,6 +177,56 @@ resource "aws_security_group" "web" {
   tags = merge(local.tags, {
     Name = "${var.project_name}-web_sg"
   })
+}
+
+# --- ALB SG: allow HTTP/HTTPS from Internet ---
+resource "aws_security_group" "alb" {
+  name        = "${var.project_name}-alb_sg"
+  description = "ALB SG: inbound 80 only from ssm-proxy SG"
+  vpc_id      = aws_vpc.main.id
+
+  egress {
+    description = "All outbound"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-alb_sg"
+  })
+}
+
+resource "aws_security_group_rule" "alb_http_from_ssm_proxy" {
+  type                     = "ingress"
+  description              = "HTTP to internal ALB from SSM Proxy SG"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.alb.id
+  source_security_group_id = aws_security_group.ssm_proxy.id
+
+}
+
+resource "aws_security_group_rule" "ssm_proxy_to_alb_80" {
+  type                     = "egress"
+  description              = "SSM proxy can reach ALB on 80 only"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ssm_proxy.id
+  source_security_group_id = aws_security_group.alb.id
+}
+
+resource "aws_security_group_rule" "ssm_proxy_https_out" {
+  type              = "egress"
+  description       = "Allow HTTPS egress for SSM via NAT"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  security_group_id = aws_security_group.ssm_proxy.id
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 # --- Web: allow HTTP from ALB SG ---
@@ -237,11 +282,11 @@ resource "aws_lb_target_group_attachment" "web_b" {
 # --- Application Load Balancer ---
 resource "aws_lb" "app" {
   name               = "${var.project_name}-app-alb"
-  internal           = false
+  internal           = true
   load_balancer_type = "application"
 
   security_groups = [aws_security_group.alb.id]
-  subnets         = [for subnet in aws_subnet.public_subnet : subnet.id]
+  subnets         = [for subnet in aws_subnet.private_subnet : subnet.id]
 
   tags = merge(local.tags, {
     Name = "${var.project_name}-app-alb"
@@ -260,41 +305,6 @@ resource "aws_lb_listener" "http" {
     target_group_arn = aws_lb_target_group.web.arn
   }
 
-}
-
-# --- ALB SG: allow HTTP/HTTPS from Internet ---
-resource "aws_security_group" "alb" {
-  name        = "${var.project_name}-alb_sg"
-  description = "ALB SG: inbound HTTP/HTTPS from Internet"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    description = "HTTP 80 from anywhere"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTPS 443 from anywhere"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    description = "All outbound"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-alb_sg"
-  })
 }
 
 # ***** Web: EC2 Private Subnet *****
@@ -345,6 +355,29 @@ resource "aws_instance" "web_b" {
   tags = merge(local.tags, {
     Name = "${var.project_name}-web-b"
     Role = "web"
+  })
+
+}
+
+resource "aws_instance" "ssm_proxy" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t3.micro"
+  subnet_id              = aws_subnet.private_subnet[local.private_subnet_keys[0]].id
+  vpc_security_group_ids = [aws_security_group.ssm_proxy.id]
+
+  # SSH not allowed
+  associate_public_ip_address = false
+  iam_instance_profile        = aws_iam_instance_profile.ec2_ssm_instance_profile.name
+
+  metadata_options {
+    http_tokens                 = "required"
+    http_endpoint               = "enabled"
+    http_put_response_hop_limit = 1
+  }
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-ssm_proxy"
+    Role = "ssm-proxy"
   })
 
 }

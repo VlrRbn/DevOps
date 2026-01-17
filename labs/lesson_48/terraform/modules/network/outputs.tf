@@ -19,6 +19,8 @@ output "security_groups" {
     web_sg          = aws_security_group.web.id
     db_sg           = aws_security_group.db.id
     ssm_endpoint_sg = aws_security_group.ssm_endpoint.id
+    ssm_proxy_sg    = aws_security_group.ssm_proxy.id
+    alb_sg          = aws_security_group.alb.id
   }
 }
 
