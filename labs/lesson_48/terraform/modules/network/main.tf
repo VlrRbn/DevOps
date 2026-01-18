@@ -68,7 +68,7 @@ locals {
   }
 }
 
-# --- VPC ---
+# VPC for all subnets and resources.
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
@@ -80,7 +80,7 @@ resource "aws_vpc" "main" {
 
 }
 
-# --- Internet Gateway (internet for public) ---
+# Internet gateway for public subnet internet access.
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
@@ -90,7 +90,7 @@ resource "aws_internet_gateway" "igw" {
 
 }
 
-# --- Public subnets (from CIDR list) ---
+# Public subnets with public IPs on launch.
 resource "aws_subnet" "public_subnet" {
   for_each = local.public_subnet_map
 
@@ -105,7 +105,7 @@ resource "aws_subnet" "public_subnet" {
   })
 }
 
-# --- Private subnets (from CIDR list) ---
+# Private subnets without public IPs.
 resource "aws_subnet" "private_subnet" {
   for_each = local.private_subnet_map
 
@@ -122,7 +122,7 @@ resource "aws_subnet" "private_subnet" {
 
 # ***** Security Groups (stateful L4) *****
 
-# --- SSM Endpoints: allow HTTPS to SSM ---
+# SG for SSM interface endpoints; allow HTTPS from proxy (and optional web).
 resource "aws_security_group" "ssm_endpoint" {
   name        = "${var.project_name}-ssm_endpoint_sg"
   description = "Allow HTTPS to SSM Interface Endpoints"
@@ -152,18 +152,23 @@ resource "aws_security_group" "ssm_endpoint" {
   })
 }
 
-# --- SSM Proxy: allow all outbound to reach internal ALB ---
+# SG for SSM proxy instance used for port-forwarding to internal ALB.
 resource "aws_security_group" "ssm_proxy" {
   name        = "${var.project_name}-ssm-proxy-sg"
   description = "Client SG used to reach internal ALB"
   vpc_id      = aws_vpc.main.id
+
+  # Restrict ingress to explicit rules below.
+  ingress = []
+  # Restrict egress to explicit rules below.
+  egress = []
 
   tags = merge(local.tags, {
     Name = "${var.project_name}-ssm-proxy-sg"
   })
 }
 
-# --- Web: allow HTTP/HTTPS from VPC CIDR ---
+# SG for web instances; ingress is defined by separate rules.
 resource "aws_security_group" "web" {
   name        = "${var.project_name}-web_sg"
   description = "Web service access only"
@@ -182,7 +187,7 @@ resource "aws_security_group" "web" {
   })
 }
 
-# --- ALB SG: allow HTTP/HTTPS from Internet ---
+# SG for internal ALB; ingress is defined by separate rules.
 resource "aws_security_group" "alb" {
   name        = "${var.project_name}-alb_sg"
   description = "ALB SG: inbound 80 only from ssm-proxy SG"
@@ -201,6 +206,7 @@ resource "aws_security_group" "alb" {
   })
 }
 
+# Allow HTTP from SSM proxy to the internal ALB.
 resource "aws_security_group_rule" "alb_http_from_ssm_proxy" {
   type                     = "ingress"
   description              = "HTTP to internal ALB from SSM Proxy SG"
@@ -212,6 +218,7 @@ resource "aws_security_group_rule" "alb_http_from_ssm_proxy" {
 
 }
 
+# Limit SSM proxy egress to ALB:80.
 resource "aws_security_group_rule" "ssm_proxy_to_alb_80" {
   type                     = "egress"
   description              = "SSM proxy can reach ALB on 80 only"
@@ -222,6 +229,7 @@ resource "aws_security_group_rule" "ssm_proxy_to_alb_80" {
   source_security_group_id = aws_security_group.alb.id
 }
 
+# Allow SSM HTTPS via NAT when VPC endpoints are disabled.
 resource "aws_security_group_rule" "ssm_proxy_https_out" {
   count             = var.enable_ssm_vpc_endpoints ? 0 : 1
   type              = "egress"
@@ -233,18 +241,41 @@ resource "aws_security_group_rule" "ssm_proxy_https_out" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-resource "aws_security_group_rule" "ssm_proxy_https_to_vpc" {
-  count             = var.enable_ssm_vpc_endpoints ? 1 : 0
+# Allow DNS (UDP) to the VPC resolver.
+resource "aws_security_group_rule" "ssm_proxy_dns_udp" {
   type              = "egress"
-  description       = "HTTPS from proxy to VPC via SSM endpoints, NAT not required"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = [var.vpc_cidr]
+  description       = "DNS to VPC resolver"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "udp"
   security_group_id = aws_security_group.ssm_proxy.id
+  cidr_blocks       = ["${cidrhost(var.vpc_cidr, 2)}/32"]
 }
 
-# --- Web: allow HTTP from ALB SG ---
+# Allow DNS (TCP) to the VPC resolver.
+resource "aws_security_group_rule" "ssm_proxy_dns_tcp" {
+  type              = "egress"
+  description       = "DNS (TCP) to VPC resolver"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "tcp"
+  security_group_id = aws_security_group.ssm_proxy.id
+  cidr_blocks       = ["${cidrhost(var.vpc_cidr, 2)}/32"]
+}
+
+# Allow HTTPS from proxy to SSM endpoints (no NAT needed).
+resource "aws_security_group_rule" "ssm_proxy_https_to_vpc" {
+  count                    = var.enable_ssm_vpc_endpoints ? 1 : 0
+  type                     = "egress"
+  description              = "HTTPS from proxy to VPC via SSM endpoints, NAT not required"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ssm_proxy.id
+  source_security_group_id = aws_security_group.ssm_endpoint.id
+}
+
+# Allow HTTP from ALB to web instances.
 resource "aws_security_group_rule" "web_from_alb" {
   type                     = "ingress"
   description              = "HTTP from ALB SG"
@@ -256,7 +287,9 @@ resource "aws_security_group_rule" "web_from_alb" {
 
 }
 
-# --- ALB Target Group for Web Instances ---
+# ***** Load Balancer *****
+
+# Target group for web instances behind the ALB.
 resource "aws_lb_target_group" "web" {
   name     = "${var.project_name}-web-tg"
   port     = 80
@@ -279,7 +312,7 @@ resource "aws_lb_target_group" "web" {
 
 }
 
-# --- ALB Target Group Attachments for both Web Instances ---
+# Register web_a in target group.
 resource "aws_lb_target_group_attachment" "web_a" {
   target_group_arn = aws_lb_target_group.web.arn
   target_id        = aws_instance.web_a.id
@@ -287,6 +320,7 @@ resource "aws_lb_target_group_attachment" "web_a" {
 
 }
 
+# Register web_b in target group.
 resource "aws_lb_target_group_attachment" "web_b" {
   target_group_arn = aws_lb_target_group.web.arn
   target_id        = aws_instance.web_b.id
@@ -294,7 +328,7 @@ resource "aws_lb_target_group_attachment" "web_b" {
 
 }
 
-# --- Application Load Balancer ---
+# Internal application load balancer across private subnets.
 resource "aws_lb" "app" {
   name               = "${var.project_name}-app-alb"
   internal           = true
@@ -309,7 +343,7 @@ resource "aws_lb" "app" {
 
 }
 
-# --- ALB Listener for HTTP ---
+# HTTP listener forwarding to web target group.
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app.arn
   port              = 80
@@ -322,9 +356,9 @@ resource "aws_lb_listener" "http" {
 
 }
 
-# ***** Web: EC2 Private Subnet *****
+# ***** Compute (EC2) *****
 
-# --- Create two web instances in two different private subnets ---
+# Web instance A in private subnet A.
 resource "aws_instance" "web_a" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type_web
@@ -349,6 +383,7 @@ resource "aws_instance" "web_a" {
   })
 }
 
+# Web instance B in private subnet B.
 resource "aws_instance" "web_b" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type_web
@@ -374,6 +409,7 @@ resource "aws_instance" "web_b" {
 
 }
 
+# SSM proxy instance for port forwarding to internal ALB.
 resource "aws_instance" "ssm_proxy" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
@@ -397,7 +433,7 @@ resource "aws_instance" "ssm_proxy" {
 
 }
 
-# --- DB: allow only from Web SG ---
+# SG for DB access (only from web SG).
 resource "aws_security_group" "db" {
   name        = "${var.project_name}-db_sg"
   description = "Allow DB from Web SG only"
@@ -423,7 +459,7 @@ resource "aws_security_group" "db" {
   })
 }
 
-# --- VPC Endpoints for SSM family services ---
+# SSM interface endpoints in private subnets.
 resource "aws_vpc_endpoint" "ssm" {
   for_each          = local.ssm_services
   vpc_id            = aws_vpc.main.id
@@ -439,7 +475,7 @@ resource "aws_vpc_endpoint" "ssm" {
   })
 }
 
-# --- Public Route Table: 0.0.0.0/0 -> IGW ---
+# Public route table with default route to IGW.
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main.id
 
@@ -453,7 +489,7 @@ resource "aws_route_table" "public_rt" {
   })
 }
 
-# --- Associate Public Subnets with Public Route Table ---
+# Associate public subnets with public route table.
 resource "aws_route_table_association" "public_subnet_assoc" {
   for_each = aws_subnet.public_subnet
 
@@ -461,7 +497,7 @@ resource "aws_route_table_association" "public_subnet_assoc" {
   route_table_id = aws_route_table.public_rt.id
 }
 
-# --- Private Route Tables: 0.0.0.0/0 -> NAT (if enabled) ---
+# Private route tables with optional default route to NAT.
 resource "aws_route_table" "private_rt" {
   for_each = local.private_subnet_map
   vpc_id   = aws_vpc.main.id
@@ -479,7 +515,7 @@ resource "aws_route_table" "private_rt" {
   })
 }
 
-# --- Associate Private Subnets with Private Route Tables ---
+# Associate private subnets with private route tables.
 resource "aws_route_table_association" "private_rt_assoc" {
   for_each = aws_subnet.private_subnet
 
@@ -489,7 +525,7 @@ resource "aws_route_table_association" "private_rt_assoc" {
 
 # ***** NAT Gateway and EIP for Public Subnets (if enabled) *****
 
-# --- EIP for NAT Gateway Public Subnet ---
+# Elastic IPs for NAT gateways.
 resource "aws_eip" "nat" {
   for_each = toset(local.nat_keys)
   domain   = "vpc"
@@ -499,7 +535,7 @@ resource "aws_eip" "nat" {
   })
 }
 
-# --- NAT Gateway in Public Subnet ---
+# NAT gateways in public subnets.
 resource "aws_nat_gateway" "nat_gw" {
   for_each = toset(local.nat_keys)
 
@@ -516,9 +552,9 @@ resource "aws_nat_gateway" "nat_gw" {
   ]
 }
 
-# ***** Instances *****
+# ***** IAM for SSM *****
 
-# IAM Role and Instance Profile for SSM
+# IAM role for SSM managed instances.
 resource "aws_iam_role" "ec2_ssm_role" {
   name = "${var.project_name}-ec2-ssm-role"
 
@@ -532,13 +568,13 @@ resource "aws_iam_role" "ec2_ssm_role" {
   })
 }
 
-# Attach the AmazonSSMManagedInstanceCore policy to the role
+# Attach AmazonSSMManagedInstanceCore to the role.
 resource "aws_iam_role_policy_attachment" "ec2_ssm_role_attach" {
   role       = aws_iam_role.ec2_ssm_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-# Create the ec2_ssm Instance Profile
+# Instance profile for EC2 SSM role.
 resource "aws_iam_instance_profile" "ec2_ssm_instance_profile" {
   name = "${var.project_name}-ec2-ssm-instance-profile"
   role = aws_iam_role.ec2_ssm_role.name

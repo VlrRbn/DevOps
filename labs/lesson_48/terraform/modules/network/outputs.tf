@@ -1,20 +1,20 @@
 output "vpc_id" {
-  description = "VPC ID"
+  description = "VPC ID for the lab network"
   value       = aws_vpc.main.id
 }
 
 output "public_subnet_ids" {
-  description = "Public subnet IDs"
+  description = "Public subnet IDs (ordered by subnet key)"
   value       = [for k in sort(keys(aws_subnet.public_subnet)) : aws_subnet.public_subnet[k].id]
 }
 
 output "private_subnet_ids" {
-  description = "Private subnet IDs"
+  description = "Private subnet IDs (ordered by subnet key)"
   value       = [for k in sort(keys(aws_subnet.private_subnet)) : aws_subnet.private_subnet[k].id]
 }
 
 output "security_groups" {
-  description = "Security Group IDs"
+  description = "Security group IDs for web, db, ssm endpoints/proxy, and alb"
   value = {
     web_sg          = aws_security_group.web.id
     db_sg           = aws_security_group.db.id
@@ -25,26 +25,52 @@ output "security_groups" {
 }
 
 output "nat_gateway_ids" {
-  description = "NAT Gateway IDs"
+  description = "NAT gateway IDs keyed by public subnet key (empty if NAT disabled)"
   value       = { for k, ngw in aws_nat_gateway.nat_gw : k => ngw.id }
 }
 
 output "azs" {
-  description = "Availability Zones"
+  description = "Availability zones used by the subnets"
   value       = local.azs
 }
 
-output "web_private_ip" {
-  description = "Private IP of Web"
-  value       = aws_instance.web_a.private_ip
+output "web_private_ips" {
+  description = "Private IPs of web instances"
+  value = {
+    web_a = aws_instance.web_a.private_ip
+    web_b = aws_instance.web_b.private_ip
+  }
+}
+
+output "web_instance_ids" {
+  description = "Instance IDs of web instances"
+  value = {
+    web_a = aws_instance.web_a.id
+    web_b = aws_instance.web_b.id
+  }
+}
+
+output "ssm_proxy_instance_id" {
+  description = "Instance ID of the SSM proxy"
+  value       = aws_instance.ssm_proxy.id
+}
+
+output "ssm_proxy_private_ip" {
+  description = "Private IP of the SSM proxy"
+  value       = aws_instance.ssm_proxy.private_ip
 }
 
 output "alb_dns_name" {
-  description = "DNS name of the Application Load Balancer (open in browser to test)"
+  description = "DNS name of the internal ALB (reach via SSM port forwarding)"
   value       = aws_lb.app.dns_name
 }
 
 output "web_tg_arn" {
   description = "ARN of the web target group"
   value       = aws_lb_target_group.web.arn
+}
+
+output "ssm_vpc_endpoint_ids" {
+  description = "SSM VPC endpoint IDs keyed by service (empty if disabled)"
+  value       = { for k, ep in aws_vpc_endpoint.ssm : k => ep.id }
 }

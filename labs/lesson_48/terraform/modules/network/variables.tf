@@ -12,7 +12,7 @@ variable "project_name" {
 
 variable "environment" {
   type        = string
-  description = "Environment dev/test/prod"
+  description = "Environment name used for tags (dev/test/prod, etc.)"
   default     = "dev"
 }
 
@@ -24,7 +24,7 @@ variable "vpc_cidr" {
 
 variable "public_subnet_cidrs" {
   type        = list(string)
-  description = "Two public subnet CIDR blocks"
+  description = "Public subnet CIDR blocks (1+; 2+ required for full HA)"
   default     = ["10.0.1.0/24", "10.0.2.0/24"]
 
   validation {
@@ -40,12 +40,17 @@ variable "public_subnet_cidrs" {
 
 variable "private_subnet_cidrs" {
   type        = list(string)
-  description = "Two private subnet CIDR blocks"
+  description = "Private subnet CIDR blocks (minimum 2 for web_a and web_b)"
   default     = ["10.0.11.0/24", "10.0.12.0/24"]
 
   validation {
-    condition     = length(var.private_subnet_cidrs) >= 1
-    error_message = "At least one private subnet CIDR must be provided."
+    condition     = length(var.private_subnet_cidrs) >= 2
+    error_message = "At least two private subnet CIDRs are required for the web instances."
+  }
+
+  validation {
+    condition     = !(var.enable_full_ha && length(var.private_subnet_cidrs) > length(var.public_subnet_cidrs))
+    error_message = "For full HA, the number of private subnets must not exceed public subnets."
   }
 }
 
@@ -57,7 +62,7 @@ variable "instance_type_web" {
 
 variable "enable_full_ha" {
   type        = bool
-  description = "Enable full HA setup. When true: multi-AZ + NAT gateways. When false: minimal/cheap mode."
+  description = "Use one NAT gateway per public subnet (requires enable_nat). When false: single NAT gateway."
   default     = false
 
   validation {
@@ -68,18 +73,18 @@ variable "enable_full_ha" {
 
 variable "enable_nat" {
   type        = bool
-  description = "If true: private subnets get outbound internet via NAT. If false: private has no internet."
+  description = "If true: private subnets get outbound internet via NAT. If false: no internet egress."
   default     = false
 }
 
 variable "enable_ssm_vpc_endpoints" {
   type        = bool
-  description = "Enable VPC Endpoints for SSM"
+  description = "Create SSM interface VPC endpoints (ssm, ssmmessages, ec2messages)."
   default     = true
 }
 
 variable "enable_web_ssm" {
   type        = bool
-  description = "If true, web instances are allowed to reach SSM VPC endpoints (debug mode). If false, only ssm-proxy is allowed"
+  description = "If true, web instances can reach SSM VPC endpoints (debug). If false, only ssm-proxy is allowed."
   default     = false
 }

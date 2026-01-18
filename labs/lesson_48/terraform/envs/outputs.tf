@@ -22,8 +22,20 @@ output "azs" {
   value = module.network.azs
 }
 
-output "web_private_ip" {
-  value = module.network.web_private_ip
+output "web_private_ips" {
+  value = module.network.web_private_ips
+}
+
+output "web_instance_ids" {
+  value = module.network.web_instance_ids
+}
+
+output "ssm_proxy_instance_id" {
+  value = module.network.ssm_proxy_instance_id
+}
+
+output "ssm_proxy_private_ip" {
+  value = module.network.ssm_proxy_private_ip
 }
 
 output "alb_dns_name" {
@@ -31,5 +43,9 @@ output "alb_dns_name" {
 }
 
 output "web_tg_arn" {
-  value = aws_lb_target_group.web.arn
+  value = module.network.web_tg_arn
+}
+
+output "ssm_vpc_endpoint_ids" {
+  value = module.network.ssm_vpc_endpoint_ids
 }

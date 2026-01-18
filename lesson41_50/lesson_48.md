@@ -117,20 +117,29 @@ Example (keep your existing `web` as A, add B):
 
 ```hcl
 resource "aws_instance" "web_b" {
-  ami                    = data.aws_ami.ubuntu_2404.id
+  ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type_web
-  subnet_id              = module.network.private_subnet_ids[1]
-  vpc_security_group_ids = [module.network.security_groups.web_sg]
-  key_name               = aws_key_pair.lab44.key_name
+  subnet_id              = aws_subnet.private_subnet[local.private_subnet_keys[1]].id
+  vpc_security_group_ids = [aws_security_group.web.id]
 
-  user_data = file("${path.module}/scripts/web-userdata.sh")
+  associate_public_ip_address = false
+  iam_instance_profile        = aws_iam_instance_profile.ec2_ssm_instance_profile.name
 
-  tags = {
+  user_data                   = file("${path.module}/scripts/web-userdata.sh")
+  user_data_replace_on_change = true
+
+  metadata_options {
+    http_tokens                 = "required"
+    http_endpoint               = "enabled"
+    http_put_response_hop_limit = 1
+  }
+
+  tags = merge(local.tags, {
     Name = "${var.project_name}-web-b"
     Role = "web"
-  }
-}
+  })
 
+}
 ```
 
 **Important:** Make sure your web page shows **instance identity** so you can see balancing.
@@ -153,29 +162,22 @@ ALB needs inbound HTTP from the internet and outbound to your web targets.
 
 ```hcl
 resource "aws_security_group" "alb" {
-  name        = "${var.project_name}-alb-sg"
-  description = "ALB SG: inbound 80 from internet"
-  vpc_id      = module.network.vpc_id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  name        = "${var.project_name}-alb_sg"
+  description = "ALB SG: inbound 80 only from ssm-proxy SG"
+  vpc_id      = aws_vpc.main.id
 
   egress {
+    description = "All outbound"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "${var.project_name}-alb-sg"
-  }
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-alb_sg"
+  })
 }
-
 ```
 
 ---
@@ -187,16 +189,16 @@ Web instances must accept traffic from the ALB.
 If  `web_sg` is inside the network module, add a rule like:
 
 ```hcl
-resource "aws_security_group_rule" "web_from_alb_http" {
+resource "aws_security_group_rule" "web_from_alb" {
   type                     = "ingress"
-  security_group_id        = module.network.security_groups.web_sg
+  description              = "HTTP from ALB SG"
   from_port                = 80
   to_port                  = 80
   protocol                 = "tcp"
+  security_group_id        = aws_security_group.web.id
   source_security_group_id = aws_security_group.alb.id
-  description              = "HTTP from ALB"
-}
 
+}
 ```
 
 *(This is cleaner than opening 80 to the world.)*
@@ -207,23 +209,26 @@ resource "aws_security_group_rule" "web_from_alb_http" {
 
 ```hcl
 resource "aws_lb_target_group" "web" {
-  name        = "${var.project_name}-tg"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = module.network.vpc_id
-  target_type = "instance"
+  name     = "${var.project_name}-web-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
 
   health_check {
-    protocol = "HTTP"
-    path     = "/"
-    port     = "traffic-port"
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200-399"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
   }
 
-  tags = {
-    Name = "${var.project_name}-tg"
-  }
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-web-tg"
+  })
+
 }
-
 ```
 
 ---
@@ -233,16 +238,17 @@ resource "aws_lb_target_group" "web" {
 ```hcl
 resource "aws_lb_target_group_attachment" "web_a" {
   target_group_arn = aws_lb_target_group.web.arn
-  target_id        = aws_instance.web.id
+  target_id        = aws_instance.web_a.id
   port             = 80
+
 }
 
 resource "aws_lb_target_group_attachment" "web_b" {
   target_group_arn = aws_lb_target_group.web.arn
   target_id        = aws_instance.web_b.id
   port             = 80
-}
 
+}
 ```
 
 ---
@@ -253,18 +259,18 @@ ALB requires **two subnets in different AZs**. ([docs.aws.amazon.com](https://do
 
 ```hcl
 resource "aws_lb" "app" {
-  name               = "${var.project_name}-alb"
+  name               = "${var.project_name}-app-alb"
+  internal           = true
   load_balancer_type = "application"
-  internal           = false
 
   security_groups = [aws_security_group.alb.id]
-  subnets         = [module.network.public_subnet_ids[0], module.network.public_subnet_ids[1]]
+  subnets         = [for subnet in aws_subnet.private_subnet : subnet.id]
 
-  tags = {
-    Name = "${var.project_name}-alb"
-  }
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-app-alb"
+  })
+
 }
-
 ```
 
 How to check LoadBalancer
@@ -293,8 +299,8 @@ resource "aws_lb_listener" "http" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.web.arn
   }
-}
 
+}
 ```
 
 Terraform listener resources: ([registry.terraform.io](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener))
@@ -305,10 +311,14 @@ Terraform listener resources: ([registry.terraform.io](https://registry.terrafor
 
 ```hcl
 output "alb_dns_name" {
+  description = "DNS name of the internal ALB (reach via SSM port forwarding)"
   value       = aws_lb.app.dns_name
-  description = "Open this in browser"
 }
 
+output "web_tg_arn" {
+  description = "ARN of the web target group"
+  value       = aws_lb_target_group.web.arn
+}
 ```
 
 ---
@@ -532,7 +542,7 @@ aws elbv2 describe-load-balancers \
 
 Expected: `internal`
 
-1. **Network Access Control (Security Groups)**
+2. **Network Access Control (Security Groups)**
 - The ALB allows HTTP **only from** the `ssm-proxy` SG
 - The ALB does **not** accept traffic from `web-a` / `web-b`
 - Web instances allow HTTP **only from** the ALB SG
@@ -546,7 +556,7 @@ aws ec2 describe-security-groups \
 
 ```
 
-1. **Expected to Work**
+3. **Expected to Work**
 - Connecting to `ssm-proxy` via SSM works
 - From `ssm-proxy`, an HTTP request to the ALB returns `200`
 - The ALB load-balances between `web-a` and `web-b`
@@ -566,7 +576,7 @@ for i in {1..10}; do curl -s "http://$ALB/"; done
 
 Expected: alternating `hostname` / `instance-id`
 
-1. **Expected to Fail**
+4. **Expected to Fail**
 - From `web-a` and `web-b`, cannot reach the ALB directly
 - An HTTP request to the ALB from `web-*` results in a timeout or connection refused
 - `web-*` have no SSM access if `enable_web_ssm = false`
@@ -578,7 +588,7 @@ curl -m 3 "http://$ALB/"
 # Expected: TargetNotConnecte
 ```
 
-1. **SSM Without NAT (Endpoint-based Access)**
+5. **SSM Without NAT (Endpoint-based Access)**
 - SSM works without a NAT Gateway
 - VPC Interface Endpoints are used:
     - `ssm`
@@ -592,7 +602,7 @@ aws ec2 describe-vpc-endpoints
 
 ```
 
-1. **Load Balancer Health**
+6. **Load Balancer Health**
 - The target group shows `healthy` for `web-a` and `web-b`
 - The health check path is correct (`/` or `/health`)
 - If one web instance is stopped, the ALB still serves traffic
@@ -603,7 +613,7 @@ aws elbv2 describe-target-health \
 
 ```
 
-1. **Infrastructure Safety**
+7. **Infrastructure Safety**
 - SSH (22) is not opened anywhere
 - All EC2 instances use IMDSv2 only
 - No public IP on web / proxy
