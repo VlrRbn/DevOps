@@ -37,5 +37,5 @@ variable "private_subnet_cidrs" {
 variable "allowed_ssh_cidr" {
   type        = string
   description = "My public IP/CIDR for SSH to bastion (e.g. 203.0.113.10/32)"
-  default     = "0.0.0.0/32"  # WARNING
+  default     = "0.0.0.0/32" # WARNING
 }

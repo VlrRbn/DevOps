@@ -127,10 +127,10 @@ resource "aws_security_group" "ssm_endpoint" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description     = "HTTPS from VPC CIDR"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
+    description = "HTTPS from VPC CIDR"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = [var.vpc_cidr]
   }
 
@@ -229,13 +229,13 @@ resource "aws_security_group" "db" {
 
 # --- VPC Endpoints for SSM family services ---
 resource "aws_vpc_endpoint" "ssm" {
-  for_each       = local.ssm_services
-  vpc_id         = aws_vpc.main.id
-  service_name   = "com.amazonaws.${var.aws_region}.${each.key}"
+  for_each          = local.ssm_services
+  vpc_id            = aws_vpc.main.id
+  service_name      = "com.amazonaws.${var.aws_region}.${each.key}"
   vpc_endpoint_type = "Interface"
 
-  subnet_ids     = local.private_subnet_ids
-  security_group_ids = [aws_security_group.ssm_endpoint.id]
+  subnet_ids          = local.private_subnet_ids
+  security_group_ids  = [aws_security_group.ssm_endpoint.id]
   private_dns_enabled = true
 
   tags = merge(local.tags, {

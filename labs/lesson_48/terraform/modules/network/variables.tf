@@ -77,3 +77,9 @@ variable "enable_ssm_vpc_endpoints" {
   description = "Enable VPC Endpoints for SSM"
   default     = true
 }
+
+variable "enable_web_ssm" {
+  type        = bool
+  description = "If true, web instances are allowed to reach SSM VPC endpoints (debug mode). If false, only ssm-proxy is allowed"
+  default     = false
+}

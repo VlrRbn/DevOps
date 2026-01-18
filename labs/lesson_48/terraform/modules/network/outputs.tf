@@ -43,3 +43,8 @@ output "alb_dns_name" {
   description = "DNS name of the Application Load Balancer (open in browser to test)"
   value       = aws_lb.app.dns_name
 }
+
+output "web_tg_arn" {
+  description = "ARN of the web target group"
+  value       = aws_lb_target_group.web.arn
+}

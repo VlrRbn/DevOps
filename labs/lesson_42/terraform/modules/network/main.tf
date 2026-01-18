@@ -53,7 +53,7 @@ locals {
   }
 
   public_subnet_keys = sort(keys(local.public_subnet_map))
-  
+
   # fixed the NAT logic single NAT vs per-AZ
   nat_keys = var.enable_nat ? (
     var.enable_full_ha ? local.public_subnet_keys :

@@ -16,5 +16,6 @@ module "network" {
   enable_full_ha           = var.enable_full_ha
   enable_nat               = var.enable_nat
   enable_ssm_vpc_endpoints = var.enable_ssm_vpc_endpoints
+  enable_web_ssm           = var.enable_web_ssm
 
 }

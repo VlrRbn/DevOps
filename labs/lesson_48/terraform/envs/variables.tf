@@ -40,3 +40,8 @@ variable "enable_ssm_vpc_endpoints" {
   type    = bool
   default = true
 }
+
+variable "enable_web_ssm" {
+  type    = bool
+  default = false
+}

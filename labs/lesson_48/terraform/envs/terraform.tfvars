@@ -11,5 +11,6 @@ private_subnet_cidrs = ["10.30.11.0/24", "10.30.12.0/24"]
 enable_full_ha           = true
 enable_nat               = true
 enable_ssm_vpc_endpoints = true
+enable_web_ssm           = true
 
 instance_type_web = "t3.micro"

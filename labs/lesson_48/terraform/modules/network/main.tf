@@ -122,18 +122,21 @@ resource "aws_subnet" "private_subnet" {
 
 # ***** Security Groups (stateful L4) *****
 
-# --- SSM Endpoints: allow HTTPS from VPC CIDR ---
+# --- SSM Endpoints: allow HTTPS to SSM ---
 resource "aws_security_group" "ssm_endpoint" {
   name        = "${var.project_name}-ssm_endpoint_sg"
-  description = "Allow HTTPS from VPC CIDR to SSM Endpoint"
+  description = "Allow HTTPS to SSM Interface Endpoints"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "HTTPS from VPC CIDR"
+    description = "HTTPS from SSM Proxy SG (web-flag)"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    security_groups = concat(
+      [aws_security_group.ssm_proxy.id],
+      var.enable_web_ssm ? [aws_security_group.web.id] : []
+    )
   }
 
   egress {
@@ -220,6 +223,7 @@ resource "aws_security_group_rule" "ssm_proxy_to_alb_80" {
 }
 
 resource "aws_security_group_rule" "ssm_proxy_https_out" {
+  count             = var.enable_ssm_vpc_endpoints ? 0 : 1
   type              = "egress"
   description       = "Allow HTTPS egress for SSM via NAT"
   from_port         = 443
@@ -227,6 +231,17 @@ resource "aws_security_group_rule" "ssm_proxy_https_out" {
   protocol          = "tcp"
   security_group_id = aws_security_group.ssm_proxy.id
   cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "ssm_proxy_https_to_vpc" {
+  count             = var.enable_ssm_vpc_endpoints ? 1 : 0
+  type              = "egress"
+  description       = "HTTPS from proxy to VPC via SSM endpoints, NAT not required"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = [var.vpc_cidr]
+  security_group_id = aws_security_group.ssm_proxy.id
 }
 
 # --- Web: allow HTTP from ALB SG ---
