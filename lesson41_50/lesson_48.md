@@ -23,7 +23,8 @@
 
 ## Goals
 
-- Create an **internet-facing ALB** in public subnets (2 AZs), phase 1 (public) → phase 2 (internal hardening).
+- Phase 1: build ALB + TG + health checks.
+- Phase 2: harden to internal ALB + access via SSM proxy.
 - Run **two web EC2 instances**.
 - Register instances in a **target group**.
 - Verify:

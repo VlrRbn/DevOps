@@ -58,3 +58,8 @@
 | 43 | 2026-01-09 | A: GitHub OIDC → AWS IAM Role for Terraform CI from the start |
 | * | 2026-01-10 | B: AWS EC2 on VPC: Bastion + Private Web + Network Proof |
 | 44 | 2026-01-11 | AWS SSM Session Manager: Access Private EC2 Without SSH (IAM + VPC Endpoints) IAM → SSM → Private EC2 |
+| 45 | 2026-01-13 | VPC Interface Endpoints for SSM |
+| 46 | 2026-01-14 | SSM Port Forwarding: Access Private Services (Web/DB) Without Opening Ports |
+| 47 | 2026-01-16 | EC2 Hardening: IMDSv2 Only + Practical Tests |
+| 48 | 2026-01-17 | ALB + 2 Targets: Health Checks, Security Groups, Real Load Balancing |
+| 49 | 2026-01-19 | Bake a Golden AMI (Ubuntu 24.04 + Nginx) |

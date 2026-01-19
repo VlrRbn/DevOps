@@ -335,7 +335,7 @@ resource "aws_lb" "app" {
   load_balancer_type = "application"
 
   security_groups = [aws_security_group.alb.id]
-  subnets         = [for subnet in aws_subnet.private_subnet : subnet.id]
+  subnets         = local.private_subnet_ids
 
   tags = merge(local.tags, {
     Name = "${var.project_name}-app-alb"
@@ -362,11 +362,11 @@ resource "aws_lb_listener" "http" {
 resource "aws_instance" "web_a" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type_web
-  subnet_id              = aws_subnet.private_subnet[local.private_subnet_keys[0]].id
+  subnet_id              = local.private_subnet_ids[0]
   vpc_security_group_ids = [aws_security_group.web.id]
 
   associate_public_ip_address = false
-  iam_instance_profile        = aws_iam_instance_profile.ec2_ssm_instance_profile.name
+  iam_instance_profile        = var.enable_web_ssm ? aws_iam_instance_profile.ec2_ssm_instance_profile.name : null
 
   user_data                   = file("${path.module}/scripts/web-userdata.sh")
   user_data_replace_on_change = true
@@ -387,11 +387,11 @@ resource "aws_instance" "web_a" {
 resource "aws_instance" "web_b" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type_web
-  subnet_id              = aws_subnet.private_subnet[local.private_subnet_keys[1]].id
+  subnet_id              = local.private_subnet_ids[1]
   vpc_security_group_ids = [aws_security_group.web.id]
 
   associate_public_ip_address = false
-  iam_instance_profile        = aws_iam_instance_profile.ec2_ssm_instance_profile.name
+  iam_instance_profile        = var.enable_web_ssm ? aws_iam_instance_profile.ec2_ssm_instance_profile.name : null
 
   user_data                   = file("${path.module}/scripts/web-userdata.sh")
   user_data_replace_on_change = true
@@ -413,7 +413,7 @@ resource "aws_instance" "web_b" {
 resource "aws_instance" "ssm_proxy" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
-  subnet_id              = aws_subnet.private_subnet[local.private_subnet_keys[0]].id
+  subnet_id              = local.private_subnet_ids[0]
   vpc_security_group_ids = [aws_security_group.ssm_proxy.id]
 
   # SSH not allowed

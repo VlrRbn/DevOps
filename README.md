@@ -75,6 +75,11 @@ devops-notes/
 | **Lesson 43a** | GitHub OIDC → AWS IAM Role for Terraform CI from the start | [Materials_43a](lesson41_50/lesson_43a.md) |
 | **Lesson 43b** | AWS EC2 on VPC: Bastion + Private Web + Network Proof | [Materials_43b](lesson41_50/lesson_43b.md) |
 | **Lesson 44** | AWS SSM Session Manager: Access Private EC2 Without SSH | [Materials_44](lesson41_50/lesson_44.md) |
+| **Lesson 45** | VPC Interface Endpoints for SSM | [Materials_45](lesson41_50/lesson_45.md) |
+| **Lesson 46** | SSM Port Forwarding: Access Private Services (Web/DB) Without Opening Ports | [Materials_46](lesson41_50/lesson_46.md) |
+| **Lesson 47** | EC2 Hardening: IMDSv2 Only + Practical Tests | [Materials_47](lesson41_50/lesson_47.md) |
+| **Lesson 48** | ALB + 2 Targets: Health Checks, Security Groups, Real Load Balancing | [Materials_48](lesson41_50/lesson_48.md) |
+| **Lesson 49** | Bake a Golden AMI (Ubuntu 24.04 + Nginx) | [Materials_49](lesson41_50/lesson_49.md) |
 ---
 
 ## How to use
