@@ -45,20 +45,32 @@ build {
   sources = ["source.amazon-ebs.web"]
 
   provisioner "shell" {
-  inline = [
-    "whoami",
-    "id",
-    "sudo -n true && echo SUDO_OK || (echo NO_SUDO; exit 1)"
+    script          = "scripts/install-nginx.sh"
+    execute_command = "sudo -n bash '{{.Path}}'"
+  }
+
+  provisioner "shell" {
+    script          = "scripts/web-content.sh"
+    execute_command = "sudo -n bash '{{.Path}}'"
+  }
+
+  provisioner "file" {
+    source      = "scripts/render-index.sh"
+    destination = "/tmp/render-index.sh"
+  }
+
+  provisioner "file" {
+    source      = "scripts/render-index.service"
+    destination = "/tmp/render-index.service"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo install -d -m 0755 /usr/local/bin",
+      "sudo install -m 0755 /tmp/render-index.sh /usr/local/bin/render-index.sh",
+      "sudo install -m 0644 /tmp/render-index.service /etc/systemd/system/render-index.service",
+      "sudo systemctl daemon-reload",
+      "sudo systemctl enable render-index.service"
     ]
-  }
-
-  provisioner "shell" {
-    script = "scripts/install-nginx.sh"
-    execute_command = "sudo -n bash '{{.Path}}'"
-  }
-
-  provisioner "shell" {
-    script = "scripts/web-content.sh"
-    execute_command = "sudo -n bash '{{.Path}}'"
   }
 }
