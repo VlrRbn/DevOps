@@ -65,12 +65,10 @@ build {
   }
 
   provisioner "shell" {
-    inline = [
-      "sudo install -d -m 0755 /usr/local/bin",
-      "sudo install -m 0755 /tmp/render-index.sh /usr/local/bin/render-index.sh",
-      "sudo install -m 0644 /tmp/render-index.service /etc/systemd/system/render-index.service",
-      "sudo systemctl daemon-reload",
-      "sudo systemctl enable render-index.service"
+    script           = "scripts/setup-renderer.sh"
+    environment_vars = [
+      "AMI_VERSION=${var.ami_name_prefix}",
+      "BUILD_TIME=${timestamp()}"
     ]
   }
 }
