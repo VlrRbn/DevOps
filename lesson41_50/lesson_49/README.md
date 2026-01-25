@@ -12,12 +12,12 @@ static content.
 
 ## Packer: build the AMI
 Key files:
-- `lesson41_50/lesson_49/lesson_49/packer/web.pkr.hcl`
-- `lesson41_50/lesson_49/lesson_49/packer/scripts/install-nginx.sh`
-- `lesson41_50/lesson_49/lesson_49/packer/scripts/web-content.sh`
-- `lesson41_50/lesson_49/lesson_49/packer/scripts/render-index.sh`
-- `lesson41_50/lesson_49/lesson_49/packer/scripts/render-index.service`
-- `lesson41_50/lesson_49/lesson_49/packer/scripts/setup-render.sh`
+- `lesson41_50/lesson_49/lesson_49/packer/web.pkr.hcl` (web AMI build)
+- `lesson41_50/lesson_49/lesson_49/packer/scripts/install-nginx.sh` (install nginx)
+- `lesson41_50/lesson_49/lesson_49/packer/scripts/web-content.sh` (seed index template)
+- `lesson41_50/lesson_49/lesson_49/packer/scripts/render-index.sh` (render runtime metadata)
+- `lesson41_50/lesson_49/lesson_49/packer/scripts/render-index.service` (oneshot unit)
+- `lesson41_50/lesson_49/lesson_49/packer/scripts/setup-render.sh` (install render + meta.env)
 - `lesson41_50/lesson_49/lesson_49/packer/scripts/disable-nginx.sh` (optional failure simulation)
 
 Build:
