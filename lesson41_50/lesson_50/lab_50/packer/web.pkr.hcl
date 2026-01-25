@@ -30,11 +30,6 @@ build {
   }
 
   provisioner "shell" {
-    script          = "scripts/disable-nginx.sh"
-    execute_command = "sudo -n bash '{{.Path}}'"
-  }
-
-  provisioner "shell" {
     script          = "scripts/web-content.sh"
     execute_command = "sudo -n bash '{{.Path}}'"
   }

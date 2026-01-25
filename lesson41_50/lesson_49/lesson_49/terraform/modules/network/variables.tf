@@ -90,6 +90,6 @@ variable "enable_web_ssm" {
 }
 
 variable "web_ami_id" {
-  type = string
+  type        = string
   description = "Baked web AMI from Packer"
 }

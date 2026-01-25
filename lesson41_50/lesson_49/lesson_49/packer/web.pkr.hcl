@@ -70,7 +70,7 @@ build {
   }
 
   provisioner "shell" {
-    script           = "scripts/setup-render.sh"
+    script = "scripts/setup-render.sh"
     environment_vars = [
       "AMI_VERSION=${var.ami_name_prefix}",
       "BUILD_TIME=${timestamp()}"

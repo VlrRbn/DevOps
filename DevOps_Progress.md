@@ -63,4 +63,5 @@
 | 47 | 2026-01-16 | EC2 Hardening: IMDSv2 Only + Practical Tests |
 | 48 | 2026-01-17 | ALB + 2 Targets: Health Checks, Security Groups, Real Load Balancing |
 | 49 | 2026-01-19 | Bake a Golden AMI (Ubuntu 24.04 + Nginx) |
-| 50 | 2026-01-23 | ASG + rolling AMI |
+|  | 2026-01-(20-25) | Flu and headache |
+| 50 | 2026-01-25 | Launch Template + Auto Scaling Group |
