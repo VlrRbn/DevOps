@@ -391,7 +391,6 @@ resource "aws_autoscaling_group" "web" {
   }
 }
 
-
 # SSM proxy instance for port forwarding to internal ALB. (Access tool via SSM Session Manager.)
 resource "aws_instance" "ssm_proxy" {
   ami                    = coalesce(var.ssm_proxy_ami_id, var.web_ami_id)

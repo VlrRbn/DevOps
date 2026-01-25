@@ -335,7 +335,7 @@ terraform apply
 
 ```
 
-### Test from your laptop (after hardening form ssm_proxy)
+### Test from laptop (after hardening form ssm_proxy)
 
 ```bash
 ALB="$(terraform output -raw alb_dns_name)"
