@@ -296,22 +296,6 @@ resource "aws_lb_target_group" "web" {
 
 }
 
-# Register web_a in target group.
-resource "aws_lb_target_group_attachment" "web_a" {
-  target_group_arn = aws_lb_target_group.web.arn
-  target_id        = aws_instance.web_a.id
-  port             = 80
-
-}
-
-# Register web_b in target group.
-resource "aws_lb_target_group_attachment" "web_b" {
-  target_group_arn = aws_lb_target_group.web.arn
-  target_id        = aws_instance.web_b.id
-  port             = 80
-
-}
-
 # Internal application load balancer across private subnets.
 resource "aws_lb" "app" {
   name               = "${var.project_name}-app-alb"
@@ -342,15 +326,24 @@ resource "aws_lb_listener" "http" {
 
 # ***** Compute (EC2) *****
 
-# Web instance A in private subnet A.
-resource "aws_instance" "web_a" {
-  ami                    = var.web_ami_id
-  instance_type          = var.instance_type_web
-  subnet_id              = local.private_subnet_ids[0]
-  vpc_security_group_ids = [aws_security_group.web.id]
+# Web instance template for Auto Scaling Group.
+resource "aws_launch_template" "web" {
+  name_prefix   = "${var.project_name}-web-"
+  image_id      = var.web_ami_id
+  instance_type = var.instance_type_web
 
-  associate_public_ip_address = false
-  iam_instance_profile        = var.enable_web_ssm ? aws_iam_instance_profile.ec2_ssm_instance_profile.name : null
+  network_interfaces {
+    associate_public_ip_address = false
+    security_groups             = [aws_security_group.web.id]
+  }
+
+  dynamic "iam_instance_profile" {
+    for_each = var.enable_web_ssm ? [1] : []
+    content {
+      name = aws_iam_instance_profile.ec2_ssm_instance_profile.name
+    }
+
+  }
 
   metadata_options {
     http_tokens                 = "required"
@@ -358,38 +351,50 @@ resource "aws_instance" "web_a" {
     http_put_response_hop_limit = 1
   }
 
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-web-a"
-    Role = "web"
-  })
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = merge(local.tags, {
+      Name = "${var.project_name}-web"
+      Role = "web"
+    })
+  }
 }
 
-# Web instance B in private subnet B.
-resource "aws_instance" "web_b" {
-  ami                    = var.web_ami_id
-  instance_type          = var.instance_type_web
-  subnet_id              = local.private_subnet_ids[1]
-  vpc_security_group_ids = [aws_security_group.web.id]
+# Auto Scaling Group for web instances.
+resource "aws_autoscaling_group" "web" {
+  name             = "${var.project_name}-web-asg"
+  min_size         = 2
+  max_size         = 3
+  desired_capacity = 2
 
-  associate_public_ip_address = false
-  iam_instance_profile        = var.enable_web_ssm ? aws_iam_instance_profile.ec2_ssm_instance_profile.name : null
+  vpc_zone_identifier = local.private_subnet_ids
 
-  metadata_options {
-    http_tokens                 = "required"
-    http_endpoint               = "enabled"
-    http_put_response_hop_limit = 1
+  health_check_type         = "ELB"
+  health_check_grace_period = 60
+
+  launch_template {
+    id      = aws_launch_template.web.id
+    version = "$Latest"
   }
 
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-web-b"
-    Role = "web"
-  })
+  target_group_arns = [aws_lb_target_group.web.arn]
 
+  tag {
+    key                 = "Role"
+    value               = "web"
+    propagate_at_launch = true
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
-# SSM proxy instance for port forwarding to internal ALB.
+
+# SSM proxy instance for port forwarding to internal ALB. (Access tool via SSM Session Manager.)
 resource "aws_instance" "ssm_proxy" {
-  ami                    = var.web_ami_id
+  ami                    = coalesce(var.ssm_proxy_ami_id, var.web_ami_id)
   instance_type          = "t3.micro"
   subnet_id              = local.private_subnet_ids[0]
   vpc_security_group_ids = [aws_security_group.ssm_proxy.id]

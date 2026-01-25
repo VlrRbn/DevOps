@@ -18,4 +18,5 @@ module "network" {
   enable_ssm_vpc_endpoints = var.enable_ssm_vpc_endpoints
   enable_web_ssm           = var.enable_web_ssm
   web_ami_id               = var.web_ami_id
+  ssm_proxy_ami_id         = var.ssm_proxy_ami_id
 }

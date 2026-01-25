@@ -34,20 +34,14 @@ output "azs" {
   value       = local.azs
 }
 
-output "web_private_ips" {
-  description = "Private IPs of web instances"
-  value = {
-    web_a = aws_instance.web_a.private_ip
-    web_b = aws_instance.web_b.private_ip
-  }
+output "web_asg_name" {
+  description = "Auto Scaling Group name for web"
+  value       = aws_autoscaling_group.web.name
 }
 
-output "web_instance_ids" {
-  description = "Instance IDs of web instances"
-  value = {
-    web_a = aws_instance.web_a.id
-    web_b = aws_instance.web_b.id
-  }
+output "web_asg_arn" {
+  description = "Auto Scaling Group ARN for web"
+  value       = aws_autoscaling_group.web.arn
 }
 
 output "ssm_proxy_instance_id" {

@@ -40,7 +40,7 @@ variable "public_subnet_cidrs" {
 
 variable "private_subnet_cidrs" {
   type        = list(string)
-  description = "Private subnet CIDR blocks (minimum 2 for web_a and web_b)"
+  description = "Private subnet CIDR blocks (minimum 2 for ASG spread)"
   default     = ["10.0.11.0/24", "10.0.12.0/24"]
 
   validation {
@@ -90,6 +90,12 @@ variable "enable_web_ssm" {
 }
 
 variable "web_ami_id" {
-  type = string
+  type        = string
   description = "Baked web AMI from Packer"
+}
+
+variable "ssm_proxy_ami_id" {
+  type        = string
+  description = "Optional AMI for the SSM proxy (defaults to web_ami_id when null)"
+  default     = null
 }

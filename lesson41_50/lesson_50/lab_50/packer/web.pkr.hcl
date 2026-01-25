@@ -1,17 +1,3 @@
-packer {
-  required_plugins {
-    amazon = {
-      source  = "github.com/hashicorp/amazon"
-      version = ">= 1.3.10"
-    }
-  }
-}
-
-variable "aws_region" {
-  type    = string
-  default = "eu-west-1"
-}
-
 variable "ami_name_prefix" {
   type    = string
   default = "lab50-web"
@@ -19,26 +5,20 @@ variable "ami_name_prefix" {
 
 source "amazon-ebs" "web" {
   region        = var.aws_region
-  instance_type = "t3.micro"
-  ssh_username  = "ubuntu"
+  instance_type = var.instance_type
+  ssh_username  = var.ssh_username
 
   ami_name = "${var.ami_name_prefix}-${formatdate("YYYYMMDD-hhmm", timestamp())}"
 
   source_ami_filter {
-    filters = {
-      name                = "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"
-      virtualization-type = "hvm"
-      root-device-type    = "ebs"
-    }
-    owners      = ["099720109477"] # Canonical
+    filters     = local.ubuntu_noble_ami_filters
+    owners      = local.ubuntu_ami_owners
     most_recent = true
   }
 
-  tags = {
-    Project = "DevOps"
-    Role    = "web"
-    Lesson  = "50"
-  }
+  tags = merge(local.common_tags, {
+    Role = "web"
+  })
 }
 
 build {

@@ -49,3 +49,8 @@ variable "enable_web_ssm" {
 variable "web_ami_id" {
   type = string
 }
+
+variable "ssm_proxy_ami_id" {
+  type    = string
+  default = null
+}
