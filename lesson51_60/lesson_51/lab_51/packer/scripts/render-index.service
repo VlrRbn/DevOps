@@ -1,0 +1,12 @@
+[Unit]
+Description=Render nginx index.html with runtime metadata
+ConditionPathExists=/var/www/html/index.html
+After=network-online.target nginx.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/render-index.sh
+
+[Install]
+WantedBy=multi-user.target
