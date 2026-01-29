@@ -380,6 +380,15 @@ resource "aws_autoscaling_group" "web" {
 
   target_group_arns = [aws_lb_target_group.web.arn]
 
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 50
+      instance_warmup        = 180
+    }
+    triggers = ["launch_template"]
+  }
+
   tag {
     key                 = "Role"
     value               = "web"
@@ -457,8 +466,8 @@ resource "aws_autoscaling_policy" "scale_out_step" {
   autoscaling_group_name = aws_autoscaling_group.web.name
   policy_type            = "StepScaling"
 
-  adjustment_type = "ChangeInCapacity"
-  cooldown = 120
+  adjustment_type           = "ChangeInCapacity"
+  estimated_instance_warmup = 180
 
   step_adjustment {
     metric_interval_lower_bound = 0
@@ -473,8 +482,8 @@ resource "aws_autoscaling_policy" "scale_in_step" {
   autoscaling_group_name = aws_autoscaling_group.web.name
   policy_type            = "StepScaling"
 
-  adjustment_type = "ChangeInCapacity"
-  cooldown = 300
+  adjustment_type           = "ChangeInCapacity"
+  estimated_instance_warmup = 180
 
   step_adjustment {
     metric_interval_upper_bound = 0
@@ -483,15 +492,16 @@ resource "aws_autoscaling_policy" "scale_in_step" {
   
 }
 
+# Scheduled action to scale down at 22:00 UTC (Ireland local time).
 resource "aws_autoscaling_schedule" "scale_down_night" {
   scheduled_action_name  = "${var.project_name}-web-scale-down-night"
   autoscaling_group_name = aws_autoscaling_group.web.name
   desired_capacity       = 1
   min_size               = 1
   max_size               = 2
-  start_time             = "2024-01-01T22:00:00Z"
-  end_time               = "2024-12-31T06:00:00Z"
-  recurrence             = "0 22 * * *" # Every day at 22:00 UTC
+  start_time             = "2026-01-30T22:00:00Z"
+  end_time               = "2027-12-31T06:00:00Z"
+  recurrence             = "0 22 * * *" # Every day at 22:00 UTC (Ireland local time)
   
 }
 
