@@ -391,6 +391,7 @@ resource "aws_autoscaling_group" "web" {
   }
 }
 
+/*
 # Auto Scaling policy (target tracking) to maintain average CPU at 50%.
 resource "aws_autoscaling_policy" "cpu_target" {
   name                   = "${var.project_name}-web-cpu-target-policy"
@@ -405,6 +406,93 @@ resource "aws_autoscaling_policy" "cpu_target" {
     target_value = 50.0
   }
 
+}
+*/
+
+# CloudWatch alarm for high CPU (over 70% for 2 consecutive periods).
+resource "aws_cloudwatch_metric_alarm" "cpu_high" {
+  alarm_name          = "${var.project_name}-web-cpu-high"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 70.0
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.web.name
+  }
+
+  alarm_description = "Alarm when CPU exceeds 70%"
+
+  alarm_actions = [aws_autoscaling_policy.scale_out_step.arn]
+
+}
+
+# CloudWatch alarm for low CPU (below 30% for 5 consecutive periods).
+resource "aws_cloudwatch_metric_alarm" "cpu_low" {
+  alarm_name          = "${var.project_name}-web-cpu-low"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = 5
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 30.0
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.web.name
+  }
+
+  alarm_description = "Alarm when CPU drops below 30%"
+
+  alarm_actions = [aws_autoscaling_policy.scale_in_step.arn]
+
+}
+
+# Auto Scaling policy (step scaling) to add 1 instance on high CPU alarm.
+resource "aws_autoscaling_policy" "scale_out_step" {
+  name                   = "${var.project_name}-web-scale-out-step"
+  autoscaling_group_name = aws_autoscaling_group.web.name
+  policy_type            = "StepScaling"
+
+  adjustment_type = "ChangeInCapacity"
+  cooldown = 120
+
+  step_adjustment {
+    metric_interval_lower_bound = 0
+    scaling_adjustment          = 1
+  }
+  
+}
+
+# Auto Scaling policy (step scaling) to remove 1 instance on low CPU alarm.
+resource "aws_autoscaling_policy" "scale_in_step" {
+  name                   = "${var.project_name}-web-scale-in-step"
+  autoscaling_group_name = aws_autoscaling_group.web.name
+  policy_type            = "StepScaling"
+
+  adjustment_type = "ChangeInCapacity"
+  cooldown = 300
+
+  step_adjustment {
+    metric_interval_upper_bound = 0
+    scaling_adjustment          = -1
+  }
+  
+}
+
+resource "aws_autoscaling_schedule" "scale_down_night" {
+  scheduled_action_name  = "${var.project_name}-web-scale-down-night"
+  autoscaling_group_name = aws_autoscaling_group.web.name
+  desired_capacity       = 1
+  min_size               = 1
+  max_size               = 2
+  start_time             = "2024-01-01T22:00:00Z"
+  end_time               = "2024-12-31T06:00:00Z"
+  recurrence             = "0 22 * * *" # Every day at 22:00 UTC
+  
 }
 
 # SSM proxy instance for port forwarding to internal ALB. (Access tool via SSM Session Manager.)
