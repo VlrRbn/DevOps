@@ -391,6 +391,22 @@ resource "aws_autoscaling_group" "web" {
   }
 }
 
+# Auto Scaling policy (target tracking) to maintain average CPU at 50%.
+resource "aws_autoscaling_policy" "cpu_target" {
+  name                   = "${var.project_name}-web-cpu-target-policy"
+  autoscaling_group_name = aws_autoscaling_group.web.name
+  policy_type            = "TargetTrackingScaling"
+
+  target_tracking_configuration { # SLA: keep average CPU around 50%
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+
+    target_value = 50.0
+  }
+
+}
+
 # SSM proxy instance for port forwarding to internal ALB. (Access tool via SSM Session Manager.)
 resource "aws_instance" "ssm_proxy" {
   ami                    = coalesce(var.ssm_proxy_ami_id, var.web_ami_id)
