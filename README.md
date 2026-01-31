@@ -15,6 +15,7 @@ devops-notes/
  ├─ /lesson21_30/
  ├─ /lesson31_40/
  ├─ /lesson41_50/
+ ├─ /lesson51_60/
  ├─ runbook/
  ├─ templates/
  ├─ tools/
@@ -79,7 +80,9 @@ devops-notes/
 | **Lesson 46** | SSM Port Forwarding: Access Private Services (Web/DB) Without Opening Ports | [Materials_46](lesson41_50/lesson_46.md) |
 | **Lesson 47** | EC2 Hardening: IMDSv2 Only + Practical Tests | [Materials_47](lesson41_50/lesson_47.md) |
 | **Lesson 48** | ALB + 2 Targets: Health Checks, Security Groups, Real Load Balancing | [Materials_48](lesson41_50/lesson_48.md) |
-| **Lesson 49** | Bake a Golden AMI (Ubuntu 24.04 + Nginx) | [Materials_49](lesson41_50/lesson_49.md) |
+| **Lesson 49** | Bake a Golden AMI (Ubuntu 24.04 + Nginx) | [Materials_49](lesson41_50/lesson_49/lesson_49.md) | [Readme](lesson41_50/lesson_49/README.md) |
+| **Lesson 50** | Launch Template + Auto Scaling Group | [Materials_50](lesson41_50/lesson_50/lesson_50.md) | [Readme](lesson41_50/lesson_50/README.md) |
+| **Lesson 51** | ASG Scaling Policies & Instance Refresh | [Materials_51](lesson51_60/lesson_51/lesson_51.md) | [Readme](lesson51_60/lesson_51/README.md) |
 ---
 
 ## How to use

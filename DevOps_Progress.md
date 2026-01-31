@@ -16,7 +16,7 @@
 | 10 | 2025-09-18 | Networking (Part 2): NAT / DNAT / netns / UFW Deep |
 | 11 | 2025-09-21 | Networking (Part 3): nftables NAT/DNAT + Persistence |
 | 12 | 2025-09-23 | Nginx Reverse Proxy + TLS (self-signed) |
-| * | 2025-09-(26-30) | Covid |
+| * | 2025-09-(26-30) | Sick leave |
 | 13 | 2025-10-01 | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs |
 | 14 | 2025-10-02 | Ansible Fundamentals: Inventory, Playbooks, Roles, Idempotence |
 | 15 | 2025-10-04 | Ansible Advanced: Multi-Host, Vault, Rolling Updates, Health Checks |
@@ -63,5 +63,7 @@
 | 47 | 2026-01-16 | EC2 Hardening: IMDSv2 Only + Practical Tests |
 | 48 | 2026-01-17 | ALB + 2 Targets: Health Checks, Security Groups, Real Load Balancing |
 | 49 | 2026-01-19 | Bake a Golden AMI (Ubuntu 24.04 + Nginx) |
-|  | 2026-01-(20-25) | Flu and headache |
+|  | 2026-01-(20-28) | Sick leave |
 | 50 | 2026-01-25 | Launch Template + Auto Scaling Group |
+| 51 | 2026-01-29 | ASG Scaling Policies & Instance Refresh |
+| 52 | 2026-01-31 |  |

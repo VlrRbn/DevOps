@@ -12,7 +12,7 @@ enable_full_ha           = true
 enable_nat               = true
 enable_ssm_vpc_endpoints = true
 enable_web_ssm           = true
-web_ami_id               = "ami-03b7eaec19f1e29a1"
-ssm_proxy_ami_id         = "ami-068c1dd4b39505ead"
+web_ami_id               = "ami-065a809321bb347d7"
+ssm_proxy_ami_id         = "ami-0895efd813ec18f9a"
 
 instance_type_web = "t3.micro"

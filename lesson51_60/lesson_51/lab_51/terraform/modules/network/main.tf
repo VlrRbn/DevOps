@@ -365,7 +365,7 @@ resource "aws_launch_template" "web" {
 resource "aws_autoscaling_group" "web" {
   name             = "${var.project_name}-web-asg"
   min_size         = 2
-  max_size         = 3
+  max_size         = 4
   desired_capacity = 2
 
   vpc_zone_identifier = local.private_subnet_ids
@@ -400,7 +400,6 @@ resource "aws_autoscaling_group" "web" {
   }
 }
 
-/*
 # Auto Scaling policy (target tracking) to maintain average CPU at 50%.
 resource "aws_autoscaling_policy" "cpu_target" {
   name                   = "${var.project_name}-web-cpu-target-policy"
@@ -416,7 +415,9 @@ resource "aws_autoscaling_policy" "cpu_target" {
   }
 
 }
-*/
+
+/*
+# CloudWatch alarms + Step Scaling policies (disabled; using Target Tracking instead).
 
 # CloudWatch alarm for high CPU (over 70% for 2 consecutive periods).
 resource "aws_cloudwatch_metric_alarm" "cpu_high" {
@@ -504,6 +505,7 @@ resource "aws_autoscaling_schedule" "scale_down_night" {
   recurrence             = "0 22 * * *" # Every day at 22:00 UTC (Ireland local time)
   
 }
+*/
 
 # SSM proxy instance for port forwarding to internal ALB. (Access tool via SSM Session Manager.)
 resource "aws_instance" "ssm_proxy" {

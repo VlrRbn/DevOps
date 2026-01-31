@@ -72,15 +72,19 @@ Packer
 
 ```
 lesson41_50/lesson_49/
-├── packer/
-│   ├── web.pkr.hcl
-│   └── scripts/
-│       ├── disable-nginx.sh
-│       ├── install-nginx.sh
-│       ├── render-index.service
-│       ├── render-index.sh
-│       ├── setup-render.sh
-│       └── web-content.sh
+├── lab_49/
+│   ├── packer/
+│   │   ├── web.pkr.hcl
+│   │   └── scripts/
+│   │       ├── disable-nginx.sh
+│   │       ├── install-nginx.sh
+│   │       ├── render-index.service
+│   │       ├── render-index.sh
+│   │       ├── setup-render.sh
+│   │       └── web-content.sh
+│   └── terraform/
+│       ├── envs/
+│       └── modules/
 └── lesson_49.md
 
 ```
@@ -323,7 +327,7 @@ sudo systemctl enable render-index.service
 ## 4) Build the AMI
 
 ```bash
-cd labs/lesson_49/packer
+cd lesson41_50/lesson_49/lab_49/packer
 packer init .
 packer fmt .
 packer validate .
