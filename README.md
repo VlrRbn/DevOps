@@ -28,8 +28,8 @@ devops-notes/
 ---
 
 ## 📅 Calendar
-| Lesson | Topic | Materials |
-|-----|-------|-----------|
+| Lesson | Topic | Materials | README |
+|-----|-------|-----------|-----------|
 | **Lesson 1** | Environment Setup and Basic Linux Commands | [Materials_1](lesson01_10/lesson_01.md) |
 | **Lesson 2** | Nano basics; file ops; permissions; mini-lab project folder | [Materials_2](lesson01_10/lesson_02.md) |
 | **Lesson 3** | Networking basics; network tools; network diagnostics lab | [Materials_3](lesson01_10/lesson_03.md) |
