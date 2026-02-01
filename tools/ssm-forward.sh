@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Start an SSM port-forwarding session to a web instance by tag.
+# Usage: ssm-forward.sh [local_port] [remote_port]
+# Notes: Requires AWS CLI, SSM Session Manager, and Role=web instance tag.
 set -e
 
 # Configuration

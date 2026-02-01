@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Apply nftables NAT rules for a netns lab without touching filter/raw tables.
+# Usage: netns-nft.apply.sh
+# Notes: Deletes and recreates the ip nat table and prints detected IF/HOST_IP.
 set -Eeuo pipefail
 IF="$(ip -o route show to default | awk '{print $5; exit}')"
 HOST_IP="$(ip -4 -o addr show "$IF" | awk '{print $4}' | cut -d/ -f1 | head -1)"

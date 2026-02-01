@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Report top SSH failed login source IPs from auth.log or journald.
+# Usage: log-ssh-fail-report.sh [journal|auth]
+# Output: Top 10 IPs with counts.
 set -Eeuo pipefail
 src="${1:-journal}"
 if [[ "$src" == "auth" && -f /var/log/auth.log ]]; then

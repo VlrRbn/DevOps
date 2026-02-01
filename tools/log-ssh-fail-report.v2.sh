@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Report SSH failed login IPs with filters and time range.
+# Usage: log-ssh-fail-report.v2.sh [--source journal|auth] [--since STR] [--top N] [--all]
+# Notes: Extracts both IPv4 and IPv6 addresses.
 set -Eeuo pipefail
 src="journal"
 since="today"

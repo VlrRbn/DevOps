@@ -67,3 +67,4 @@
 | 50 | 2026-01-25 | Launch Template + Auto Scaling Group |
 | 51 | 2026-01-29 | ASG Scaling Policies & Instance Refresh |
 | 52 | 2026-01-31 | Observability & Cost Control (ASG + ALB) |
+| 53 | 2026-02-01 | ALB Deep Dive: Health Checks, Failure Modes & Traffic Control |

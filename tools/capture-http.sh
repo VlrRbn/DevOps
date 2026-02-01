@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Capture TCP port 80 traffic to a timestamped pcap for a fixed duration.
+# Usage: capture-http.sh [seconds]
+# Output: labs/day9/captures/http_YYYYMMDD_HHMMSS.pcap (requires tcpdump + sudo).
 set -Eeuo pipefail
 
 dur="${1:-5}"

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Grep patterns from files/dirs or journalctl with optional unit/tag filters.
+# Usage: log-grep.v2.sh <pattern> <file|dir|journal> [--unit UNIT] [--tag TAG] [--sshd-only] [-- <grep opts>]
+# Notes: When target is 'journal', reads from journalctl then filters.
 set -Eeuo pipefail
 usage(){ echo "Usage: $0 <pattern> <file|dir|journal> [--unit UNIT] [--tag TAG] [--sshd-only] [-- <extra grep opts>]"; }
 [[ $# -ge 2 ]] || { usage; exit 1; }

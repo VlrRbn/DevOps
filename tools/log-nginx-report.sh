@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Summarize nginx access log: totals, error rate, status codes, paths, unique IPs.
+# Usage: log-nginx-report.sh [logfile]
+# Default: labs/day8/logs/sample/nginx_access.log
 set -Eeuo pipefail
 file="${1:-labs/day8/logs/sample/nginx_access.log}"
 [[ -r "$file" ]] || { echo "No such log: $file" >&2; exit 1; }

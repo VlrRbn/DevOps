@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Create a shared directory with group ownership, SGID, and ACLs.
+# Usage: mkshare.sh <group> <dir> [--sticky]
+# Notes: Requires acl tools; optionally sets sticky bit.
 # requires: acl (setfacl/getfacl). Ubuntu: sudo apt-get install -y acl
 group="$1"
 dir="$2"

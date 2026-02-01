@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Rename file extensions recursively with dry-run and verbose options.
+# Usage: rename-ext.v2.sh [-n] [-v] <src_ext> <dst_ext> <dir>
+# Notes: Uses find; -n for dry-run, -v for verbose output.
 set -Eeuo pipefail
 IFS=$'\n\t'
 usage(){ echo "Usage: $0 [-n] [-v] <src_ext> <dst_ext> <dir>"; }

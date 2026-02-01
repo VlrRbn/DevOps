@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Create a timestamped tar.gz backup of a directory and keep the last N copies.
+# Usage: backup-dir.sh <dir> [--keep N]
+# Output: Tarballs in ~/backups named <dir>_YYYYMMDD_HHMM.tar.gz.
 set -Eeuo pipefail; IFS=$'\n\t'
 keep=5
 [[ $# -ge 1 ]] || { echo "Usage: $0 <dir> [--keep N]"; exit 1; }

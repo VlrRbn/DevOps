@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Show systemctl status and recent journal lines for a systemd unit.
+# Usage: devops-tail.sh <unit> [--since '1 hour ago']
+# Output: First 12 lines of systemctl status and last 50 journal lines.
 set -Eeuo pipefail; IFS=$'\n\t'
 [[ $# -ge 1 ]] || { echo "Usage: $0 <unit> [--since '1 hour ago']"; exit 1; }
 unit="$1"; shift || true

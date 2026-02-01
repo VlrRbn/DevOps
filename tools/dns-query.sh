@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Query common DNS record types for a domain using dig.
+# Usage: dns-query.sh <domain> [@server]
+# Output: A, AAAA, CNAME, NS, TXT records (or '-' if none).
 set -Eeuo pipefail
 
 if [[ $# -lt 1 ]]; then

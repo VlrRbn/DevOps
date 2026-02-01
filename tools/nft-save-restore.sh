@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Save/restore/validate/show/diff nftables rules and manage flush actions.
+# Usage: nft-save-restore.sh {save|restore|validate|flush|flush-nat|show|diff} [-y]
+# Notes: Saves live ruleset to /etc/nftables.conf and keeps a timestamped backup.
 set -Eeuo pipefail
 
 usage(){ echo "Usage: $0 {save|restore|validate|flush|flush-nat|show|diff} [-y]"; exit 1; }

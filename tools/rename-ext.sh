@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Rename file extensions in a directory (non-recursive).
+# Usage: rename-ext.sh <src_ext> <dst_ext> <dir>
+# Notes: Only files directly under <dir> are renamed.
 set -Eeuo pipefail; IFS=$'\n\t'
 usage(){ echo "Usage: $0 <src_ext> <dst_ext> <dir>"; }
 [[ $# -eq 3 ]] || { usage; exit 1; }

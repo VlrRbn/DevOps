@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: List TCP ports using ss with optional filters.
+# Usage: net-ports.sh [--listen] [--established] [--port N] [--process NAME]
+# Notes: Uses sudo ss -tulpn and optional grep by process name.
 set -Eeuo pipefail
 
 usage(){ echo "Usage: $0 [--listen] [--established] [--port N] [--process NAME]"; }

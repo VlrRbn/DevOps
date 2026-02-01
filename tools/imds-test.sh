@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Test IMDSv1 (should fail) and IMDSv2 (should succeed) on EC2.
+# Usage: imds-test.sh
+# Output: HTTP codes and instance-id when IMDSv2 is enabled.
 set -euo pipefail
 
 echo "[1] IMDSv1-style request (no token) should be 401"

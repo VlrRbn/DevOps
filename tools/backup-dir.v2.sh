@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Backup a directory to ~/backups with optional exclude pattern and retention.
+# Usage: backup-dir.v2.sh <dir> [--keep N] [--exclude PATTERN]
+# Notes: Uses a lock to avoid concurrent runs, validates the archive, and logs to syslog.
 set -Eeuo pipefail; IFS=$'\n\t'
 keep=5; exclude=''; dir=''
 while [[ $# -gt 0 ]]; do

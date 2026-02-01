@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Description: Flexible journal viewer for a systemd unit with since/lines/follow/priority.
+# Usage: devops-tail.v2.sh <unit> [-s 'since'] [-n lines] [-f] [-p PRIORITY]
+# Notes: Prints status summary then journalctl output.
 set -Eeuo pipefail
 IFS=$'\n\t'
 usage(){ echo "Usage: $0 <unit> [-s 'since'] [-n lines] [-f] [-p PRIORITY]"; }
