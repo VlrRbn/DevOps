@@ -454,7 +454,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealthy" {
   }
 
   alarm_description = "ALB Unhealthy hosts - critical signal"
-  
+
 }
 
 /*
@@ -541,8 +541,7 @@ resource "aws_autoscaling_schedule" "scale_down_night" {
   desired_capacity       = 1
   min_size               = 1
   max_size               = 2
-  start_time             = "2026-01-30T22:00:00Z"
-  end_time               = "2027-12-31T06:00:00Z"
+  start_time             = "2026-01-31T22:00:00Z"
   recurrence             = "0 22 * * *" # Every day at 22:00 UTC (Ireland local time)
   
 }
@@ -555,7 +554,6 @@ resource "aws_autoscaling_schedule" "scale_up_morning" {
   min_size               = 2
   max_size               = 4
   start_time             = "2026-01-31T06:00:00Z"
-  end_time               = "2027-12-31T07:00:00Z"
   recurrence             = "0 6 * * *" # Every day at 06:00 UTC (Ireland local time)
   
 }

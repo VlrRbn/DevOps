@@ -118,9 +118,3 @@ terraform destroy
 ## Notes
 - Target tracking is the default scaling mode. Step scaling is kept as a reference.
 - Instance refresh is tied to launch template changes.
-
-## Cleanup
-```bash
-cd lesson51_60/lesson_51/lab_51/terraform/envs
-terraform destroy
-```
