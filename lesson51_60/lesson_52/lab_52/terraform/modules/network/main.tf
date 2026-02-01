@@ -546,6 +546,19 @@ resource "aws_autoscaling_schedule" "scale_down_night" {
   recurrence             = "0 22 * * *" # Every day at 22:00 UTC (Ireland local time)
   
 }
+
+# Scheduled action to scale up at 06:00 UTC (Ireland local time).
+resource "aws_autoscaling_schedule" "scale_up_morning" {
+  scheduled_action_name  = "${var.project_name}-web-scale-up-morning"
+  autoscaling_group_name = aws_autoscaling_group.web.name
+  desired_capacity       = 2
+  min_size               = 2
+  max_size               = 4
+  start_time             = "2026-01-31T06:00:00Z"
+  end_time               = "2027-12-31T07:00:00Z"
+  recurrence             = "0 6 * * *" # Every day at 06:00 UTC (Ireland local time)
+  
+}
 */
 
 # SSM proxy instance for port forwarding to internal ALB. (Access tool via SSM Session Manager.)
