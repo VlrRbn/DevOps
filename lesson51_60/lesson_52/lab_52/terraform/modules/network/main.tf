@@ -437,6 +437,26 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_critical" {
   alarm_description = "ALB 5XX - critical signal"
 }
 
+resource "aws_cloudwatch_metric_alarm" "alb_unhealthy" {
+  alarm_name          = "${var.project_name}-alb-unhealthy-hosts"
+  comparison_operator = "GreaterThanThreshold"
+  metric_name         = "UnHealthyHostCount"
+  namespace           = "AWS/ApplicationELB"
+  statistic           = "Average"
+  period              = 60
+  evaluation_periods  = 1
+  threshold           = 0
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    LoadBalancer = aws_lb.app.arn_suffix
+    TargetGroup  = aws_lb_target_group.web.arn_suffix
+  }
+
+  alarm_description = "ALB Unhealthy hosts - critical signal"
+  
+}
+
 /*
 # CloudWatch alarms + Step Scaling policies (disabled; using Target Tracking instead).
 
