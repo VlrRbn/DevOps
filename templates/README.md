@@ -27,3 +27,11 @@ kubectl apply -f <file>
 - Keep Secrets out of git. Use `stringData` for local tests only.
 - Match `metadata.labels` with `spec.selector.matchLabels`.
 - Update `namespace` consistently across resources.
+
+## Helm Templates
+
+There is a single Helm chart preset in `templates/helm`:
+
+- core templates: Deployment, Service, helpers
+- optional templates (inside `templates/helm/templates`): Ingress, ConfigMap, ServiceAccount
+- extra values: `values-snippets.yaml` to enable optional templates

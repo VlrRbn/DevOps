@@ -1,0 +1,21 @@
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+serviceAccount:
+  create: false
+  name: ""
+
+config:
+  enabled: false
+  data: {}
+
+envFromConfigMap: ""
+envFromSecret: ""

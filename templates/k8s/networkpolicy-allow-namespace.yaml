@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-from-namespace
+  name: allow-from-same-namespace
   namespace: APP_NAMESPACE
 spec:
   podSelector:

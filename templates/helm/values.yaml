@@ -1,0 +1,20 @@
+replicaCount: 2
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: nginx
+  tag: "1.25"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+podAnnotations: {}
+podLabels: {}
+
+resources: {}
+
+env: []

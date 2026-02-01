@@ -5,8 +5,8 @@ metadata:
   namespace: APP_NAMESPACE
 spec:
   secretName: APP_NAME-tls
-  duration: Hours
-  renewBefore: Hours
+  duration: 2160h
+  renewBefore: 360h
   issuerRef:
     name: APP_NAME-issuer
     kind: Issuer
