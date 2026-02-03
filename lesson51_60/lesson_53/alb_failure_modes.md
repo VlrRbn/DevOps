@@ -9,9 +9,9 @@
 
 ## 1) Wrong Path / Wrong Matcher (health check misconfig)
 ### Signals
-- Targets go unhealthy but service may still run.
+- Targets go unhealthy but the service may still run.
 - describe-target-health shows HTTP code mismatch / failed health checks.
-- ASG may replace instances, but replacements don’t help.
+- ASG may replace instances, but replacements do not help.
 
 ### Diagnosis
 - Health check configuration is wrong (path/matcher/port).
@@ -25,7 +25,7 @@
 ## 2) Slow Backend / Timeout (alive but too slow)
 ### Signals
 - TargetResponseTime rises first.
-- Health checks may start timing out (Target.Timeout).
+- Health checks may start timing out (HealthCheckTimeoutSeconds or target-health reason).
 - ALB can be “green” while users complain (latency).
 
 ### Diagnosis

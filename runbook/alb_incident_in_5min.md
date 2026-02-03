@@ -1,14 +1,27 @@
 # Runbook: ALB Incident in 5 Minutes (No SSH)
 
+## Preconditions
+- `TG_ARN` and `ASG_NAME` are set.
+
+Example:
+```bash
+export TG_ARN="arn:aws:elasticloadbalancing:...:targetgroup/..."
+export ASG_NAME="lab50-web-asg"
+```
+
 ## 1) Confirm target health
+```bash
 aws elbv2 describe-target-health --target-group-arn "$TG_ARN" \
   --query 'TargetHealthDescriptions[].{id:Target.Id,state:TargetHealth.State,reason:TargetHealth.Reason,desc:TargetHealth.Description}' \
   --output table
+```
 
 ## 2) Correlate with ASG activity
+```bash
 aws autoscaling describe-scaling-activities --auto-scaling-group-name "$ASG_NAME" \
   --query 'Activities[].{Time:StartTime,Status:StatusCode,Desc:Description,Cause:Cause}' \
   --output table
+```
 
 ## 3) Decide based on metrics (AWS/ApplicationELB)
 - HealthyHostCount (Minimum)
