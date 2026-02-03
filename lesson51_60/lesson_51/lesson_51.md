@@ -6,9 +6,7 @@
 
 **Date:** 2025-01-29
 
-**Topic:** Turn a static Auto Scaling Group into a **reactive, self-healing system**
-
-using **scaling policies, CloudWatch alarms, and instance refresh**.
+**Topic:** Turn a static Auto Scaling Group into a **reactive, self-healing system** using **scaling policies, CloudWatch alarms, and instance refresh**.
 
 > lesson_50 taught replacement.
 > 

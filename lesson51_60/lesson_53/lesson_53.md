@@ -4,11 +4,13 @@
 
 # ALB Deep Dive: Health Checks, Failure Modes & Traffic Control
 
+**Date:** 2026-02-01
+
 **Focus:** Learn how **ALB actually decides** whether traffic flows or dies.
 
 ---
 
-## Why this day matters
+## Why this lesson matters
 
 Almost all ALB production incidents look like this:
 
@@ -531,17 +533,72 @@ aws elbv2 describe-target-group-attributes \
   --output text
 ```
 
+The exact TG attribute is `slow_start.duration_seconds`.
+
+Set it explicitly:
+
 ```bash
-export TG_ARN="arn:aws:elasticloadbalancing:...:targetgroup/..."
-export ASG_NAME="lab50-web-asg"
-export ALB_DNS="internal-...elb.amazonaws.com"
+# Enable slow start (example: 60 seconds)
+aws elbv2 modify-target-group-attributes \
+  --target-group-arn "$TG_ARN" \
+  --attributes Key=slow_start.duration_seconds,Value=60
+
+# Disable slow start (0 = off)
+aws elbv2 modify-target-group-attributes \
+  --target-group-arn "$TG_ARN" \
+  --attributes Key=slow_start.duration_seconds,Value=0
+
+# Verify
+aws elbv2 describe-target-group-attributes \
+  --target-group-arn "$TG_ARN" \
+  --query 'Attributes[?Key==`slow_start.duration_seconds`].Value' \
+  --output text
 ```
+
+### Experiment — Slow Start vs No Slow Start
+
+Goal: compare a refresh with slow start **disabled** vs **enabled** under light load.
+
+1) Baseline (slow start OFF):
+
+```bash
+aws elbv2 modify-target-group-attributes \
+  --target-group-arn "$TG_ARN" \
+  --attributes Key=slow_start.duration_seconds,Value=0
+
+aws autoscaling start-instance-refresh \
+  --auto-scaling-group-name "$ASG_NAME" \
+  --preferences '{"MinHealthyPercentage":50,"InstanceWarmup":60}'
+```
+
+Observe:
+- `TargetResponseTime` spike right after new targets become healthy
+- brief 5xx if new targets are fragile under immediate load
+
+2) With slow start ON (e.g., 60s):
+
+```bash
+aws elbv2 modify-target-group-attributes \
+  --target-group-arn "$TG_ARN" \
+  --attributes Key=slow_start.duration_seconds,Value=60
+
+aws autoscaling start-instance-refresh \
+  --auto-scaling-group-name "$ASG_NAME" \
+  --preferences '{"MinHealthyPercentage":50,"InstanceWarmup":60}'
+```
+
+Observe:
+- smoother `TargetResponseTime`
+- fewer or no 5xx spikes during the first minute of traffic to new targets
+
+Cleanup: set slow start back to your baseline (often 0 or 60).
+
 
 ## Acceptance
 
-- [ ] You saw `draining` and связали it with replacement/scale‑in
+- [ ] You saw `draining` and linked it to replacement/scale‑in
 - [ ] You compared delay=10 vs delay=120 and understood “why requests sometimes break”
-- [ ] You found slow start and understood when it is needed
+- [ ] You validated slow start and know when it is needed
 
 ---
 

@@ -83,6 +83,9 @@ devops-notes/
 | **Lesson 49** | Bake a Golden AMI (Ubuntu 24.04 + Nginx) | [Materials_49](lesson41_50/lesson_49/lesson_49.md) | [Readme](lesson41_50/lesson_49/README.md) |
 | **Lesson 50** | Launch Template + Auto Scaling Group | [Materials_50](lesson41_50/lesson_50/lesson_50.md) | [Readme](lesson41_50/lesson_50/README.md) |
 | **Lesson 51** | ASG Scaling Policies & Instance Refresh | [Materials_51](lesson51_60/lesson_51/lesson_51.md) | [Readme](lesson51_60/lesson_51/README.md) |
+| **Lesson 52** | Observability & Cost Control (ASG + ALB) | [Materials_51](lesson51_60/lesson_51/lesson_52.md) | [Readme](lesson51_60/lesson_52/README.md) |
+| **Lesson 53** | ALB Deep Dive: Health Checks, Failure Modes & Traffic Control | [Materials_51](lesson51_60/lesson_51/lesson_53.md) | [Readme](lesson51_60/lesson_53/README.md) |
+| **Lesson 54** | Blue/Green Deployments with ALB + ASG | [Materials_51](lesson51_60/lesson_51/lesson_54.md) | [Readme](lesson51_60/lesson_54/README.md) |
 ---
 
 ## How to use
