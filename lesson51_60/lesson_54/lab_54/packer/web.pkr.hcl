@@ -8,7 +8,7 @@ source "amazon-ebs" "web" {
   instance_type = var.instance_type
   ssh_username  = var.ssh_username
 
-  ami_name = "${var.ami_name_prefix}-${formatdate("YYYYMMDD-hhmm", timestamp())}"
+  ami_name = "${var.ami_name_prefix}-${var.ami_version}-${formatdate("YYYYMMDD-hhmm", timestamp())}"
 
   source_ami_filter {
     filters     = local.ubuntu_noble_ami_filters
@@ -17,7 +17,8 @@ source "amazon-ebs" "web" {
   }
 
   tags = merge(local.common_tags, {
-    Role = "web"
+    Role    = "web"
+    Version = var.ami_version
   })
 }
 
@@ -47,7 +48,7 @@ build {
   provisioner "shell" {
     script = "scripts/setup-render.sh"
     environment_vars = [
-      "AMI_VERSION=${var.ami_name_prefix}",
+      "AMI_VERSION=${var.ami_version}",
       "BUILD_TIME=${timestamp()}"
     ]
   }

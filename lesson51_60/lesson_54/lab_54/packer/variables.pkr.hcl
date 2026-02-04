@@ -12,3 +12,8 @@ variable "instance_type" {
   type    = string
   default = "t3.micro"
 }
+
+variable "ami_version" {
+  type    = string
+  default = "blue"
+}
