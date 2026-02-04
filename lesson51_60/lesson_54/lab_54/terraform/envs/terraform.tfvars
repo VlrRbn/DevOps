@@ -12,7 +12,16 @@ enable_full_ha           = true
 enable_nat               = true
 enable_ssm_vpc_endpoints = true
 enable_web_ssm           = true
-web_ami_id               = "ami-065a809321bb347d7"
+web_ami_blue_id          = "ami-04444dcc97616d8ef"
+web_ami_green_id         = "ami-0190de6443ebc0d94"
 ssm_proxy_ami_id         = "ami-0895efd813ec18f9a"
+traffic_weight_blue      = 90
+traffic_weight_green     = 10
+blue_min_size            = 2
+blue_max_size            = 4
+blue_desired_capacity    = 2
+green_min_size           = 1
+green_max_size           = 2
+green_desired_capacity   = 0
 
 instance_type_web = "t3.micro"

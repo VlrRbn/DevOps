@@ -89,13 +89,81 @@ variable "enable_web_ssm" {
   default     = false
 }
 
-variable "web_ami_id" {
+variable "web_ami_blue_id" {
   type        = string
-  description = "Baked web AMI from Packer"
+  description = "Baked web AMI for BLUE (from Packer)"
+}
+
+variable "web_ami_green_id" {
+  type        = string
+  description = "Baked web AMI for GREEN (from Packer)"
+}
+
+variable "traffic_weight_blue" {
+  type        = number
+  description = "ALB traffic weight for BLUE target group (0-100)"
+  default     = 100
+
+  validation {
+    condition     = var.traffic_weight_blue >= 0 && var.traffic_weight_blue <= 100
+    error_message = "traffic_weight_blue must be between 0 and 100."
+  }
+}
+
+variable "traffic_weight_green" {
+  type        = number
+  description = "ALB traffic weight for GREEN target group (0-100)"
+  default     = 0
+
+  validation {
+    condition     = var.traffic_weight_green >= 0 && var.traffic_weight_green <= 100
+    error_message = "traffic_weight_green must be between 0 and 100."
+  }
+
+  validation {
+    condition     = var.traffic_weight_blue + var.traffic_weight_green == 100
+    error_message = "traffic_weight_blue + traffic_weight_green must equal 100."
+  }
+}
+
+variable "blue_min_size" {
+  type        = number
+  description = "ASG min size for BLUE"
+  default     = 2
+}
+
+variable "blue_max_size" {
+  type        = number
+  description = "ASG max size for BLUE"
+  default     = 4
+}
+
+variable "blue_desired_capacity" {
+  type        = number
+  description = "ASG desired capacity for BLUE"
+  default     = 2
+}
+
+variable "green_min_size" {
+  type        = number
+  description = "ASG min size for GREEN"
+  default     = 0
+}
+
+variable "green_max_size" {
+  type        = number
+  description = "ASG max size for GREEN"
+  default     = 2
+}
+
+variable "green_desired_capacity" {
+  type        = number
+  description = "ASG desired capacity for GREEN"
+  default     = 0
 }
 
 variable "ssm_proxy_ami_id" {
   type        = string
-  description = "Optional AMI for the SSM proxy (defaults to web_ami_id when null)"
+  description = "AMI for the SSM proxy (defaults to web_ami_blue_id when null)"
   default     = null
 }

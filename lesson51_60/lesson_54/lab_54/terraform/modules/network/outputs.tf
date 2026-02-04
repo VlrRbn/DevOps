@@ -34,14 +34,14 @@ output "azs" {
   value       = local.azs
 }
 
-output "web_asg_name" {
-  description = "Auto Scaling Group name for web"
-  value       = aws_autoscaling_group.web.name
+output "web_asg_names" {
+  description = "Auto Scaling Group names for web (blue/green)"
+  value       = { for k, asg in aws_autoscaling_group.web : k => asg.name }
 }
 
-output "web_asg_arn" {
-  description = "Auto Scaling Group ARN for web"
-  value       = aws_autoscaling_group.web.arn
+output "web_asg_arns" {
+  description = "Auto Scaling Group ARNs for web (blue/green)"
+  value       = { for k, asg in aws_autoscaling_group.web : k => asg.arn }
 }
 
 output "ssm_proxy_instance_id" {
@@ -59,9 +59,14 @@ output "alb_dns_name" {
   value       = aws_lb.app.dns_name
 }
 
-output "web_tg_arn" {
-  description = "ARN of the web target group"
-  value       = aws_lb_target_group.web.arn
+output "alb_arn" {
+  description = "ARN of the internal ALB"
+  value       = aws_lb.app.arn
+}
+
+output "web_tg_arns" {
+  description = "ARNs of the web target groups (blue/green)"
+  value       = { for k, tg in aws_lb_target_group.web : k => tg.arn }
 }
 
 output "ssm_vpc_endpoint_ids" {

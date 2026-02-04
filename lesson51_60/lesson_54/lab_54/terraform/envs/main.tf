@@ -17,6 +17,15 @@ module "network" {
   enable_nat               = var.enable_nat
   enable_ssm_vpc_endpoints = var.enable_ssm_vpc_endpoints
   enable_web_ssm           = var.enable_web_ssm
-  web_ami_id               = var.web_ami_id
+  web_ami_blue_id          = var.web_ami_blue_id
+  web_ami_green_id         = var.web_ami_green_id
   ssm_proxy_ami_id         = var.ssm_proxy_ami_id
+  traffic_weight_blue      = var.traffic_weight_blue
+  traffic_weight_green     = var.traffic_weight_green
+  blue_min_size            = var.blue_min_size
+  blue_max_size            = var.blue_max_size
+  blue_desired_capacity    = var.blue_desired_capacity
+  green_min_size           = var.green_min_size
+  green_max_size           = var.green_max_size
+  green_desired_capacity   = var.green_desired_capacity
 }
