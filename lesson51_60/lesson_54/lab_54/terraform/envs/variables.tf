@@ -89,6 +89,16 @@ variable "green_max_size" {
   default = 2
 }
 
+variable "tg_slow_start_seconds" {
+  type    = number
+  default = 60
+}
+
+variable "health_check_healthy_threshold" {
+  type    = number
+  default = 2
+}
+
 variable "green_desired_capacity" {
   type    = number
   default = 0

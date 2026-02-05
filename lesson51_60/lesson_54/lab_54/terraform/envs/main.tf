@@ -28,4 +28,6 @@ module "network" {
   green_min_size           = var.green_min_size
   green_max_size           = var.green_max_size
   green_desired_capacity   = var.green_desired_capacity
+  tg_slow_start_seconds    = var.tg_slow_start_seconds
+  health_check_healthy_threshold = var.health_check_healthy_threshold
 }

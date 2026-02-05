@@ -306,6 +306,7 @@ resource "aws_lb_target_group" "web" {
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
+  slow_start = var.tg_slow_start_seconds
 
   health_check {
     path                = "/"
@@ -313,7 +314,7 @@ resource "aws_lb_target_group" "web" {
     matcher             = "200-399"
     interval            = 30
     timeout             = 5
-    healthy_threshold   = 2
+    healthy_threshold   = var.health_check_healthy_threshold
     unhealthy_threshold = 2
   }
 

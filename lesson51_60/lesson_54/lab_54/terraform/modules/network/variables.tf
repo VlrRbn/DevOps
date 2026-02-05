@@ -126,6 +126,23 @@ variable "traffic_weight_green" {
   }
 }
 
+variable "tg_slow_start_seconds" {
+  type        = number
+  description = "Target group slow start duration in seconds (30-900)"
+  default     = 60
+
+  validation {
+    condition     = var.tg_slow_start_seconds >= 30 && var.tg_slow_start_seconds <= 900
+    error_message = "tg_slow_start_seconds must be between 30 and 900."
+  }
+}
+
+variable "health_check_healthy_threshold" {
+  type        = number
+  description = "Number of consecutive successful checks before considering target healthy"
+  default     = 2
+}
+
 variable "blue_min_size" {
   type        = number
   description = "ASG min size for BLUE"
