@@ -69,3 +69,4 @@
 | 52 | 2026-01-31 | Observability & Cost Control (ASG + ALB) |
 | 53 | 2026-02-01 | ALB Deep Dive: Health Checks, Failure Modes & Traffic Control |
 | 54 | 2026-02-03 | Blue/Green Deployments with ALB + ASG |
+| 55 | 2026-02-07 | Rolling Deployments & Safe Rollback (ASG Instance Refresh as a Deployment Engine) |
