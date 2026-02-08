@@ -8,7 +8,8 @@ source "amazon-ebs" "web" {
   instance_type = var.instance_type
   ssh_username  = var.ssh_username
 
-  ami_name = "${var.ami_name_prefix}-${var.ami_version}-${formatdate("YYYYMMDD-hhmm", timestamp())}"
+  # Put build_id into AMI name to make refresh/rollback traceable in AWS console.
+  ami_name = "${var.ami_name_prefix}-${var.build_id}-${formatdate("YYYYMMDD-hhmm", timestamp())}"
 
   source_ami_filter {
     filters     = local.ubuntu_noble_ami_filters
@@ -19,6 +20,8 @@ source "amazon-ebs" "web" {
   tags = merge(local.common_tags, {
     Role    = "web"
     Version = var.ami_version
+    # Duplicate deployment identity in tags for quick filtering/auditing.
+    BuildId = var.build_id
   })
 }
 
@@ -48,7 +51,8 @@ build {
   provisioner "shell" {
     script = "scripts/setup-render.sh"
     environment_vars = [
-      "AMI_VERSION=${var.ami_version}",
+      # BUILD_ID is baked into /etc/web-build/build_id inside the AMI.
+      "BUILD_ID=${var.build_id}",
       "BUILD_TIME=${timestamp()}"
     ]
   }
