@@ -89,41 +89,9 @@ variable "enable_web_ssm" {
   default     = false
 }
 
-variable "web_ami_blue_id" {
+variable "web_ami_id" {
   type        = string
-  description = "Baked web AMI for BLUE (from Packer)"
-}
-
-variable "web_ami_green_id" {
-  type        = string
-  description = "Baked web AMI for GREEN (from Packer)"
-}
-
-variable "traffic_weight_blue" {
-  type        = number
-  description = "ALB traffic weight for BLUE target group (0-100)"
-  default     = 100
-
-  validation {
-    condition     = var.traffic_weight_blue >= 0 && var.traffic_weight_blue <= 100
-    error_message = "traffic_weight_blue must be between 0 and 100."
-  }
-}
-
-variable "traffic_weight_green" {
-  type        = number
-  description = "ALB traffic weight for GREEN target group (0-100)"
-  default     = 0
-
-  validation {
-    condition     = var.traffic_weight_green >= 0 && var.traffic_weight_green <= 100
-    error_message = "traffic_weight_green must be between 0 and 100."
-  }
-
-  validation {
-    condition     = var.traffic_weight_blue + var.traffic_weight_green == 100
-    error_message = "traffic_weight_blue + traffic_weight_green must equal 100."
-  }
+  description = "Baked web AMI used by the single rolling ASG fleet"
 }
 
 variable "tg_slow_start_seconds" {
@@ -143,44 +111,48 @@ variable "health_check_healthy_threshold" {
   default     = 2
 }
 
-variable "blue_min_size" {
+variable "web_min_size" {
   type        = number
-  description = "ASG min size for BLUE"
+  description = "ASG minimum size for the rolling web fleet"
   default     = 2
 }
 
-variable "blue_max_size" {
+variable "web_max_size" {
   type        = number
-  description = "ASG max size for BLUE"
+  description = "ASG maximum size for the rolling web fleet"
   default     = 4
 }
 
-variable "blue_desired_capacity" {
+variable "web_desired_capacity" {
   type        = number
-  description = "ASG desired capacity for BLUE"
+  description = "ASG desired capacity for the rolling web fleet"
   default     = 2
 }
 
-variable "green_min_size" {
+variable "asg_min_healthy_percentage" {
   type        = number
-  description = "ASG min size for GREEN"
-  default     = 0
+  description = "Minimum healthy percentage during ASG instance refresh"
+  default     = 50
+
+  validation {
+    condition     = var.asg_min_healthy_percentage >= 0 && var.asg_min_healthy_percentage <= 100
+    error_message = "asg_min_healthy_percentage must be between 0 and 100."
+  }
 }
 
-variable "green_max_size" {
+variable "asg_instance_warmup_seconds" {
   type        = number
-  description = "ASG max size for GREEN"
-  default     = 2
-}
+  description = "Warmup time in seconds for ASG instance refresh"
+  default     = 180
 
-variable "green_desired_capacity" {
-  type        = number
-  description = "ASG desired capacity for GREEN"
-  default     = 0
+  validation {
+    condition     = var.asg_instance_warmup_seconds >= 30
+    error_message = "asg_instance_warmup_seconds must be at least 30."
+  }
 }
 
 variable "ssm_proxy_ami_id" {
   type        = string
-  description = "AMI for the SSM proxy (defaults to web_ami_blue_id when null)"
+  description = "AMI for the SSM proxy (defaults to web_ami_id when null)"
   default     = null
 }

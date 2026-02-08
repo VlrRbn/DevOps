@@ -51,7 +51,7 @@ locals {
     Environment = var.environment
   }
 
-# --- Web variants and capacities for blue/green deployment ---
+  # --- Web variants and capacities for blue/green deployment ---
   web_variants = {
     blue = {
       ami_id  = var.web_ami_blue_id
@@ -302,10 +302,10 @@ resource "aws_security_group_rule" "web_from_alb" {
 resource "aws_lb_target_group" "web" {
   for_each = local.web_variants
 
-  name     = "${var.project_name}-web-${each.key}-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
+  name       = "${var.project_name}-web-${each.key}-tg"
+  port       = 80
+  protocol   = "HTTP"
+  vpc_id     = aws_vpc.main.id
   slow_start = var.tg_slow_start_seconds
 
   health_check {

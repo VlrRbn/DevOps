@@ -46,47 +46,33 @@ variable "enable_web_ssm" {
   default = false
 }
 
-variable "web_ami_blue_id" {
+variable "web_ami_id" {
   type = string
 }
 
-variable "web_ami_green_id" {
-  type = string
-}
-
-variable "traffic_weight_blue" {
-  type    = number
-  default = 100
-}
-
-variable "traffic_weight_green" {
-  type    = number
-  default = 0
-}
-
-variable "blue_min_size" {
+variable "web_min_size" {
   type    = number
   default = 2
 }
 
-variable "blue_max_size" {
+variable "web_max_size" {
   type    = number
   default = 4
 }
 
-variable "blue_desired_capacity" {
+variable "web_desired_capacity" {
   type    = number
   default = 2
 }
 
-variable "green_min_size" {
+variable "asg_min_healthy_percentage" {
   type    = number
-  default = 0
+  default = 50
 }
 
-variable "green_max_size" {
+variable "asg_instance_warmup_seconds" {
   type    = number
-  default = 2
+  default = 180
 }
 
 variable "tg_slow_start_seconds" {
@@ -97,11 +83,6 @@ variable "tg_slow_start_seconds" {
 variable "health_check_healthy_threshold" {
   type    = number
   default = 2
-}
-
-variable "green_desired_capacity" {
-  type    = number
-  default = 0
 }
 
 variable "ssm_proxy_ami_id" {

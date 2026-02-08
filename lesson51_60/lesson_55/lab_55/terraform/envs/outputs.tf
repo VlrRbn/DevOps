@@ -28,14 +28,14 @@ output "azs" {
   value       = module.network.azs
 }
 
-output "web_asg_names" {
-  description = "Auto Scaling Group names for web (blue/green)"
-  value       = module.network.web_asg_names
+output "web_asg_name" {
+  description = "Auto Scaling Group name for the rolling web fleet"
+  value       = module.network.web_asg_name
 }
 
-output "web_asg_arns" {
-  description = "Auto Scaling Group ARNs for web (blue/green)"
-  value       = module.network.web_asg_arns
+output "web_asg_arn" {
+  description = "Auto Scaling Group ARN for the rolling web fleet"
+  value       = module.network.web_asg_arn
 }
 
 output "ssm_proxy_instance_id" {
@@ -58,9 +58,9 @@ output "alb_arn" {
   value       = module.network.alb_arn
 }
 
-output "web_tg_arns" {
-  description = "ARNs of the web target groups (blue/green)"
-  value       = module.network.web_tg_arns
+output "web_tg_arn" {
+  description = "ARN of the web target group"
+  value       = module.network.web_tg_arn
 }
 
 output "ssm_vpc_endpoint_ids" {

@@ -50,31 +50,6 @@ locals {
     Project     = var.project_name
     Environment = var.environment
   }
-
-# --- Web variants and capacities for blue/green deployment ---
-  web_variants = {
-    blue = {
-      ami_id  = var.web_ami_blue_id
-      version = "blue"
-    }
-    green = {
-      ami_id  = var.web_ami_green_id
-      version = "green"
-    }
-  }
-
-  web_capacity = {
-    blue = {
-      min     = var.blue_min_size
-      max     = var.blue_max_size
-      desired = var.blue_desired_capacity
-    }
-    green = {
-      min     = var.green_min_size
-      max     = var.green_max_size
-      desired = var.green_desired_capacity
-    }
-  }
 }
 
 # VPC for all subnets and resources.
@@ -298,14 +273,12 @@ resource "aws_security_group_rule" "web_from_alb" {
 
 # ***** Load Balancer *****
 
-# Target group for web instances behind the ALB.
+# Single target group for the rolling fleet behind the ALB.
 resource "aws_lb_target_group" "web" {
-  for_each = local.web_variants
-
-  name     = "${var.project_name}-web-${each.key}-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
+  name       = "${var.project_name}-web-tg"
+  port       = 80
+  protocol   = "HTTP"
+  vpc_id     = aws_vpc.main.id
   slow_start = var.tg_slow_start_seconds
 
   health_check {
@@ -319,8 +292,8 @@ resource "aws_lb_target_group" "web" {
   }
 
   tags = merge(local.tags, {
-    Name    = "${var.project_name}-web-${each.key}-tg"
-    Version = each.value.version
+    Name  = "${var.project_name}-web-tg"
+    Fleet = "primary"
   })
 
 }
@@ -347,19 +320,8 @@ resource "aws_lb_listener" "http" {
   protocol          = "HTTP"
 
   default_action {
-    type = "forward"
-
-    forward {
-      target_group {
-        arn    = aws_lb_target_group.web["blue"].arn
-        weight = var.traffic_weight_blue
-      }
-
-      target_group {
-        arn    = aws_lb_target_group.web["green"].arn
-        weight = var.traffic_weight_green
-      }
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
   }
 
 }
@@ -368,10 +330,8 @@ resource "aws_lb_listener" "http" {
 
 # Web instance template for Auto Scaling Group.
 resource "aws_launch_template" "web" {
-  for_each = local.web_variants
-
-  name_prefix   = "${var.project_name}-web-${each.key}-"
-  image_id      = each.value.ami_id
+  name_prefix   = "${var.project_name}-web-"
+  image_id      = var.web_ami_id
   instance_type = var.instance_type_web
 
   network_interfaces {
@@ -397,21 +357,19 @@ resource "aws_launch_template" "web" {
     resource_type = "instance"
 
     tags = merge(local.tags, {
-      Name    = "${var.project_name}-web-${each.key}"
-      Role    = "web"
-      Version = each.value.version
+      Name  = "${var.project_name}-web"
+      Role  = "web"
+      Fleet = "primary"
     })
   }
 }
 
-# Auto Scaling Group for web instances.
+# Single ASG fleet updated via Instance Refresh.
 resource "aws_autoscaling_group" "web" {
-  for_each = local.web_variants
-
-  name             = "${var.project_name}-web-${each.key}-asg"
-  min_size         = local.web_capacity[each.key].min
-  max_size         = local.web_capacity[each.key].max
-  desired_capacity = local.web_capacity[each.key].desired
+  name             = "${var.project_name}-web-asg"
+  min_size         = var.web_min_size
+  max_size         = var.web_max_size
+  desired_capacity = var.web_desired_capacity
 
   vpc_zone_identifier = local.private_subnet_ids
 
@@ -419,17 +377,17 @@ resource "aws_autoscaling_group" "web" {
   health_check_grace_period = 90
 
   launch_template {
-    id      = aws_launch_template.web[each.key].id
+    id      = aws_launch_template.web.id
     version = "$Latest"
   }
 
-  target_group_arns = [aws_lb_target_group.web[each.key].arn]
+  target_group_arns = [aws_lb_target_group.web.arn]
 
   instance_refresh {
     strategy = "Rolling"
     preferences {
-      min_healthy_percentage = 50
-      instance_warmup        = 180
+      min_healthy_percentage = var.asg_min_healthy_percentage
+      instance_warmup        = var.asg_instance_warmup_seconds
     }
     triggers = ["launch_template"]
   }
@@ -442,7 +400,7 @@ resource "aws_autoscaling_group" "web" {
 
   tag {
     key                 = "Version"
-    value               = each.value.version
+    value               = "rolling"
     propagate_at_launch = true
   }
 
@@ -453,10 +411,8 @@ resource "aws_autoscaling_group" "web" {
 
 # Auto Scaling policy (target tracking) to maintain average CPU at 50%.
 resource "aws_autoscaling_policy" "cpu_target" {
-  for_each = aws_autoscaling_group.web
-
-  name                   = "${var.project_name}-web-${each.key}-cpu-target-policy"
-  autoscaling_group_name = each.value.name
+  name                   = "${var.project_name}-web-cpu-target-policy"
+  autoscaling_group_name = aws_autoscaling_group.web.name
   policy_type            = "TargetTrackingScaling"
 
   target_tracking_configuration { # SLA: keep average CPU around 50%
@@ -492,9 +448,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_critical" {
 
 # Target 5XX - critical signal.
 resource "aws_cloudwatch_metric_alarm" "target_5xx_critical" {
-  for_each = aws_lb_target_group.web
-
-  alarm_name          = "${var.project_name}-target-5xx-critical-${each.key}"
+  alarm_name          = "${var.project_name}-target-5xx-critical"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   metric_name         = "HTTPCode_Target_5XX_Count"
   namespace           = "AWS/ApplicationELB"
@@ -506,7 +460,7 @@ resource "aws_cloudwatch_metric_alarm" "target_5xx_critical" {
 
   dimensions = {
     LoadBalancer = aws_lb.app.arn_suffix
-    TargetGroup  = each.value.arn_suffix
+    TargetGroup  = aws_lb_target_group.web.arn_suffix
   }
 
   alarm_description = "Target 5XX (app errors behind ALB) - critical signal"
@@ -515,9 +469,7 @@ resource "aws_cloudwatch_metric_alarm" "target_5xx_critical" {
 
 # ALB unhealthy hosts - critical signal.
 resource "aws_cloudwatch_metric_alarm" "alb_unhealthy" {
-  for_each = aws_lb_target_group.web
-
-  alarm_name          = "${var.project_name}-alb-unhealthy-hosts-${each.key}"
+  alarm_name          = "${var.project_name}-alb-unhealthy-hosts"
   comparison_operator = "GreaterThanThreshold"
   metric_name         = "UnHealthyHostCount"
   namespace           = "AWS/ApplicationELB"
@@ -529,7 +481,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealthy" {
 
   dimensions = {
     LoadBalancer = aws_lb.app.arn_suffix
-    TargetGroup  = each.value.arn_suffix
+    TargetGroup  = aws_lb_target_group.web.arn_suffix
   }
 
   alarm_description = "ALB Unhealthy hosts - critical signal"
@@ -538,7 +490,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealthy" {
 
 # SSM proxy instance for port forwarding to internal ALB. (Access tool via SSM Session Manager.)
 resource "aws_instance" "ssm_proxy" {
-  ami                    = coalesce(var.ssm_proxy_ami_id, var.web_ami_blue_id)
+  ami                    = coalesce(var.ssm_proxy_ami_id, var.web_ami_id)
   instance_type          = "t3.micro"
   subnet_id              = local.private_subnet_ids[0]
   vpc_security_group_ids = [aws_security_group.ssm_proxy.id]
