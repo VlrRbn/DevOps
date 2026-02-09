@@ -86,6 +86,5 @@ variable "health_check_healthy_threshold" {
 }
 
 variable "ssm_proxy_ami_id" {
-  type    = string
-  default = null
+  type = string
 }

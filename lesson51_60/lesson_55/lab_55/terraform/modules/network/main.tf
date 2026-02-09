@@ -491,7 +491,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealthy" {
 
 # SSM proxy instance for port forwarding to internal ALB. (Access tool via SSM Session Manager.)
 resource "aws_instance" "ssm_proxy" {
-  ami                    = coalesce(var.ssm_proxy_ami_id, var.web_ami_id)
+  ami                    = var.ssm_proxy_ami_id
   instance_type          = "t3.micro"
   subnet_id              = local.private_subnet_ids[0]
   vpc_security_group_ids = [aws_security_group.ssm_proxy.id]

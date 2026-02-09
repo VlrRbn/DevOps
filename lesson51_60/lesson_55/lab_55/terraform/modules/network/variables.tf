@@ -153,6 +153,6 @@ variable "asg_instance_warmup_seconds" {
 
 variable "ssm_proxy_ami_id" {
   type        = string
-  description = "AMI for the SSM proxy (defaults to web_ami_id when null)"
-  default     = null
+  description = "AMI for the SSM proxy (must be explicit to avoid coupling with web_ami_id)"
+  nullable    = false
 }
