@@ -330,9 +330,10 @@ resource "aws_lb_listener" "http" {
 
 # Web instance template for Auto Scaling Group.
 resource "aws_launch_template" "web" {
-  name_prefix   = "${var.project_name}-web-"
-  image_id      = var.web_ami_id
-  instance_type = var.instance_type_web
+  name_prefix            = "${var.project_name}-web-"
+  image_id               = var.web_ami_id
+  instance_type          = var.instance_type_web
+  update_default_version = true
 
   network_interfaces {
     associate_public_ip_address = false
@@ -378,7 +379,7 @@ resource "aws_autoscaling_group" "web" {
 
   launch_template {
     id      = aws_launch_template.web.id
-    version = "$Latest"
+    version = aws_launch_template.web.latest_version
   }
 
   target_group_arns = [aws_lb_target_group.web.arn]
