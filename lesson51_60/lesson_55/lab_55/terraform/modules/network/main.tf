@@ -29,22 +29,12 @@ locals {
     local.az_letters[idx] => { cidr = cidr, az = local.azs[idx] }
   }
 
-  public_subnet_keys = sort(keys(local.public_subnet_map))
-
-  private_subnet_keys = sort(keys(local.private_subnet_map))
-
   private_subnet_ids = [
     for key in sort(keys(aws_subnet.private_subnet)) :
     aws_subnet.private_subnet[key].id
   ]
 
   ssm_services = var.enable_ssm_vpc_endpoints ? toset(["ssm", "ssmmessages", "ec2messages"]) : toset([])
-
-  # fixed the NAT logic single NAT vs per-AZ
-  nat_keys = var.enable_nat ? (
-    var.enable_full_ha ? local.public_subnet_keys :
-    (length(local.public_subnet_keys) > 0 ? [local.public_subnet_keys[0]] : [])
-  ) : []
 
   tags = {
     Project     = var.project_name
@@ -112,17 +102,6 @@ resource "aws_security_group" "ssm_endpoint" {
   description = "Allow HTTPS to SSM Interface Endpoints"
   vpc_id      = aws_vpc.main.id
 
-  ingress {
-    description = "HTTPS from SSM Proxy SG (web-flag)"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    security_groups = concat(
-      [aws_security_group.ssm_proxy.id],
-      var.enable_web_ssm ? [aws_security_group.web.id] : []
-    )
-  }
-
   egress {
     description = "All outbound"
     from_port   = 0
@@ -142,10 +121,48 @@ resource "aws_security_group" "ssm_proxy" {
   description = "Client SG used to reach internal ALB"
   vpc_id      = aws_vpc.main.id
 
-  # Restrict ingress to explicit rules below.
-  ingress = []
-  # Restrict egress to explicit rules below.
-  egress = []
+  # Egress to internal ALB only.
+  egress {
+    description = "SSM proxy can reach ALB on 80 only"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    security_groups = [
+      aws_security_group.alb.id
+    ]
+  }
+
+  # DNS (UDP) to VPC resolver.
+  egress {
+    description = "DNS (UDP) to VPC resolver"
+    from_port   = 53
+    to_port     = 53
+    protocol    = "udp"
+    cidr_blocks = ["${cidrhost(var.vpc_cidr, 2)}/32"]
+  }
+
+  # DNS (TCP) to VPC resolver.
+  egress {
+    description = "DNS (TCP) to VPC resolver"
+    from_port   = 53
+    to_port     = 53
+    protocol    = "tcp"
+    cidr_blocks = ["${cidrhost(var.vpc_cidr, 2)}/32"]
+  }
+
+  # HTTPS to private SSM interface endpoint ENIs within VPC CIDR.
+  dynamic "egress" {
+    for_each = var.enable_ssm_vpc_endpoints ? [1] : []
+    content {
+      description = "HTTPS to SSM interface endpoints only"
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      security_groups = [
+        aws_security_group.ssm_endpoint.id
+      ]
+    }
+  }
 
   tags = merge(local.tags, {
     Name = "${var.project_name}-ssm-proxy-sg"
@@ -202,61 +219,28 @@ resource "aws_security_group_rule" "alb_http_from_ssm_proxy" {
 
 }
 
-# Limit SSM proxy egress to ALB:80.
-resource "aws_security_group_rule" "ssm_proxy_to_alb_80" {
-  type                     = "egress"
-  description              = "SSM proxy can reach ALB on 80 only"
-  from_port                = 80
-  to_port                  = 80
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.ssm_proxy.id
-  source_security_group_id = aws_security_group.alb.id
-}
-
-# Allow SSM HTTPS via NAT when VPC endpoints are disabled.
-resource "aws_security_group_rule" "ssm_proxy_https_out" {
-  count             = var.enable_ssm_vpc_endpoints ? 0 : 1
-  type              = "egress"
-  description       = "Allow HTTPS egress for SSM via NAT"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  security_group_id = aws_security_group.ssm_proxy.id
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-# Allow DNS (UDP) to the VPC resolver.
-resource "aws_security_group_rule" "ssm_proxy_dns_udp" {
-  type              = "egress"
-  description       = "DNS to VPC resolver"
-  from_port         = 53
-  to_port           = 53
-  protocol          = "udp"
-  security_group_id = aws_security_group.ssm_proxy.id
-  cidr_blocks       = ["${cidrhost(var.vpc_cidr, 2)}/32"]
-}
-
-# Allow DNS (TCP) to the VPC resolver.
-resource "aws_security_group_rule" "ssm_proxy_dns_tcp" {
-  type              = "egress"
-  description       = "DNS (TCP) to VPC resolver"
-  from_port         = 53
-  to_port           = 53
-  protocol          = "tcp"
-  security_group_id = aws_security_group.ssm_proxy.id
-  cidr_blocks       = ["${cidrhost(var.vpc_cidr, 2)}/32"]
-}
-
-# Allow HTTPS from proxy to SSM endpoints (no NAT needed).
-resource "aws_security_group_rule" "ssm_proxy_https_to_vpc" {
+# Allow HTTPS from SSM proxy to SSM interface endpoints SG.
+resource "aws_security_group_rule" "ssm_endpoint_https_from_proxy" {
   count                    = var.enable_ssm_vpc_endpoints ? 1 : 0
-  type                     = "egress"
-  description              = "HTTPS from proxy to VPC via SSM endpoints, NAT not required"
+  type                     = "ingress"
+  description              = "HTTPS from SSM Proxy SG"
   from_port                = 443
   to_port                  = 443
   protocol                 = "tcp"
-  security_group_id        = aws_security_group.ssm_proxy.id
-  source_security_group_id = aws_security_group.ssm_endpoint.id
+  security_group_id        = aws_security_group.ssm_endpoint.id
+  source_security_group_id = aws_security_group.ssm_proxy.id
+}
+
+# Optional: allow HTTPS from web SG to SSM endpoints when web SSM is enabled.
+resource "aws_security_group_rule" "ssm_endpoint_https_from_web" {
+  count                    = var.enable_ssm_vpc_endpoints && var.enable_web_ssm ? 1 : 0
+  type                     = "ingress"
+  description              = "HTTPS from web SG"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ssm_endpoint.id
+  source_security_group_id = aws_security_group.web.id
 }
 
 # Allow HTTP from ALB to web instances.
@@ -577,18 +561,10 @@ resource "aws_route_table_association" "public_subnet_assoc" {
   route_table_id = aws_route_table.public_rt.id
 }
 
-# Private route tables with optional default route to NAT.
+# Private route tables without internet default route.
 resource "aws_route_table" "private_rt" {
   for_each = local.private_subnet_map
   vpc_id   = aws_vpc.main.id
-
-  dynamic "route" {
-    for_each = var.enable_nat ? [1] : []
-    content {
-      cidr_block     = "0.0.0.0/0"
-      nat_gateway_id = var.enable_full_ha ? aws_nat_gateway.nat_gw[each.key].id : aws_nat_gateway.nat_gw[local.public_subnet_keys[0]].id
-    }
-  }
 
   tags = merge(local.tags, {
     Name = "${var.project_name}-private_rt-${each.key}"
@@ -601,35 +577,6 @@ resource "aws_route_table_association" "private_rt_assoc" {
 
   subnet_id      = each.value.id
   route_table_id = aws_route_table.private_rt[each.key].id
-}
-
-# ***** NAT Gateway and EIP for Public Subnets (if enabled) *****
-
-# Elastic IPs for NAT gateways.
-resource "aws_eip" "nat" {
-  for_each = toset(local.nat_keys)
-  domain   = "vpc"
-
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-nat_eip-${each.key}"
-  })
-}
-
-# NAT gateways in public subnets.
-resource "aws_nat_gateway" "nat_gw" {
-  for_each = toset(local.nat_keys)
-
-  subnet_id     = aws_subnet.public_subnet[each.key].id
-  allocation_id = aws_eip.nat[each.key].id
-
-  tags = merge(local.tags, {
-    Name = "${var.project_name}-nat_gw-${each.key}"
-  })
-
-  depends_on = [
-    aws_internet_gateway.igw,
-    aws_route_table_association.public_subnet_assoc
-  ]
 }
 
 # ***** IAM for SSM *****

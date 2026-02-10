@@ -26,16 +26,6 @@ variable "instance_type_web" {
   type = string
 }
 
-variable "enable_full_ha" {
-  type    = bool
-  default = false
-}
-
-variable "enable_nat" {
-  type    = bool
-  default = false
-}
-
 variable "enable_ssm_vpc_endpoints" {
   type    = bool
   default = true

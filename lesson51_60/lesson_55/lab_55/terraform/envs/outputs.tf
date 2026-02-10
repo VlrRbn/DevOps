@@ -18,11 +18,6 @@ output "security_groups" {
   value       = module.network.security_groups
 }
 
-output "nat_gateway_ids" {
-  description = "NAT gateway IDs keyed by public subnet key (empty if NAT disabled)"
-  value       = module.network.nat_gateway_ids
-}
-
 output "azs" {
   description = "Availability zones used by the subnets"
   value       = module.network.azs

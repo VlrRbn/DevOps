@@ -24,7 +24,7 @@ variable "vpc_cidr" {
 
 variable "public_subnet_cidrs" {
   type        = list(string)
-  description = "Public subnet CIDR blocks (1+; 2+ required for full HA)"
+  description = "Public subnet CIDR blocks (at least one)"
   default     = ["10.0.1.0/24", "10.0.2.0/24"]
 
   validation {
@@ -32,10 +32,6 @@ variable "public_subnet_cidrs" {
     error_message = "At least one public subnet CIDR must be provided."
   }
 
-  validation {
-    condition     = !(var.enable_full_ha && length(var.public_subnet_cidrs) < 2)
-    error_message = "For full HA, at least two public subnets are required."
-  }
 }
 
 variable "private_subnet_cidrs" {
@@ -48,33 +44,12 @@ variable "private_subnet_cidrs" {
     error_message = "At least two private subnet CIDRs are required for the web instances."
   }
 
-  validation {
-    condition     = !(var.enable_full_ha && length(var.private_subnet_cidrs) > length(var.public_subnet_cidrs))
-    error_message = "For full HA, the number of private subnets must not exceed public subnets."
-  }
 }
 
 variable "instance_type_web" {
   type        = string
   description = "EC2 instance type for web server"
   default     = "t3.micro"
-}
-
-variable "enable_full_ha" {
-  type        = bool
-  description = "Use one NAT gateway per public subnet (requires enable_nat). When false: single NAT gateway."
-  default     = false
-
-  validation {
-    condition     = !(var.enable_full_ha && !var.enable_nat)
-    error_message = "enable_full_ha requires enable_nat to be true."
-  }
-}
-
-variable "enable_nat" {
-  type        = bool
-  description = "If true: private subnets get outbound internet via NAT. If false: no internet egress."
-  default     = false
 }
 
 variable "enable_ssm_vpc_endpoints" {

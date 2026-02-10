@@ -24,11 +24,6 @@ output "security_groups" {
   }
 }
 
-output "nat_gateway_ids" {
-  description = "NAT gateway IDs keyed by public subnet key (empty if NAT disabled)"
-  value       = { for k, ngw in aws_nat_gateway.nat_gw : k => ngw.id }
-}
-
 output "azs" {
   description = "Availability zones used by the subnets"
   value       = local.azs
