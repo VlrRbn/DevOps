@@ -86,6 +86,8 @@ devops-notes/
 | **Lesson 52** | Observability & Cost Control (ASG + ALB) | [Materials_52](lesson51_60/lesson_52/lesson_52.md) | [Readme](lesson51_60/lesson_52/README.md) |
 | **Lesson 53** | ALB Deep Dive: Health Checks, Failure Modes & Traffic Control | [Materials_53](lesson51_60/lesson_53/lesson_53.md) | [Readme](lesson51_60/lesson_53/README.md) |
 | **Lesson 54** | Blue/Green Deployments with ALB + ASG | [Materials_54](lesson51_60/lesson_54/lesson_54.md) | [Readme](lesson51_60/lesson_54/README.md) |
+| **Lesson 55** | Rolling Deployments & Safe Rollback (ASG Instance Refresh as a Deployment Engine) | [Materials_55](lesson51_60/lesson_55/lesson_55.md) | [Readme](lesson51_60/lesson_55/README.md) |
+| **Lesson 56** | Guardrailed Deployments (Auto Rollback, Checkpoints, Skip Matching) | [Materials_56](lesson51_60/lesson_56/lesson_56.md) | [Readme](lesson51_60/lesson_56/README.md) |
 ---
 
 ## How to use
