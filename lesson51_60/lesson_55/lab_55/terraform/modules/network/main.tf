@@ -555,9 +555,9 @@ resource "aws_route_table" "public_rt" {
 
 # Associate public subnets with public route table.
 resource "aws_route_table_association" "public_subnet_assoc" {
-  for_each = aws_subnet.public_subnet
+  for_each = local.public_subnet_map
 
-  subnet_id      = each.value.id
+  subnet_id      = aws_subnet.public_subnet[each.key].id
   route_table_id = aws_route_table.public_rt.id
 }
 
@@ -573,9 +573,9 @@ resource "aws_route_table" "private_rt" {
 
 # Associate private subnets with private route tables.
 resource "aws_route_table_association" "private_rt_assoc" {
-  for_each = aws_subnet.private_subnet
+  for_each = local.private_subnet_map
 
-  subnet_id      = each.value.id
+  subnet_id      = aws_subnet.private_subnet[each.key].id
   route_table_id = aws_route_table.private_rt[each.key].id
 }
 
