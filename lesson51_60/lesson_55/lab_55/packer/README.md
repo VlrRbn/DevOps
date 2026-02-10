@@ -9,8 +9,8 @@ Build commands:
 
 ```bash
 cd web
-packer build -var 'build_id=55-01' -var 'ami_version=blue' .
-packer build -var 'build_id=55-02' -var 'ami_version=green' .
+packer build -var 'build_id=55-01' .
+packer build -var 'build_id=55-02' .
 ```
 
 ```bash
