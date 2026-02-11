@@ -30,8 +30,8 @@ devops-notes/
 ## 📅 Calendar
 | Lesson | Topic | Materials | README |
 |-----|-------|-----------|-----------|
-| **Lesson 1** | Environment Setup and Basic Linux Commands | [Materials_1](lesson01_10/lesson_01.md) |
-| **Lesson 2** | Nano basics; file ops; permissions; mini-lab project folder | [Materials_2](lesson01_10/lesson_02.md) |
+| **Lesson 1** | Linux Foundations: Environment, Commands, FHS, and Permissions | [Materials_1](lessons/01-linux-foundations/lesson.en.md) |
+| **Lesson 2** | Files, Nano, and Permissions in Linux | [Materials_2](lessons/02-files-nano-permissions/lesson.en.md) |
 | **Lesson 3** | Networking basics; network tools; network diagnostics lab | [Materials_3](lesson01_10/lesson_03.md) |
 | **Lesson 4** | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds) | [Materials_4](lesson01_10/lesson_04.md) | 
 | **Lesson 5** | Processes & Services — systemd basics; journalctl; custom service+timer; restart policy; transient unit | [Materials_5](lesson01_10/lesson_05.md) |

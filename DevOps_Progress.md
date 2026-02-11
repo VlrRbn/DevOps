@@ -2,8 +2,8 @@
 
 | Lesson | Date | Topics Covered |
 |-----|------|----------------|
-| 1 | 2025-08-19 | Environment Setup and Basic Linux Commands |
-| 2 | 2025-08-20 | Nano basics, file ops, permissions, mini-lab project folder |
+| 1 | 2025-08-19 | Linux Foundations: Environment, Commands, FHS, and Permissions |
+| 2 | 2025-08-20 | Files, Nano, and Permissions in Linux |
 | 3 | 2025-08-21 | Networking basics, network tools, network diagnostics lab |
 | * | 2025-08-22 | Prep evening: revision lesson_01-03, extra practice, repo cleanup |
 | 4 | 2025-08-23 | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds) |
