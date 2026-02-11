@@ -4,7 +4,7 @@
 |-----|------|----------------|
 | 1 | 2025-08-19 | Linux Foundations: Environment, Commands, FHS, and Permissions |
 | 2 | 2025-08-20 | Files, Nano, and Permissions in Linux |
-| 3 | 2025-08-21 | Networking basics, network tools, network diagnostics lab |
+| 3 | 2025-08-21 | Networking Foundations: IP, DNS, Routes, and Diagnostics (network check scripts) |
 | * | 2025-08-22 | Prep evening: revision lesson_01-03, extra practice, repo cleanup |
 | 4 | 2025-08-23 | Users & Groups; shared dirs with SGID + default ACL; account policies (chage); sudoers (safe cmds) |
 | 5 | 2025-08-25 | Processes & Services - systemd basics; journalctl; custom service+timer; restart policy; transient unit |
