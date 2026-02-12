@@ -5,6 +5,7 @@
 **Date:** 2025-08-21  
 **Topic:** IP addressing, DNS, routing, and basic network diagnostics  
 **Daily goal:** Understand core networking concepts and run a minimal, practical connectivity troubleshooting flow.
+**Bridge:** [00 Foundations Bridge](../00-foundations-bridge/00-foundations-bridge.md) for missing basics after lessons 1-4.
 
 ---
 

@@ -5,6 +5,7 @@
 **Date:** 2025-08-20  
 **Topic:** Working with files and permissions  
 **Daily goal:** Reinforce file operations, practice `nano`, and understand permission and ownership basics.
+**Bridge:** [00 Foundations Bridge](../00-foundations-bridge/00-foundations-bridge.md) for missing basics after lessons 1-4.
 
 ---
 

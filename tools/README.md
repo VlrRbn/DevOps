@@ -19,7 +19,6 @@ its own header comment with purpose and usage.
 - `log-nginx-report.sh` — Summarize nginx access logs (codes, paths, IPs).
 - `log-ssh-fail-report.sh` — Report top SSH failed login IPs.
 - `log-ssh-fail-report.v2.sh` — SSH failed login report with filters/time range.
-- `mkshare.sh` — Create a shared group directory with SGID/ACLs.
 - `net-ports.sh` — List TCP ports with ss and optional filters.
 - `netns-nft.apply.sh` — Apply nftables NAT rules for a netns lab.
 - `nft-save-restore.sh` — Save/restore/validate/show/diff nftables rules.
