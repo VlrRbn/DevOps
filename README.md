@@ -36,7 +36,7 @@ devops-notes/
 | **Lesson 4** | Users, Groups, ACL, Umask, and Sudoers | [Materials_4](lessons/04-users-groups-acl-sudoers/lesson.en.md) | [Readme](lessons/04-users-groups-acl-sudoers/scripts/README.md) |
 | **Lesson 5** | Processes, Systemd Services, Timers, and Journalctl | [Materials_5](lessons/05-processes-systemd-services/lesson.en.md) | [Readme](lessons/05-processes-systemd-services/scripts/README.md) |
 | **Lesson 6** | Package Management with APT and DPKG | [Materials_6](lessons/06-apt-dpkg-package-management/lesson.en.md) | [Readme](lessons/06-apt-dpkg-package-management/scripts/README.md) |
-| **Lesson 7** | Bash Scripting (template, rename, backup, logs) | [Materials_7](lesson01_10/lesson_07.md) |
+| **Lesson 7** | Bash Scripting: Safe Patterns and Practical Automation | [Materials_7](lessons/07-bash-scripting-automation/lesson.en.md) | [Readme](lessons/07-bash-scripting-automation/scripts/README.md) |
 | **Lesson 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](lesson01_10/lesson_08.md) |
 | **Lesson 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns) | [Materials_9](lesson01_10/lesson_09.md) |
 | **Lesson 10** | Networking (Part 2): NAT / DNAT / netns / UFW Deep | [Materials_10](lesson01_10/lesson_10.md) |

@@ -8,7 +8,7 @@
 | 4 | 2025-08-23 | Users, Groups, ACL, Umask, and Sudoers |
 | 5 | 2025-08-25 | Processes, Systemd Services, Timers, and Journalctl |
 | 6 | 2025-08-26 | Package Management with APT and DPKG |
-| 7 | 2025-08-27 | Bash Scripting (template, rename, backup, logs) |
+| 7 | 2025-08-27 | Bash Scripting: Safe Patterns and Practical Automation |
 | 8 | 2025-08-30 | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools |
 | * | 2025-09-(01-12) | Light study (personal reasons), cheatsheets, minor fixes; prep for Networking lessons |
 | 9 | 2025-09-15 | Networking Deep Dive for DevOps (iproute2, ss, tcpdump, DNS, firewall) |

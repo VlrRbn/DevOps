@@ -5,12 +5,7 @@ its own header comment with purpose and usage.
 
 ## Index
 
-- `apt-dry-upgrade.sh` — Run `apt update` and simulate an upgrade (dry-run).
-- `backup-dir.sh` — Backup a directory to `~/backups` and keep last N archives.
-- `backup-dir.v2.sh` — Backup with exclude/retention, locking, and validation.
 - `capture-http.sh` — Capture TCP/80 traffic to a timestamped pcap.
-- `devops-tail.sh` — Quick `systemctl status` + recent `journalctl` for a unit.
-- `devops-tail.v2.sh` — Flexible journal viewer with since/lines/follow/priority.
 - `dns-query.sh` — Query common DNS records (A/AAAA/CNAME/NS/TXT).
 - `imds-test.sh` — Test IMDSv1 (fail) vs IMDSv2 (success) on EC2.
 - `log-grep.sh` — Grep a pattern in a file or recursively in a directory.
@@ -23,12 +18,7 @@ its own header comment with purpose and usage.
 - `nft-save-restore.sh` — Save/restore/validate/show/diff nftables rules.
 - `nginx-bluegreen-deploy.sh` — Switch to a *_v2 nginx site and reload safely.
 - `nginx-reload-safe.sh` — Validate nginx config and reload if OK.
-- `pkg-snapshot.sh` — Snapshot installed packages to lists.
-- `pkg-restore.sh` — Restore package selections from `packages.list`.
-- `rename-ext.sh` — Rename file extensions (non-recursive).
-- `rename-ext.v2.sh` — Rename file extensions recursively with dry-run/verbose.
 - `ssm-forward.sh` — Start SSM port-forwarding to a `Role=web` instance.
-- `_template.sh` — Shell script template with strict mode and trap.
 
 ## Notes
 
