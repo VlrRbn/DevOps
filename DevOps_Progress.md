@@ -7,7 +7,7 @@
 | 3 | 2025-08-21 | Networking Foundations: IP, DNS, Routes, and Diagnostics (network check scripts) |
 | 4 | 2025-08-23 | Users, Groups, ACL, Umask, and Sudoers |
 | 5 | 2025-08-25 | Processes, Systemd Services, Timers, and Journalctl |
-| 6 | 2025-08-26 | APT/dpkg search/show/policy; versions; files & owners; holds; snapshot/restore; unattended-upgrades (dry-run) |
+| 6 | 2025-08-26 | Package Management with APT and DPKG |
 | 7 | 2025-08-27 | Bash Scripting (template, rename, backup, logs) |
 | 8 | 2025-08-30 | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools |
 | * | 2025-09-(01-12) | Light study (personal reasons), cheatsheets, minor fixes; prep for Networking lessons |

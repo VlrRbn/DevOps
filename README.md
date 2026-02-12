@@ -35,7 +35,7 @@ devops-notes/
 | **Lesson 3** | Networking Foundations: IP, DNS, Routes, and Diagnostics (network check scripts) | [Materials_3](lessons/03-networking-foundations/lesson.en.md) | [Readme](lessons/03-networking-foundations/scripts/README.md) |
 | **Lesson 4** | Users, Groups, ACL, Umask, and Sudoers | [Materials_4](lessons/04-users-groups-acl-sudoers/lesson.en.md) | [Readme](lessons/04-users-groups-acl-sudoers/scripts/README.md) |
 | **Lesson 5** | Processes, Systemd Services, Timers, and Journalctl | [Materials_5](lessons/05-processes-systemd-services/lesson.en.md) | [Readme](lessons/05-processes-systemd-services/scripts/README.md) |
-| **Lesson 6** | APT/dpkg — search/show/policy; versions; files & owners; holds; snapshot/restore (dry); unattended-upgrades (dry-run) | [Materials_6](lesson01_10/lesson_06.md) |
+| **Lesson 6** | Package Management with APT and DPKG | [Materials_6](lessons/06-apt-dpkg-package-management/lesson.en.md) | [Readme](lessons/06-apt-dpkg-package-management/scripts/README.md) |
 | **Lesson 7** | Bash Scripting (template, rename, backup, logs) | [Materials_7](lesson01_10/lesson_07.md) |
 | **Lesson 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](lesson01_10/lesson_08.md) |
 | **Lesson 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns) | [Materials_9](lesson01_10/lesson_09.md) |
