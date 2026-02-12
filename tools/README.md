@@ -12,7 +12,6 @@ its own header comment with purpose and usage.
 - `devops-tail.sh` — Quick `systemctl status` + recent `journalctl` for a unit.
 - `devops-tail.v2.sh` — Flexible journal viewer with since/lines/follow/priority.
 - `dns-query.sh` — Query common DNS records (A/AAAA/CNAME/NS/TXT).
-- `hello.sh` — Emit a timestamped log line to journald.
 - `imds-test.sh` — Test IMDSv1 (fail) vs IMDSv2 (success) on EC2.
 - `log-grep.sh` — Grep a pattern in a file or recursively in a directory.
 - `log-grep.v2.sh` — Grep files or journal with unit/tag filters.
