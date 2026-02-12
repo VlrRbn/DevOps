@@ -5,6 +5,7 @@
 **Date:** 2025-08-25  
 **Topic:** Process inspection, signals, systemd unit lifecycle, timers, and logging with journald  
 **Daily goal:** Learn how to inspect running processes, manage systemd services/timers, and debug behavior through logs.
+**Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.md) for missing practical gaps after lessons 5-7.
 
 ---
 

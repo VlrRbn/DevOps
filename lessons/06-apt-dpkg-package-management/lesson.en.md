@@ -5,6 +5,7 @@
 **Date:** 2025-08-26  
 **Topic:** APT/dpkg workflow: search, policy, versions, file ownership, holds, snapshots, and unattended upgrades  
 **Daily goal:** Learn to inspect package state, simulate changes safely, and prepare rollback-oriented package operations.
+**Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.md) for missing practical gaps after lessons 5-7.
 
 ---
 

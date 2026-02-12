@@ -5,6 +5,7 @@
 **Date:** 2025-08-26  
 **Topic:** Практика APT/dpkg: поиск, policy, версии, владельцы файлов, hold, snapshot/restore и unattended upgrades  
 **Daily goal:** Научиться безопасно проверять состояние пакетов, симулировать изменения и готовить восстановление.
+**Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.ru.md) — компенсация недостающих практических тем после уроков 5-7.
 
 ---
 

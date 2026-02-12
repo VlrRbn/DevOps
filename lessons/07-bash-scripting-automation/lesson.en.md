@@ -5,6 +5,7 @@
 **Date:** 2025-08-27  
 **Topic:** Bash safety patterns, argument parsing, file automation, backups, and journald helpers  
 **Daily goal:** Write reliable Bash scripts that are safe by default and useful for daily ops tasks.
+**Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.md) for missing practical gaps after lessons 5-7.
 
 ---
 
