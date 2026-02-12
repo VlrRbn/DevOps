@@ -1,0 +1,8 @@
+[Unit]
+Description=Flaky demo (restarts on failure)
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -lc 'echo start; sleep 2; echo crash >&2; exit 1'
+Restart=on-failure
+RestartSec=3s

@@ -1,0 +1,6 @@
+[Unit]
+Description=Hello logger (oneshot)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/hello.sh
