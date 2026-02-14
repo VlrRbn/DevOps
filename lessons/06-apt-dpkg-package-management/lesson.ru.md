@@ -421,6 +421,29 @@ lessons/06-apt-dpkg-package-management/scripts/unattended-dry-run.sh
 sudo apt-get autoclean
 ```
 
+### 5.7 Быстрый запуск скриптов урока
+
+Скрипты находятся в:
+
+- `lessons/06-apt-dpkg-package-management/scripts/`
+
+Проверка справки:
+
+```bash
+./lessons/06-apt-dpkg-package-management/scripts/apt-dry-upgrade.sh --help
+./lessons/06-apt-dpkg-package-management/scripts/pkg-snapshot.sh --help
+./lessons/06-apt-dpkg-package-management/scripts/pkg-restore.sh --help
+./lessons/06-apt-dpkg-package-management/scripts/unattended-dry-run.sh --help
+```
+
+Быстрый типовой прогон:
+
+```bash
+./lessons/06-apt-dpkg-package-management/scripts/pkg-snapshot.sh ./pkg-state
+./lessons/06-apt-dpkg-package-management/scripts/apt-dry-upgrade.sh --full
+./lessons/06-apt-dpkg-package-management/scripts/pkg-restore.sh ./pkg-state/packages.list
+```
+
 ---
 
 ## 6. Мини-Лаба (Core Path)

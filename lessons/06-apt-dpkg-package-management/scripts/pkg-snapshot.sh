@@ -10,6 +10,10 @@ Description:
   Saves package state snapshot:
   - packages.list (dpkg selections)
   - packages_table.txt (human-readable table)
+
+Examples:
+  ./lessons/06-apt-dpkg-package-management/scripts/pkg-snapshot.sh
+  ./lessons/06-apt-dpkg-package-management/scripts/pkg-snapshot.sh ./pkg-state
 USAGE
   exit 0
 fi

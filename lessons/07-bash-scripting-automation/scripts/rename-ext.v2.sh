@@ -6,16 +6,32 @@ set -Eeuo pipefail
 IFS=$'\n\t'
 
 usage() {
-  echo "Usage: $0 [-n] [-v] <src_ext> <dst_ext> <dir>"
+  cat <<'USAGE'
+Usage:
+  rename-ext.v2.sh [-n] [-v] <src_ext> <dst_ext> <dir>
+
+Examples:
+  ./lessons/07-bash-scripting-automation/scripts/rename-ext.v2.sh txt md /tmp/lab7
+  ./lessons/07-bash-scripting-automation/scripts/rename-ext.v2.sh -n txt md "/tmp/lab with spaces"
+  ./lessons/07-bash-scripting-automation/scripts/rename-ext.v2.sh -v txt md /tmp/lab7
+USAGE
 }
 
 dry=0
 verbose=0
 
-while getopts ":nv" opt; do
+for arg in "$@"; do
+  if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+    usage
+    exit 0
+  fi
+done
+
+while getopts ":nvh" opt; do
   case "$opt" in
     n) dry=1 ;;
     v) verbose=1 ;;
+    h) usage; exit 0 ;;
     *) usage; exit 1 ;;
   esac
 done

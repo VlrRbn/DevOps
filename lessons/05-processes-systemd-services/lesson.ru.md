@@ -450,6 +450,29 @@ sudo systemctl restart systemd-journald
 journalctl --disk-usage
 ```
 
+### 5.7 Быстрый запуск скриптов урока
+
+Скрипты находятся в:
+
+- `lessons/05-processes-systemd-services/scripts/`
+
+Проверка справки:
+
+```bash
+./lessons/05-processes-systemd-services/scripts/setup-hello-timer.sh --help
+./lessons/05-processes-systemd-services/scripts/setup-flaky-service.sh --help
+./lessons/05-processes-systemd-services/scripts/enable-persistent-journal.sh --help
+./lessons/05-processes-systemd-services/scripts/cleanup-lab.sh --help
+```
+
+Быстрый типовой прогон:
+
+```bash
+./lessons/05-processes-systemd-services/scripts/setup-hello-timer.sh
+./lessons/05-processes-systemd-services/scripts/setup-flaky-service.sh 10
+./lessons/05-processes-systemd-services/scripts/enable-persistent-journal.sh
+```
+
 ---
 
 ## 6. Мини-Лаба (Core Path)

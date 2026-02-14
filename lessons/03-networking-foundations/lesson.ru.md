@@ -5,7 +5,7 @@
 **Date:** 2025-08-21  
 **Topic:** IP-адресация, DNS, маршрутизация и базовая сетевая диагностика  
 **Daily goal:** Понять ключевые сетевые концепции и пройти минимальный, практичный сценарий диагностики сети.
-**Bridge:** [00 Foundations Bridge](../00-foundations-bridge/00-foundations-bridge.ru.md) — компенсация недостающих базовых тем после уроков 1-4.
+**Bridge:** [01-05 Foundations Bridge](../00-foundations-bridge/01-05-foundations-bridge.ru.md) — компенсация недостающих базовых тем после уроков 1-4.
 
 ---
 
@@ -285,6 +285,26 @@ leprecha@Ubuntu-DevOps:~$ dig +trace google.com
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ mtr -rw -c 10 1.1.1.1
+```
+
+### Быстрый запуск скриптов урока
+
+Скрипты находятся в:
+
+- `lessons/03-networking-foundations/scripts/`
+
+Быстрая проверка help:
+
+```bash
+./lessons/03-networking-foundations/scripts/core-check.sh --help
+./lessons/03-networking-foundations/scripts/deep-check.sh --help
+```
+
+Примеры запуска:
+
+```bash
+./lessons/03-networking-foundations/scripts/core-check.sh ~/net-lab
+./lessons/03-networking-foundations/scripts/deep-check.sh --hosts-test ~/net-lab
 ```
 
 ---

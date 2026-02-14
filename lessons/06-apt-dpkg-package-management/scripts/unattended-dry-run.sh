@@ -1,6 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+usage() {
+  cat <<'USAGE'
+Usage:
+  unattended-dry-run.sh
+
+Examples:
+  ./lessons/06-apt-dpkg-package-management/scripts/unattended-dry-run.sh
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
 if ! command -v unattended-upgrade >/dev/null 2>&1; then
   echo "ERROR: unattended-upgrade command not found" >&2
   echo "Install with: sudo apt install -y unattended-upgrades" >&2

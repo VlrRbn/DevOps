@@ -450,6 +450,29 @@ sudo systemctl restart systemd-journald
 journalctl --disk-usage
 ```
 
+### 5.7 Quick script run for this lesson
+
+Scripts are in:
+
+- `lessons/05-processes-systemd-services/scripts/`
+
+Help check:
+
+```bash
+./lessons/05-processes-systemd-services/scripts/setup-hello-timer.sh --help
+./lessons/05-processes-systemd-services/scripts/setup-flaky-service.sh --help
+./lessons/05-processes-systemd-services/scripts/enable-persistent-journal.sh --help
+./lessons/05-processes-systemd-services/scripts/cleanup-lab.sh --help
+```
+
+Typical run sequence:
+
+```bash
+./lessons/05-processes-systemd-services/scripts/setup-hello-timer.sh
+./lessons/05-processes-systemd-services/scripts/setup-flaky-service.sh 10
+./lessons/05-processes-systemd-services/scripts/enable-persistent-journal.sh
+```
+
 ---
 
 ## 6. Mini-lab (Core Path)

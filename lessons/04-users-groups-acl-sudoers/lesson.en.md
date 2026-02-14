@@ -5,7 +5,7 @@
 **Date:** 2025-08-23  
 **Topic:** Local account management, group collaboration model, access control, and least-privilege sudo rules  
 **Daily goal:** Build a practical model for multi-user collaboration with safe permissions and controlled admin access.
-**Bridge:** [00 Foundations Bridge](../00-foundations-bridge/00-foundations-bridge.md) for missing basics after lessons 1-4.
+**Bridge:** [01-05 Foundations Bridge](../00-foundations-bridge/01-05-foundations-bridge.md) for missing basics after lessons 1-4.
 
 ---
 
@@ -365,6 +365,12 @@ chmod +x lessons/04-users-groups-acl-sudoers/scripts/mkshare.sh
 lessons/04-users-groups-acl-sudoers/scripts/mkshare.sh devs /srv/shared/dev --sticky
 ls -ld /srv/shared/dev
 getfacl /srv/shared/dev | sed -n '1,20p'
+```
+
+Check built-in help:
+
+```bash
+./lessons/04-users-groups-acl-sudoers/scripts/mkshare.sh --help
 ```
 
 ---

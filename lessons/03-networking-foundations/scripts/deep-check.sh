@@ -16,6 +16,10 @@ Description:
 
 Flags:
   --hosts-test --- Temporarily add mytest.local to /etc/hosts and remove it.
+
+Examples:
+  ./lessons/03-networking-foundations/scripts/deep-check.sh /tmp/net-lab
+  ./lessons/03-networking-foundations/scripts/deep-check.sh --hosts-test "$HOME/net-lab"
 USAGE
 }
 

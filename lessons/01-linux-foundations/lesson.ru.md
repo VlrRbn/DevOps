@@ -5,7 +5,7 @@
 **Date:** 2025-08-19  
 **Topic:** Подготовка окружения  
 **Daily goal:** Подготовить окружение для изучения Linux и отработать базовые операции с файлами.
-**Bridge:** [00 Foundations Bridge](../00-foundations-bridge/00-foundations-bridge.ru.md) — компенсация недостающих базовых тем после уроков 1-4.
+**Bridge:** [01-05 Foundations Bridge](../00-foundations-bridge/01-05-foundations-bridge.ru.md) — компенсация недостающих базовых тем после уроков 1-4.
 
 ---
 

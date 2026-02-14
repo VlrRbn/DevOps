@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+usage() {
+  cat <<'USAGE'
+Usage:
+  setup-hello-timer.sh
+
+Examples:
+  ./lessons/05-processes-systemd-services/scripts/setup-hello-timer.sh
+  systemctl list-timers --all | grep hello
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 need_cmd() {

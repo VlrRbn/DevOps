@@ -5,7 +5,7 @@
 **Date:** 2025-08-21  
 **Topic:** IP addressing, DNS, routing, and basic network diagnostics  
 **Daily goal:** Understand core networking concepts and run a minimal, practical connectivity troubleshooting flow.
-**Bridge:** [00 Foundations Bridge](../00-foundations-bridge/00-foundations-bridge.md) for missing basics after lessons 1-4.
+**Bridge:** [01-05 Foundations Bridge](../00-foundations-bridge/01-05-foundations-bridge.md) for missing basics after lessons 1-4.
 
 ---
 
@@ -285,6 +285,26 @@ leprecha@Ubuntu-DevOps:~$ dig +trace google.com
 
 ```bash
 leprecha@Ubuntu-DevOps:~$ mtr -rw -c 10 1.1.1.1
+```
+
+### Quick script run for this lesson
+
+Scripts are in:
+
+- `lessons/03-networking-foundations/scripts/`
+
+Quick help check:
+
+```bash
+./lessons/03-networking-foundations/scripts/core-check.sh --help
+./lessons/03-networking-foundations/scripts/deep-check.sh --help
+```
+
+Run examples:
+
+```bash
+./lessons/03-networking-foundations/scripts/core-check.sh ~/net-lab
+./lessons/03-networking-foundations/scripts/deep-check.sh --hosts-test ~/net-lab
 ```
 
 ---

@@ -37,7 +37,7 @@ devops-notes/
 | **Lesson 5** | Processes, Systemd Services, Timers, and Journalctl | [Materials_5](lessons/05-processes-systemd-services/lesson.en.md) | [Readme](lessons/05-processes-systemd-services/scripts/README.md) |
 | **Lesson 6** | Package Management with APT and DPKG | [Materials_6](lessons/06-apt-dpkg-package-management/lesson.en.md) | [Readme](lessons/06-apt-dpkg-package-management/scripts/README.md) |
 | **Lesson 7** | Bash Scripting: Safe Patterns and Practical Automation | [Materials_7](lessons/07-bash-scripting-automation/lesson.en.md) | [Readme](lessons/07-bash-scripting-automation/scripts/README.md) |
-| **Lesson 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](lesson01_10/lesson_08.md) |
+| **Lesson 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](lessons/08-text-processing-grep-sed-awk/lesson.en.md) | [Readme](lessons/08-text-processing-grep-sed-awk/scripts/README.md) |
 | **Lesson 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns) | [Materials_9](lesson01_10/lesson_09.md) |
 | **Lesson 10** | Networking (Part 2): NAT / DNAT / netns / UFW Deep | [Materials_10](lesson01_10/lesson_10.md) |
 | **Lesson 11** | Networking (Part 3): nftables NAT/DNAT + Persistence | [Materials_11](lesson11_20/lesson_11.md) |

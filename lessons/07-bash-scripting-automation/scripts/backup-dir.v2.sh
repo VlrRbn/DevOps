@@ -11,28 +11,64 @@
 set -Eeuo pipefail
 IFS=$'\n\t'
 
+usage() {
+  cat <<'USAGE'
+Usage:
+  backup-dir.v2.sh <dir> [--keep N] [--exclude PATTERN]
+
+Description:
+  Creates a tar.gz backup in ~/backups, keeps last N archives,
+  and optionally excludes files via tar glob pattern.
+
+Examples:
+  ./lessons/07-bash-scripting-automation/scripts/backup-dir.v2.sh /tmp/lab7
+  ./lessons/07-bash-scripting-automation/scripts/backup-dir.v2.sh /tmp/lab7 --keep 3
+  ./lessons/07-bash-scripting-automation/scripts/backup-dir.v2.sh /tmp/lab7 --exclude '*.log'
+USAGE
+}
+
 keep=5
 exclude=''
 dir=''
 
+for arg in "$@"; do
+  if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+    usage
+    exit 0
+  fi
+done
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --keep)
+      [[ $# -ge 2 ]] || { echo "ERROR: --keep requires value" >&2; usage; exit 2; }
       keep="${2:-5}"
       shift 2
       ;;
     --exclude)
+      [[ $# -ge 2 ]] || { echo "ERROR: --exclude requires value" >&2; usage; exit 2; }
       exclude="${2:-}"
       shift 2
       ;;
+    -*)
+      echo "ERROR: unknown option: $1" >&2
+      usage
+      exit 2
+      ;;
     *)
-      dir="${1}"
+      if [[ -n "$dir" ]]; then
+        echo "ERROR: unexpected argument: $1" >&2
+        usage
+        exit 2
+      fi
+      dir="$1"
       shift
       ;;
   esac
 done
 
-[[ -n "$dir" && -d "$dir" ]] || { echo "Usage: $0 <dir> [--keep N] [--exclude PATTERN]"; exit 1; }
+[[ "$keep" =~ ^[0-9]+$ ]] || { echo "ERROR: --keep must be integer" >&2; exit 1; }
+[[ -n "$dir" && -d "$dir" ]] || { echo "ERROR: directory not found: $dir" >&2; usage; exit 1; }
 
 out="$HOME/backups"
 mkdir -p -- "$out"

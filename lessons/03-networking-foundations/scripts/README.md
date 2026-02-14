@@ -2,7 +2,7 @@
 
 This folder contains two helper scripts for networking diagnostics.
 
-## Scripts
+## Files
 
 - `core-check.sh`  
   Minimal troubleshooting flow:
@@ -58,8 +58,10 @@ lessons/03-networking-foundations/scripts/deep-check.sh --hosts-test /tmp/net-la
 Help:
 
 ```bash
-lessons/03-networking-foundations/scripts/core-check.sh -h/--help
-lessons/03-networking-foundations/scripts/deep-check.sh -h/--help
+lessons/03-networking-foundations/scripts/core-check.sh -h
+lessons/03-networking-foundations/scripts/core-check.sh --help
+lessons/03-networking-foundations/scripts/deep-check.sh -h
+lessons/03-networking-foundations/scripts/deep-check.sh --help
 ```
 
 ## Output

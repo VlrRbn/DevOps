@@ -1,6 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+usage() {
+  cat <<'USAGE'
+Usage:
+  enable-persistent-journal.sh
+
+Examples:
+  ./lessons/05-processes-systemd-services/scripts/enable-persistent-journal.sh
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
 CONF_DIR="/etc/systemd/journald.conf.d"
 CONF_FILE="$CONF_DIR/persistent.conf"
 

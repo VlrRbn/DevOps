@@ -12,6 +12,10 @@ Description:
 
 Options:
   --apply --- perform real dselect-upgrade (without this flag: simulate)
+
+Examples:
+  ./lessons/06-apt-dpkg-package-management/scripts/pkg-restore.sh ./pkg-state/packages.list
+  ./lessons/06-apt-dpkg-package-management/scripts/pkg-restore.sh --apply ./pkg-state/packages.list
 USAGE
 }
 

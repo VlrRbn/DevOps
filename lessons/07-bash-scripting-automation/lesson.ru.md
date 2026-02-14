@@ -309,6 +309,24 @@ tar -tzf "$tarball" >/dev/null
 chmod +x lessons/07-bash-scripting-automation/scripts/*.sh
 ```
 
+Проверка справки:
+
+```bash
+./lessons/07-bash-scripting-automation/scripts/rename-ext.sh --help
+./lessons/07-bash-scripting-automation/scripts/rename-ext.v2.sh --help
+./lessons/07-bash-scripting-automation/scripts/backup-dir.sh --help
+./lessons/07-bash-scripting-automation/scripts/backup-dir.v2.sh --help
+./lessons/07-bash-scripting-automation/scripts/devops-tail.v2.sh -h
+```
+
+Короткие примеры запуска:
+
+```bash
+./lessons/07-bash-scripting-automation/scripts/rename-ext.sh txt md /tmp/lab7
+./lessons/07-bash-scripting-automation/scripts/backup-dir.v2.sh /tmp/lab7 --keep 2 --exclude 'lab7/*.md'
+./lessons/07-bash-scripting-automation/scripts/devops-tail.sh cron --since "15 min ago"
+```
+
 ---
 
 ## 7. Мини-Лаба (Core Path)

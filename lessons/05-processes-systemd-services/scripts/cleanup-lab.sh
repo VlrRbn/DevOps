@@ -1,9 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+usage() {
+  cat <<'USAGE'
+Usage:
+  cleanup-lab.sh [--remove-cron-override]
+
+Examples:
+  ./lessons/05-processes-systemd-services/scripts/cleanup-lab.sh
+  ./lessons/05-processes-systemd-services/scripts/cleanup-lab.sh --remove-cron-override
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
 REMOVE_CRON_OVERRIDE=0
 if [[ "${1:-}" == "--remove-cron-override" ]]; then
   REMOVE_CRON_OVERRIDE=1
+elif [[ -n "${1:-}" ]]; then
+  usage
+  exit 2
 fi
 
 need_cmd() {

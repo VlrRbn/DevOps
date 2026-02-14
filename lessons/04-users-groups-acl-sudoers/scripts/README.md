@@ -1,4 +1,4 @@
-# mkshare.sh (Lesson 04)
+# Shared Directory Script (Lesson 04)
 
 `mkshare.sh` prepares a shared directory for a Unix group using:
 
@@ -7,7 +7,7 @@
 - ACL for group access (`setfacl`)
 - optional sticky bit (`--sticky`)
 
-## Script
+## Files
 
 - `mkshare.sh`
 
@@ -27,15 +27,17 @@ sudo apt-get install -y acl
 
 ## Usage
 
+From repo root:
+
 ```bash
-./mkshare.sh <group> <dir> [--sticky]
+lessons/04-users-groups-acl-sudoers/scripts/mkshare.sh <group> <dir> [--sticky]
 ```
 
 Examples:
 
 ```bash
-./mkshare.sh devs /srv/shared/dev
-./mkshare.sh devs /srv/shared/dev --sticky
+lessons/04-users-groups-acl-sudoers/scripts/mkshare.sh devs /srv/shared/dev
+lessons/04-users-groups-acl-sudoers/scripts/mkshare.sh devs /srv/shared/dev --sticky
 ```
 
 ## What It Does

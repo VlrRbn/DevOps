@@ -5,8 +5,24 @@
 set -Eeuo pipefail
 IFS=$'\n\t'
 
+usage() {
+  cat <<'USAGE'
+Usage:
+  backup-dir.sh <dir> [--keep N]
+
+Examples:
+  ./lessons/07-bash-scripting-automation/scripts/backup-dir.sh /tmp/lab7
+  ./lessons/07-bash-scripting-automation/scripts/backup-dir.sh /tmp/lab7 --keep 3
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
 keep=5
-[[ $# -ge 1 ]] || { echo "Usage: $0 <dir> [--keep N]"; exit 1; }
+[[ $# -ge 1 ]] || { usage; exit 1; }
 
 dir="$1"
 shift || true

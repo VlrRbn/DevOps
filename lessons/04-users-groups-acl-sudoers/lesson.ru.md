@@ -5,7 +5,7 @@
 **Date:** 2025-08-23  
 **Topic:** Управление локальными учетными записями, модель групповой работы, контроль доступа и sudo по принципу наименьших привилегий  
 **Daily goal:** Построить практическую модель совместной работы нескольких пользователей с безопасными правами доступа и ограниченным админ-доступом.
-**Bridge:** [00 Foundations Bridge](../00-foundations-bridge/00-foundations-bridge.ru.md) — компенсация недостающих базовых тем после уроков 1-4.
+**Bridge:** [01-05 Foundations Bridge](../00-foundations-bridge/01-05-foundations-bridge.ru.md) — компенсация недостающих базовых тем после уроков 1-4.
 
 ---
 
@@ -365,6 +365,12 @@ chmod +x lessons/04-users-groups-acl-sudoers/scripts/mkshare.sh
 lessons/04-users-groups-acl-sudoers/scripts/mkshare.sh devs /srv/shared/dev --sticky
 ls -ld /srv/shared/dev
 getfacl /srv/shared/dev | sed -n '1,20p'
+```
+
+Проверка встроенной справки:
+
+```bash
+./lessons/04-users-groups-acl-sudoers/scripts/mkshare.sh --help
 ```
 
 ---

@@ -5,7 +5,7 @@
 **Date:** 2025-08-19  
 **Topic:** Environment setup  
 **Daily goal:** Prepare the environment for Linux learning and practice basic file operations.
-**Bridge:** [00 Foundations Bridge](../00-foundations-bridge/00-foundations-bridge.md) for missing basics after lessons 1-4.
+**Bridge:** [01-05 Foundations Bridge](../00-foundations-bridge/01-05-foundations-bridge.md) for missing basics after lessons 1-4.
 
 ---
 

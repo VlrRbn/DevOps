@@ -6,8 +6,20 @@ set -Eeuo pipefail
 IFS=$'\n\t'
 
 usage() {
-  echo "Usage: $0 <src_ext> <dst_ext> <dir>"
+  cat <<'USAGE'
+Usage:
+  rename-ext.sh <src_ext> <dst_ext> <dir>
+
+Examples:
+  ./lessons/07-bash-scripting-automation/scripts/rename-ext.sh txt md /tmp/lab7
+  ./lessons/07-bash-scripting-automation/scripts/rename-ext.sh log txt /var/tmp/demo
+USAGE
 }
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
 
 [[ $# -eq 3 ]] || { usage; exit 1; }
 src=".$1"

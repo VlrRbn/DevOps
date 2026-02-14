@@ -14,6 +14,10 @@ Description:
   - ping to google.com
   - traceroute to 1.1.1.1
   - DNS lookup (dig +short or nslookup fallback)
+
+Examples:
+  ./lessons/03-networking-foundations/scripts/core-check.sh /tmp/net-lab
+  ./lessons/03-networking-foundations/scripts/core-check.sh "$HOME/net-lab"
 USAGE
 }
 

@@ -420,6 +420,29 @@ The script checks:
 sudo apt-get autoclean
 ```
 
+### 5.7 Quick script run for this lesson
+
+Scripts are in:
+
+- `lessons/06-apt-dpkg-package-management/scripts/`
+
+Help check:
+
+```bash
+./lessons/06-apt-dpkg-package-management/scripts/apt-dry-upgrade.sh --help
+./lessons/06-apt-dpkg-package-management/scripts/pkg-snapshot.sh --help
+./lessons/06-apt-dpkg-package-management/scripts/pkg-restore.sh --help
+./lessons/06-apt-dpkg-package-management/scripts/unattended-dry-run.sh --help
+```
+
+Typical run sequence:
+
+```bash
+./lessons/06-apt-dpkg-package-management/scripts/pkg-snapshot.sh ./pkg-state
+./lessons/06-apt-dpkg-package-management/scripts/apt-dry-upgrade.sh --full
+./lessons/06-apt-dpkg-package-management/scripts/pkg-restore.sh ./pkg-state/packages.list
+```
+
 ---
 
 ## 6. Mini-lab (Core Path)

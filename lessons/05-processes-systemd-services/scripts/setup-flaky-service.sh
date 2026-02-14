@@ -1,11 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+usage() {
+  cat <<'USAGE'
+Usage:
+  setup-flaky-service.sh [wait_seconds]
+
+Examples:
+  ./lessons/05-processes-systemd-services/scripts/setup-flaky-service.sh
+  ./lessons/05-processes-systemd-services/scripts/setup-flaky-service.sh 10
+USAGE
+}
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WAIT_SECONDS="${1:-7}"
 
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
 if ! [[ "$WAIT_SECONDS" =~ ^[0-9]+$ ]]; then
-  echo "Usage: $0 [wait_seconds]" >&2
+  usage >&2
   exit 2
 fi
 
