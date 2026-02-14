@@ -53,6 +53,19 @@ For operational scripts, prefer behavior that is:
 - **Optional:** productivity and robustness upgrades for real-world file paths/logs.
 - **Advanced:** operations-grade patterns (locking, rotation, follow mode, better CLI UX).
 
+### 1.6 Mini shell syntax cheat sheet (for this lesson)
+
+If a script line looks hard to read, it is usually shell syntax:
+
+- `$var` is variable value.
+- `${var}` is the same, but safer near adjacent text (`"${base}_$ts"`).
+- `$(command)` inserts command output.
+- `printf '%s\n' "$name"` means: `%s` is string placeholder, `\n` is newline.
+- `2>/dev/null` hides stderr from a command.
+- `cmd || true` keeps script flow where a failure is expected.
+- `cmd1 && cmd2` runs `cmd2` only if `cmd1` succeeded.
+- `--` marks end of options; next tokens are positional args (useful for weird filenames).
+
 ---
 
 ## 2. Command Priority (What to Learn First)
@@ -174,6 +187,21 @@ done
 ```bash
 find "$out" -type f -name '*.tar.gz' -print0 | xargs -0 -r rm -f
 ```
+
+Anti-pattern to avoid:
+
+```bash
+for f in $(find "$dir" -type f); do
+  echo "$f"
+done
+```
+
+Why this is brittle:
+
+- breaks on spaces in filenames
+- breaks on newlines in filenames
+
+Preferred pattern in this lesson: `find -print0` with `read -d ''` or `xargs -0`.
 
 ### `tar -C ... -czf ...`
 

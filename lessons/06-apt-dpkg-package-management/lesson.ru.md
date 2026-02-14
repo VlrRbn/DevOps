@@ -78,6 +78,19 @@ APT выбирает версию в 2 шага:
 - `autoremove` - удаление автозависимостей, которые больше никому не нужны.
 - `phased update` - постепенная раскатка обновления на часть машин.
 
+### 1.7 Операционный workflow: `read -> simulate -> apply`
+
+Безопасный порядок работы с пакетами:
+
+1. `read`: собрать контекст (`apt show`, `apt-cache policy`, `apt list --upgradable`).
+2. `simulate`: посмотреть impact без изменений (`apt-get -s upgrade` / `-s full-upgrade`).
+3. `apply`: только после проверки выполнить реальную команду.
+4. `verify`: проверить результат (`apt list --upgradable`, сервисы, логи).
+
+Практическое правило:
+
+- если нет этапа simulate, это уже рискованный change.
+
 ---
 
 ## 2. Приоритет Команд (Что Учить Сначала)
@@ -221,6 +234,12 @@ sudo apt-mark hold htop
 apt-mark showhold | grep -E '^htop$' || true
 sudo apt-mark unhold htop
 ```
+
+Важно про `hold`:
+
+- `hold` защищает от обычных `upgrade/full-upgrade`, но не заменяет change-процесс.
+- `hold` легко забыть: пакет может "застрять" на старой версии и не получать важные фиксы.
+- всегда периодически проверяй `apt-mark showhold` и фиксируй причину hold.
 
 ### `apt-get -s upgrade`
 

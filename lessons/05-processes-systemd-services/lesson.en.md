@@ -65,6 +65,41 @@ Most useful filters:
 - `-f` follow mode
 - `-t` by identifier tag
 
+### 1.5 How to read `priority` in `journalctl`
+
+Severity levels are from 0 to 7:
+
+- `0` `emerg` - system is unusable
+- `1` `alert` - immediate action required
+- `2` `crit` - critical condition
+- `3` `err` - error
+- `4` `warning` - warning
+- `5` `notice` - important normal event
+- `6` `info` - informational event
+- `7` `debug` - debug detail
+
+Most practical filters:
+
+- `-p warning` - warnings and all more severe events
+- `-p err..alert` - only error/critical range
+
+```bash
+journalctl -u cron -p warning --since "1 hour ago" --no-pager
+journalctl -u cron -p err..alert --since today --no-pager
+```
+
+### 1.6 Service triage flow (quick path)
+
+When a service behaves unexpectedly, use this order:
+
+1. `systemctl status <unit> --no-pager` for current state and recent context.
+2. `journalctl -u <unit> -n 50 --no-pager` for latest events.
+3. `journalctl -u <unit> --since "30 min ago" -p warning --no-pager` for filtered problems.
+4. `systemctl cat <unit>` and `systemctl show -p ... <unit>` to confirm effective config and runtime props.
+5. If needed, restart and watch live: `journalctl -fu <unit>`.
+
+This answers three key questions fast: is it running, why did it fail, and which config is actually applied.
+
 ---
 
 ## 2. Command Priority (What to Learn First)

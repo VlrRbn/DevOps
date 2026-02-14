@@ -78,6 +78,19 @@ If `Installed` differs from `Candidate`, an update is available (or a different 
 - `autoremove`: removes auto-installed dependencies no longer needed.
 - `phased update`: gradual rollout of an update to a subset of machines.
 
+### 1.7 Operational workflow: `read -> simulate -> apply`
+
+Safe package-change sequence:
+
+1. `read`: collect context (`apt show`, `apt-cache policy`, `apt list --upgradable`).
+2. `simulate`: preview impact without changes (`apt-get -s upgrade` / `-s full-upgrade`).
+3. `apply`: run real command only after review.
+4. `verify`: validate outcome (`apt list --upgradable`, service health, logs).
+
+Practical rule:
+
+- if you skip simulation, you are making a higher-risk change.
+
 ---
 
 ## 2. Command Priority (What to Learn First)
@@ -221,6 +234,12 @@ sudo apt-mark hold htop
 apt-mark showhold | grep -E '^htop$' || true
 sudo apt-mark unhold htop
 ```
+
+Important hold caveats:
+
+- `hold` protects from routine `upgrade/full-upgrade`, but it is not a full change-management strategy.
+- `hold` is easy to forget; package can stay outdated and miss important fixes.
+- review `apt-mark showhold` regularly and track why each hold exists.
 
 ### `apt-get -s upgrade`
 
