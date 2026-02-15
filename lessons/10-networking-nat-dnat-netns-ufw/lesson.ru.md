@@ -6,7 +6,23 @@
 **Topic:** `ip netns`, `veth`, IPv4 forwarding, `iptables` NAT/DNAT и безопасная работа с UFW.  
 **Daily goal:** Научиться поднимать изолированную сеть в namespace, дать ей Интернет через NAT, пробросить сервис через DNAT и корректно всё убрать после эксперимента.
 **Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.ru.md) — shell/systemd-практики, нужные для этого урока.
-**Legacy:** исходный старый конспект сохранен в `lessons/lesson_10/lesson_10.md`.
+**Legacy:** исходный старый конспект сохранен в `lessons/10-networking-nat-dnat-netns-ufw/lesson_10(legacy).md`.
+
+---
+
+## 0. Prerequisites
+
+Перед стартом проверь, что есть нужные утилиты:
+
+```bash
+command -v ip iptables sysctl curl python3
+```
+
+Опционально (для pcap):
+
+```bash
+command -v tcpdump || echo "install tcpdump if needed"
+```
 
 ---
 
@@ -324,6 +340,43 @@ update-alternatives --display iptables 2>/dev/null || true
 ---
 
 ## 6. Скрипты в Этом Уроке
+
+### Ручной Core-проход (1 раз сделать без скрипта)
+
+Этот блок нужен, чтобы понять механику руками, а потом уже запускать автоматизацию.
+
+```bash
+# 1) netns + veth
+sudo ip netns del lab10 2>/dev/null || true
+sudo ip netns add lab10
+sudo ip link add veth0 type veth peer name veth1
+sudo ip link set veth1 netns lab10
+
+# 2) адреса + route
+sudo ip addr add 10.10.0.1/24 dev veth0
+sudo ip link set veth0 up
+sudo ip -n lab10 addr add 10.10.0.2/24 dev veth1
+sudo ip -n lab10 link set veth1 up
+sudo ip -n lab10 link set lo up
+sudo ip -n lab10 route add default via 10.10.0.1
+
+# 3) forwarding
+sudo sysctl -w net.ipv4.ip_forward=1
+sudo sysctl -w net.ipv4.conf.veth0.route_localnet=1
+
+# 4) NAT/DNAT
+IF="$(ip -o -4 route show default table main | awk '{for(i=1;i<=NF;i++) if($i=="dev"){print $(i+1); exit}}')"
+sudo iptables -t nat -A POSTROUTING -s 10.10.0.0/24 -o "$IF" -j MASQUERADE
+sudo iptables -t nat -A PREROUTING -p tcp --dport 8080 -j DNAT --to-destination 10.10.0.2:8080
+sudo iptables -A FORWARD -p tcp -d 10.10.0.2 --dport 8080 -j ACCEPT
+
+# 5) сервис + проверка
+sudo ip netns exec lab10 bash -lc 'python3 -m http.server 8080 --bind 10.10.0.2 >/tmp/lab10_http.log 2>&1 &'
+curl -sI http://127.0.0.1:8080 | head -n 5 || true
+sudo iptables -t nat -L -v -n
+```
+
+После этого запусти скрипт `setup-netns-nat.sh` и сравни: скрипт делает те же шаги, но идемпотентно и с state-file для cleanup.
 
 Артефакты лежат в:
 

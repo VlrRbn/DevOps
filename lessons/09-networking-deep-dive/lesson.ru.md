@@ -6,6 +6,7 @@
 **Topic:** Глубокая диагностика сети: сокеты, DNS, packet capture, базовый firewall и изолированные сети через namespaces.  
 **Daily goal:** Научиться разбирать сетевую проблему по цепочке `interface -> route -> socket -> dns -> packet -> policy` и безопасно воспроизводить сценарии в лабе.
 **Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.ru.md) — база shell/systemd-практик, которая используется в этом уроке.
+**Legacy:** исходный старый конспект сохранен в `lessons/09-networking-deep-dive/lesson_09(legacy).md`.
 
 ---
 

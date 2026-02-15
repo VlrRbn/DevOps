@@ -92,24 +92,32 @@ sudo sysctl -w "net.ipv4.conf.$VETH_HOST.route_localnet=1" >/dev/null
 # -C checks if rule already exists, -A adds it only when missing.
 # This allows safe re-run of setup script without duplicate iptables rules.
 # Also note these are different chains/flows: POSTROUTING, FORWARD, PREROUTING, OUTPUT.
+
+# This rule enables NAT for all outgoing traffic from NS subnet to outside world via IF.
 sudo iptables -t nat -C POSTROUTING -s "$SUBNET" -o "$IF" -j MASQUERADE 2>/dev/null || \
   sudo iptables -t nat -A POSTROUTING -s "$SUBNET" -o "$IF" -j MASQUERADE
 
+# This rule allows forwarding traffic from VETH_HOST to IF when it's sourced from NS subnet.
 sudo iptables -C FORWARD -i "$VETH_HOST" -o "$IF" -s "$SUBNET" -j ACCEPT 2>/dev/null || \
   sudo iptables -A FORWARD -i "$VETH_HOST" -o "$IF" -s "$SUBNET" -j ACCEPT
 
+# This rule allows return traffic from IF to VETH_HOST when it's part of established connection with NS.
 sudo iptables -C FORWARD -i "$IF" -o "$VETH_HOST" -d "$SUBNET" -m state --state ESTABLISHED,RELATED -j ACCEPT 2>/dev/null || \
   sudo iptables -A FORWARD -i "$IF" -o "$VETH_HOST" -d "$SUBNET" -m state --state ESTABLISHED,RELATED -j ACCEPT
 
+# This rule allows incoming traffic to host:PORT to be DNATed to NS:PORT.
 sudo iptables -t nat -C PREROUTING -p tcp --dport "$PORT" -j DNAT --to-destination "$NS_IP:$PORT" 2>/dev/null || \
   sudo iptables -t nat -A PREROUTING -p tcp --dport "$PORT" -j DNAT --to-destination "$NS_IP:$PORT"
 
+# This rule allows forwarded packets to NS on $PORT to be accepted by host firewall.
 sudo iptables -C FORWARD -p tcp -d "$NS_IP" --dport "$PORT" -j ACCEPT 2>/dev/null || \
   sudo iptables -A FORWARD -p tcp -d "$NS_IP" --dport "$PORT" -j ACCEPT
 
+# This is the key DNAT rule that allows accessing NS service via localhost:PORT on host.
 sudo iptables -t nat -C OUTPUT -p tcp --dport "$PORT" -d 127.0.0.1 -j DNAT --to-destination "$NS_IP:$PORT" 2>/dev/null || \
   sudo iptables -t nat -A OUTPUT -p tcp --dport "$PORT" -d 127.0.0.1 -j DNAT --to-destination "$NS_IP:$PORT"
 
+# This is a bit special: when traffic is DNATed from localhost to NS, the source IP is still localhost
 sudo iptables -t nat -C POSTROUTING -o "$VETH_HOST" -p tcp -d "$NS_IP" --dport "$PORT" -j SNAT --to-source "$HOST_IP" 2>/dev/null || \
   sudo iptables -t nat -A POSTROUTING -o "$VETH_HOST" -p tcp -d "$NS_IP" --dport "$PORT" -j SNAT --to-source "$HOST_IP"
 

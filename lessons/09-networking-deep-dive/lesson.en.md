@@ -6,6 +6,7 @@
 **Topic:** Deep networking diagnostics: sockets, DNS, packet capture, baseline firewall policy, and isolated networks with namespaces.  
 **Daily goal:** Troubleshoot by chain `interface -> route -> socket -> dns -> packet -> policy` and reproduce findings safely in a lab.
 **Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.md) for shell/systemd fundamentals used in this lesson.
+**Legacy:** original old notes remain in `lessons/09-networking-deep-dive/lesson_09(legacy).md`.
 
 ---
 
