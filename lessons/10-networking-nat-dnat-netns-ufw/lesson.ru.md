@@ -5,7 +5,7 @@
 **Date:** 2025-09-18  
 **Topic:** `ip netns`, `veth`, IPv4 forwarding, `iptables` NAT/DNAT и безопасная работа с UFW.  
 **Daily goal:** Научиться поднимать изолированную сеть в namespace, дать ей Интернет через NAT, пробросить сервис через DNAT и корректно всё убрать после эксперимента.
-**Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.ru.md) — shell/systemd-практики, нужные для этого урока.
+**Bridge:** [08-11 Networking + Text Bridge](../00-foundations-bridge/08-11-networking-text-bridge.ru.md) — расширенные пояснения и troubleshooting для уроков 8-11.
 **Legacy:** исходный старый конспект сохранен в `lessons/10-networking-nat-dnat-netns-ufw/lesson_10(legacy).md`.
 
 ---

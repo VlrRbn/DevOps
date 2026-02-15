@@ -5,7 +5,7 @@
 **Date:** 2025-09-21  
 **Topic:** `nftables` ruleset, NAT/DNAT/hairpin, counters/trace и сохранение правил между перезагрузками.  
 **Daily goal:** Перейти от ad-hoc `iptables` правил к чистому `nftables`-подходу с понятной диагностикой и контролируемой persistence.
-**Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.ru.md) — shell/systemd-практики, используемые в этом уроке.
+**Bridge:** [08-11 Networking + Text Bridge](../00-foundations-bridge/08-11-networking-text-bridge.ru.md) — расширенные пояснения и troubleshooting для уроков 8-11.
 **Legacy:** исходный конспект сохранен в `lessons/11-nftables-nat-dnat-persistence/lesson_11(legacy).md`.
 
 ---

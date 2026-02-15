@@ -5,7 +5,7 @@
 **Date:** 2025-09-18  
 **Topic:** `ip netns`, `veth`, IPv4 forwarding, `iptables` NAT/DNAT, and safe UFW operations.  
 **Daily goal:** Build an isolated namespace network, provide internet via NAT, publish namespace service via DNAT, and clean everything safely.
-**Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.md) for shell/systemd practices used in this lesson.
+**Bridge:** [08-11 Networking + Text Bridge](../00-foundations-bridge/08-11-networking-text-bridge.md) for deep explanations and troubleshooting across lessons 8-11.
 **Legacy:** original old notes remain in `lessons/10-networking-nat-dnat-netns-ufw/lesson_10(legacy).md`.
 
 ---

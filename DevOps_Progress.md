@@ -4,18 +4,18 @@
 |-----|------|----------------|
 | 1 | 2025-08-19 | Linux Foundations: Environment, Commands, FHS, and Permissions |
 | 2 | 2025-08-20 | Files, Nano, and Permissions in Linux |
-| 3 | 2025-08-21 | Networking Foundations: IP, DNS, Routes, and Diagnostics (network check scripts) |
+| 3 | 2025-08-21 | Networking Foundations: IP, DNS, Routes, and Diagnostics |
 | 4 | 2025-08-23 | Users, Groups, ACL, Umask, and Sudoers |
 | 5 | 2025-08-25 | Processes, Systemd Services, Timers, and Journalctl |
 | 6 | 2025-08-26 | Package Management with APT and DPKG |
 | 7 | 2025-08-27 | Bash Scripting: Safe Patterns and Practical Automation |
-| 8 | 2025-08-30 | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools |
+| 8 | 2025-08-30 | Text Processing for Ops: `grep`, `sed`, `awk` |
 | * | 2025-09-(01-12) | Light study (personal reasons), cheatsheets, minor fixes; prep for Networking lessons |
-| 9 | 2025-09-15 | Networking Deep Dive for DevOps (iproute2, ss, tcpdump, DNS, firewall) |
-| 10 | 2025-09-18 | Networking (Part 2): NAT / DNAT / netns / UFW Deep |
-| 11 | 2025-09-21 | Networking (Part 3): nftables NAT/DNAT + Persistence |
+| 9 | 2025-09-15 | Networking Deep Dive: `iproute2`, `ss`, `dig`, `tcpdump`, `ufw`, `netns` |
+| 10 | 2025-09-18 | Networking (Part 2): NAT / DNAT / `netns` / UFW |
+| 11 | 2025-09-21 | Networking (Part 3): `nftables` NAT/DNAT + Persistence |
 | 12 | 2025-09-23 | Nginx Reverse Proxy + TLS (self-signed) |
-| * | 2025-09-(26-30) | Sick leave |
+| * | 2025-09-(25-30) | Sick leave |
 | 13 | 2025-10-01 | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs |
 | 14 | 2025-10-02 | Ansible Fundamentals: Inventory, Playbooks, Roles, Idempotence |
 | 15 | 2025-10-04 | Ansible Advanced: Multi-Host, Vault, Rolling Updates, Health Checks |
@@ -23,11 +23,10 @@
 | * | 2025-10-(09-17) | Extra practice, start new server (project) + CI, add cheatsheets, readthedocs |
 | 17 | 2025-10-19 | Monitoring Basics: Prometheus + Node Exporter (+ Grafana) |
 | 18 | 2025-10-23 | Alerts & Probes: Alertmanager + Blackbox + Nginx Exporter |
-| * | 2025-10-(27-30) | Practice with system administrator "SITA" |
+| * | 2025-10-(25-30) | Extra practice |
 | 19 | 2025-11-04 | Alertmanager Notifications: Email/Telegram, Routing, Silences, Templates |
 | 20 | 2025-11-07 | Centralized Logs: Loki + Promtail + Grafana (Nginx JSON) |
 | 21 | 2025-11-10 | Grafana as Code: Provisioning Datasources, Dashboards & Alerts |
-| * | 2025-11-12 | Practice, cheatsheets |
 | 22 | 2025-11-14 | End-to-End Observability: Golden Signals, SLOs & Runbook |
 | 23 | 2025-11-19 | Docker Images & Dockerfiles: Build, Tag, Run, Inspect |
 | * | 2025-11-20 | Docker Images & Dockerfiles: Upgrade v2 |
@@ -62,7 +61,7 @@
 | 47 | 2026-01-16 | EC2 Hardening: IMDSv2 Only + Practical Tests |
 | 48 | 2026-01-17 | ALB + 2 Targets: Health Checks, Security Groups, Real Load Balancing |
 | 49 | 2026-01-19 | Bake a Golden AMI (Ubuntu 24.04 + Nginx) |
-|  | 2026-01-(20-28) | Sick leave |
+| * | 2026-01-(20-28) | Sick leave |
 | 50 | 2026-01-25 | Launch Template + Auto Scaling Group |
 | 51 | 2026-01-29 | ASG Scaling Policies & Instance Refresh |
 | 52 | 2026-01-31 | Observability & Cost Control (ASG + ALB) |

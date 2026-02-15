@@ -10,7 +10,7 @@ devops-notes/
  ├─ ansible/
  ├─ cheatsheets/
  ├─ labs/
- ├─ /lesson01_10/
+ ├─ /lessons/
  ├─ /lesson11_20/
  ├─ /lesson21_30/
  ├─ /lesson31_40/
@@ -32,15 +32,15 @@ devops-notes/
 |-----|-------|-----------|-----------|
 | **Lesson 1** | Linux Foundations: Environment, Commands, FHS, and Permissions | [Materials_1](lessons/01-linux-foundations/lesson.en.md) |
 | **Lesson 2** | Files, Nano, and Permissions in Linux | [Materials_2](lessons/02-files-nano-permissions/lesson.en.md) |
-| **Lesson 3** | Networking Foundations: IP, DNS, Routes, and Diagnostics (network check scripts) | [Materials_3](lessons/03-networking-foundations/lesson.en.md) | [Readme](lessons/03-networking-foundations/scripts/README.md) |
+| **Lesson 3** | Networking Foundations: IP, DNS, Routes, and Diagnostics | [Materials_3](lessons/03-networking-foundations/lesson.en.md) | [Readme](lessons/03-networking-foundations/scripts/README.md) |
 | **Lesson 4** | Users, Groups, ACL, Umask, and Sudoers | [Materials_4](lessons/04-users-groups-acl-sudoers/lesson.en.md) | [Readme](lessons/04-users-groups-acl-sudoers/scripts/README.md) |
 | **Lesson 5** | Processes, Systemd Services, Timers, and Journalctl | [Materials_5](lessons/05-processes-systemd-services/lesson.en.md) | [Readme](lessons/05-processes-systemd-services/scripts/README.md) |
 | **Lesson 6** | Package Management with APT and DPKG | [Materials_6](lessons/06-apt-dpkg-package-management/lesson.en.md) | [Readme](lessons/06-apt-dpkg-package-management/scripts/README.md) |
 | **Lesson 7** | Bash Scripting: Safe Patterns and Practical Automation | [Materials_7](lessons/07-bash-scripting-automation/lesson.en.md) | [Readme](lessons/07-bash-scripting-automation/scripts/README.md) |
-| **Lesson 8** | Text processing (grep/sed/awk): log triage (journal & auth), AWK nginx mini-report; tools | [Materials_8](lessons/08-text-processing-grep-sed-awk/lesson.en.md) | [Readme](lessons/08-text-processing-grep-sed-awk/scripts/README.md) |
-| **Lesson 9** | Networking Deep Dive (ip/ss, DNS, tcpdump, UFW, netns) | [Materials_9](lesson01_10/lesson_09.md) |
-| **Lesson 10** | Networking (Part 2): NAT / DNAT / netns / UFW Deep | [Materials_10](lesson01_10/lesson_10.md) |
-| **Lesson 11** | Networking (Part 3): nftables NAT/DNAT + Persistence | [Materials_11](lesson11_20/lesson_11.md) |
+| **Lesson 8** | Text Processing for Ops: `grep`, `sed`, `awk` | [Materials_8](lessons/08-text-processing-grep-sed-awk/lesson.en.md) | [Readme](lessons/08-text-processing-grep-sed-awk/scripts/README.md) |
+| **Lesson 9** | Networking Deep Dive: `iproute2`, `ss`, `dig`, `tcpdump`, `ufw`, `netns` | [Materials_9](lessons/09-networking-deep-dive/lesson.en.md) | [Readme](lessons/09-networking-deep-dive/scripts/README.md) |
+| **Lesson 10** | Networking (Part 2): NAT / DNAT / `netns` / UFW | [Materials_10](lessons/10-networking-nat-dnat-netns-ufw/lesson.en.md) | [Readme](lessons/10-networking-nat-dnat-netns-ufw/scripts/README.md) |
+| **Lesson 11** | Networking (Part 3): `nftables` NAT/DNAT + Persistence | [Materials_11](lessons/11-nftables-nat-dnat-persistence/lesson.en.md) | [Readme](lessons/11-nftables-nat-dnat-persistence/scripts/README.md) |
 | **Lesson 12** | Nginx Reverse Proxy + TLS (self-signed) | [Materials_12](lesson11_20/lesson_12.md) |
 | **Lesson 13** | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs | [Materials_13](lesson11_20/lesson_13_v1.md) |
 | **Lesson 14** | Ansible Fundamentals: Inventory, Playbooks, Roles, Idempotence | [Materials_14](lesson11_20/lesson_14.md) |

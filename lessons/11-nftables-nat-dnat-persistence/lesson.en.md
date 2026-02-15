@@ -5,7 +5,7 @@
 **Date:** 2025-09-21  
 **Topic:** `nftables` ruleset, NAT/DNAT/hairpin, counters/trace, and reboot persistence.  
 **Daily goal:** Move from ad-hoc `iptables` rules to a clean `nftables` workflow with reliable debugging and controlled persistence.
-**Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.md) for shell/systemd practices used in this lesson.
+**Bridge:** [08-11 Networking + Text Bridge](../00-foundations-bridge/08-11-networking-text-bridge.md) for deep explanations and troubleshooting across lessons 8-11.
 **Legacy:** original notes remain in `lessons/11-nftables-nat-dnat-persistence/lesson_11(legacy).md`.
 
 ---

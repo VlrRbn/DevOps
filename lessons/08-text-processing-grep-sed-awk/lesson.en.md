@@ -5,7 +5,7 @@
 **Date:** 2025-08-30  
 **Topic:** Log filtering and parsing, safe config edits, mini reports, and reusable pipelines.  
 **Daily goal:** Not just repeat commands, but understand why this command, this flag, and this step order.
-**Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.md)
+**Bridge:** [08-11 Networking + Text Bridge](../00-foundations-bridge/08-11-networking-text-bridge.md) for deep explanations and troubleshooting across lessons 8-11.
 
 ---
 

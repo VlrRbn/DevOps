@@ -5,7 +5,7 @@
 **Date:** 2025-08-30  
 **Topic:** Фильтрация и разбор логов, безопасные правки конфигов, мини-отчеты и переиспользуемые пайплайны.  
 **Daily goal:** Не просто повторять команды, а понимать, почему именно эта команда, этот флаг и этот порядок шагов.
-**Bridge:** [05-07 Operations Bridge](../00-foundations-bridge/05-07-operations-bridge.ru.md)
+**Bridge:** [08-11 Networking + Text Bridge](../00-foundations-bridge/08-11-networking-text-bridge.ru.md) — расширенные пояснения и troubleshooting для уроков 8-11.
 
 ---
 
