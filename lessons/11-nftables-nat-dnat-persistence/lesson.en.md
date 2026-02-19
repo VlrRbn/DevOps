@@ -371,7 +371,7 @@ If UFW is enabled on your host:
 
 ## 6. Scripts in This Lesson
 
-Scripts in this lesson are an **automation layer**, not the mandatory starting point.
+Scripts in this lesson are an **automation**, not the mandatory starting point.
 Recommended learning order: do the flow manually first, then compare with script automation.
 
 ### 6.1 Manual Core flow (do once without script)
