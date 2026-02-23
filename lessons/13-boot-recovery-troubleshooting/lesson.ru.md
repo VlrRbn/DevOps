@@ -414,5 +414,4 @@ rm -rf /tmp/recovery-snapshot_* /tmp/lesson13-artifacts/recovery-snapshot_* 2>/d
 - **Что изучил:** как читать boot-проблемы через `systemd` + `journalctl -b` + `dmesg` + `findmnt --verify`.
 - **Что практиковал:** reproducible triage workflow и сбор recovery-снимков до изменений.
 - **Что теперь смогу сделать вручную:** быстро локализовать boot/degraded проблему до конкретного слоя (unit/mount/kernel).
-- **Следующий шаг:** урок 14 (performance triage) — CPU/RAM/IO bottleneck analysis и операционные метрики без guesswork.
 - **Артефакты в репозитории:** `lessons/13-boot-recovery-troubleshooting/scripts/`, `lessons/13-boot-recovery-troubleshooting/scripts/README.md`.

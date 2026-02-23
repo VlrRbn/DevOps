@@ -414,5 +414,4 @@ rm -rf /tmp/recovery-snapshot_* /tmp/lesson13-artifacts/recovery-snapshot_* 2>/d
 - **What I learned:** how to read post-boot issues through `systemd` + `journalctl -b` + `dmesg` + `findmnt --verify`.
 - **What I practiced:** reproducible triage workflow and recovery snapshots before risky changes.
 - **What I can do manually now:** localize degraded/boot issues to the correct layer (unit/mount/kernel) with evidence.
-- **Next step:** lesson 14 (performance triage): CPU/RAM/IO bottleneck analysis with operational metrics.
 - **Repo artifacts:** `lessons/13-boot-recovery-troubleshooting/scripts/`, `lessons/13-boot-recovery-troubleshooting/scripts/README.md`.
