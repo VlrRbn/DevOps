@@ -19,8 +19,9 @@ This folder contains helper scripts for lesson 13 (boot diagnostics, failed-unit
 
 ## Requirements
 
-- `bash`, `systemctl`, `journalctl`, `findmnt`, `df`, `lsblk`, `blkid`, `dmesg`, `tar`, `basename`
-- optional `sudo` for richer `dmesg` access on hardened hosts
+- `bash`, `systemctl`, `journalctl`, `findmnt`, `df`, `lsblk`, `blkid`, `tar`, `basename`
+- optional: `dmesg` command for kernel warning/error capture
+- optional: run with `sudo` for richer `dmesg` access on hardened hosts
 
 ## Usage
 

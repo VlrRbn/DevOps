@@ -40,7 +40,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Validate required tools up front.
-for cmd in mkdir cp hostname uname date lsblk blkid findmnt journalctl systemctl tar basename dmesg; do
+for cmd in mkdir cp hostname uname date lsblk blkid findmnt journalctl systemctl tar basename; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "ERROR: missing command: $cmd" >&2; exit 1; }
 done
 
@@ -49,12 +49,6 @@ STAMP="$(date +%Y%m%d_%H%M%S)"
 SNAP_DIR="$OUT_DIR/recovery-snapshot_${STAMP}"
 ARCHIVE_PATH="${SNAP_DIR}.tar.gz"
 mkdir -p "$SNAP_DIR"
-
-# Use passwordless sudo when available for richer diagnostics.
-SUDO_CMD=()
-if command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
-  SUDO_CMD=(sudo -n)
-fi
 
 # Save critical config files often involved in boot issues.
 for file in /etc/fstab /etc/default/grub /etc/nftables.conf; do
@@ -80,12 +74,7 @@ fi
 } > "$SNAP_DIR/meta.txt"
 
 lsblk -f > "$SNAP_DIR/lsblk-f.txt" 2>&1 || true
-# blkid may need elevated privileges on some hosts.
-if ((${#SUDO_CMD[@]} > 0)); then
-  "${SUDO_CMD[@]}" blkid > "$SNAP_DIR/blkid.txt" 2>&1 || true
-else
-  blkid > "$SNAP_DIR/blkid.txt" 2>&1 || true
-fi
+blkid > "$SNAP_DIR/blkid.txt" 2>&1 || true
 findmnt -A > "$SNAP_DIR/findmnt-A.txt" 2>&1 || true
 findmnt --verify > "$SNAP_DIR/findmnt-verify.txt" 2>&1 || true
 systemctl is-system-running > "$SNAP_DIR/system-state.txt" 2>&1 || true
@@ -94,10 +83,22 @@ journalctl -b -p err..alert --no-pager > "$SNAP_DIR/journal-err-alert.txt" 2>&1 
 journalctl -b --no-pager | tail -n 300 > "$SNAP_DIR/journal-tail300.txt" 2>&1 || true
 
 # Kernel-level warnings/errors for boot incident context.
-if ((${#SUDO_CMD[@]} > 0)); then
-  "${SUDO_CMD[@]}" dmesg --level=err,warn > "$SNAP_DIR/dmesg-err-warn.txt" 2>&1 || true
+if command -v dmesg >/dev/null 2>&1; then
+  if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+    dmesg --level=err,warn > "$SNAP_DIR/dmesg-err-warn.txt" 2>&1 || {
+      echo "[INFO] dmesg capture failed even as root" > "$SNAP_DIR/dmesg-err-warn.txt"
+    }
+  else
+    {
+      echo "[INFO] skipped dmesg capture: insufficient privileges"
+      echo "[INFO] run recovery-snapshot with sudo to include kernel warnings/errors"
+    } > "$SNAP_DIR/dmesg-err-warn.txt"
+  fi
 else
-  dmesg --level=err,warn > "$SNAP_DIR/dmesg-err-warn.txt" 2>&1 || true
+  {
+    echo "[INFO] skipped dmesg capture: dmesg command not found"
+    echo "[INFO] install util-linux/procps package set to enable kernel log capture"
+  } > "$SNAP_DIR/dmesg-err-warn.txt"
 fi
 
 # For every failed unit, save effective unit file + boot log stream for that unit.

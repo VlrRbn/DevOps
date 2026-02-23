@@ -62,12 +62,6 @@ for cmd in journalctl systemctl findmnt df hostname uname date; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "ERROR: missing command: $cmd" >&2; exit 1; }
 done
 
-SUDO_CMD=()
-# Use passwordless sudo when available; fallback to non-sudo path otherwise.
-if command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
-  SUDO_CMD=(sudo -n)
-fi
-
 # Gather baseline health signals.
 run_state="$(systemctl is-system-running 2>/dev/null || echo unknown)"
 failed_count="$(systemctl list-units --failed --no-legend --plain 2>/dev/null | awk 'NF{c++} END{print c+0}')"
@@ -93,13 +87,17 @@ fi
 # dmesg may require elevated privileges on hardened hosts.
 dmesg_rc=0
 dmesg_out=""
-if ((${#SUDO_CMD[@]} > 0)); then
-  if ! dmesg_out="$("${SUDO_CMD[@]}" dmesg --level=err,warn 2>&1 | tail -n 80)"; then
+if ! command -v dmesg >/dev/null 2>&1; then
+  dmesg_out=$'[INFO] skipped dmesg capture: dmesg command not found\n[INFO] install util-linux/procps package set to enable kernel log capture'
+elif [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+  if ! dmesg_out="$(dmesg --level=err,warn 2>&1 | tail -n 80)"; then
     dmesg_rc=$?
   fi
 else
   if ! dmesg_out="$(dmesg --level=err,warn 2>&1 | tail -n 80)"; then
-    dmesg_rc=$?
+    # Keep report clean and avoid noisy permission errors when unprivileged.
+    dmesg_rc=0
+    dmesg_out=$'[INFO] skipped dmesg capture: insufficient privileges\n[INFO] run boot-triage with sudo to include kernel warnings/errors'
   fi
 fi
 
