@@ -257,7 +257,7 @@ Snapshot делается до changes и cleanup, чтобы постфакту
 
 ## 7. Практика (Manual Flow)
 
-### Шаг 1. Быстрый baseline
+### Шаг 1. Быстрый gate
 
 ```bash
 systemctl is-system-running
@@ -310,7 +310,6 @@ sudo apt-get install -y sysstat
 ### "Strict mode падает, но сервисы вроде живы"
 
 `--strict` проверяет базовые пороги и operational readiness.
-Это сигнал для проверки, а не автоматический verdict "все сломано".
 
 ---
 

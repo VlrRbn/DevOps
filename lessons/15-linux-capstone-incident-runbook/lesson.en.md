@@ -257,7 +257,7 @@ Take snapshot before changes and before cleanup so evidence remains intact for p
 
 ## 7. Practice (Manual Flow)
 
-### Step 1. Quick baseline
+### Step 1. Quick gate
 
 ```bash
 systemctl is-system-running
@@ -310,7 +310,6 @@ sudo apt-get install -y sysstat
 ### "Strict mode fails but services look up"
 
 `--strict` enforces baseline operational thresholds.
-Treat it as investigation signal, not automatic outage verdict.
 
 ---
 
