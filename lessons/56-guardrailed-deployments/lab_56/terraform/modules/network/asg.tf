@@ -63,14 +63,15 @@ resource "aws_autoscaling_group" "web" {
       min_healthy_percentage = var.asg_min_healthy_percentage
       instance_warmup        = var.asg_instance_warmup_seconds
 
-      auto_rollback          = true
-      checkpoint_percentages = [50]
+      auto_rollback = true
+      # Default lab mode: no mid-rollout stop, finish to 100%.
+      # Switch to [50] when you intentionally train checkpoint Go/No-Go decisions.
+      checkpoint_percentages = [100]
       checkpoint_delay       = var.asg_checkpoint_delay_seconds
       skip_matching          = true
 
       alarm_specification {
         alarms = [
-          aws_cloudwatch_metric_alarm.alb_5xx_critical.alarm_name,
           aws_cloudwatch_metric_alarm.target_5xx_critical.alarm_name,
           aws_cloudwatch_metric_alarm.alb_unhealthy.alarm_name
         ]
