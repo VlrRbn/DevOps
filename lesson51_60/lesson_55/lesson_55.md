@@ -1,4 +1,6 @@
-# lesson_55b
+# lesson_55
+
+---
 
 # Rolling Deployments & Safe Rollback (ASG Instance Refresh as a Deployment Engine)
 

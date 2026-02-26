@@ -150,7 +150,7 @@ if command -v systemctl >/dev/null 2>&1; then
   fi
 fi
 
-# Pack to single archive for sharing.
+# Pack to single archive for sharing; store relative path (no absolute host paths).
 tar -C "$OUT_DIR" -czf "$ARCHIVE_PATH" "$(basename "$SNAP_DIR")"
 
 echo "[OK] capstone snapshot created"

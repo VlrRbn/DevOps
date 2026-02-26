@@ -64,6 +64,7 @@ parse_vmstat_metric() {
   local metric="$1"
   local snapshot="$2"
 
+  # Resolve metric by vmstat header name so column shifts do not break parsing.
   awk -v key="$metric" '
     /^[[:space:]]*r[[:space:]]+b[[:space:]]+swpd[[:space:]]/ {
       for (i = 1; i <= NF; i++) idx[$i] = i
@@ -127,6 +128,7 @@ fi
 
 egress_state="skipped_no_curl"
 egress_ok=2
+# egress_ok: 1=OK, 0=FAIL, 2=SKIPPED(no curl). egress_state is JSON-friendly text.
 # Run egress check only when curl is present.
 if (( HAS_CURL )); then
   if curl -fsS --max-time 5 https://example.com >/dev/null 2>&1; then

@@ -68,4 +68,9 @@
 | 53 | 2026-02-01 | ALB Deep Dive: Health Checks, Failure Modes & Traffic Control |
 | 54 | 2026-02-03 | Blue/Green Deployments with ALB + ASG |
 | 55 | 2026-02-07 | Rolling Deployments & Safe Rollback (ASG Instance Refresh as a Deployment Engine) |
-| 56 | 2026-02-10 | Guardrailed Deployments (Auto Rollback, Checkpoints, Skip Matching) |
+| * | 2026-02-(10-15) | Rewrite and polish lessons 01-11 |
+| * | 2026-02-19 | Lesson 12 - Storage and Filesystems: `mount`, `fstab`, `fsck`, `swap`,`LVM` |
+| * | 2026-02-20 | Lesson 13 - Boot and Recovery: `journalctl -b`, `systemctl --failed`, `dmesg`, `rescue/emergency` |
+| * | 2026-02-21 | Lesson 14 - Performance Triage: CPU/RAM/IO, `vmstat`/`iostat`/`pidstat`, snapshot workflow |
+| * | 2026-02-22 | Lesson 15 - Linux Capstone: Incident Runbook, Evidence-First Triage, Handoff |
+| 56 | 2026-02-24 | Guardrailed Deployments (Auto Rollback, Checkpoints, Skip Matching) |

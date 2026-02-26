@@ -173,6 +173,7 @@ fi
 default_route="$(ip route show default 2>/dev/null | head -n 1 || true)"
 egress_state="skipped_no_curl"
 egress_ok=2
+# egress_ok: 1=OK, 0=FAIL, 2=SKIPPED(no curl). egress_state is JSON-friendly text.
 # Run egress check only when curl is present.
 if (( HAS_CURL )); then
   if curl -fsS --max-time 5 https://example.com >/dev/null 2>&1; then
