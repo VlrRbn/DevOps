@@ -16,7 +16,8 @@ web_min_size                   = 2
 web_max_size                   = 2
 web_desired_capacity           = 2
 asg_min_healthy_percentage     = 50
-asg_instance_warmup_seconds    = 180
+asg_instance_warmup_seconds    = 120
+asg_checkpoint_delay_seconds   = 180
 tg_slow_start_seconds          = 60
 health_check_healthy_threshold = 2
 

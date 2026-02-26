@@ -62,6 +62,11 @@ variable "asg_min_healthy_percentage" {
 
 variable "asg_instance_warmup_seconds" {
   type    = number
+  default = 120
+}
+
+variable "asg_checkpoint_delay_seconds" {
+  type    = number
   default = 180
 }
 

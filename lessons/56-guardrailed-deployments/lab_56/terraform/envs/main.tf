@@ -22,6 +22,7 @@ module "network" {
   web_desired_capacity           = var.web_desired_capacity
   asg_min_healthy_percentage     = var.asg_min_healthy_percentage
   asg_instance_warmup_seconds    = var.asg_instance_warmup_seconds
+  asg_checkpoint_delay_seconds   = var.asg_checkpoint_delay_seconds
   tg_slow_start_seconds          = var.tg_slow_start_seconds
   health_check_healthy_threshold = var.health_check_healthy_threshold
 }

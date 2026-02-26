@@ -46,8 +46,9 @@ resource "aws_autoscaling_group" "web" {
 
   vpc_zone_identifier = local.private_subnet_ids
 
-  health_check_type         = "ELB"
-  health_check_grace_period = 90
+  health_check_type = "ELB"
+  # Keep grace in sync with warmup to avoid premature unhealthy churn.
+  health_check_grace_period = var.asg_instance_warmup_seconds
 
   launch_template {
     id      = aws_launch_template.web.id
@@ -61,6 +62,19 @@ resource "aws_autoscaling_group" "web" {
     preferences {
       min_healthy_percentage = var.asg_min_healthy_percentage
       instance_warmup        = var.asg_instance_warmup_seconds
+
+      auto_rollback          = true
+      checkpoint_percentages = [50]
+      checkpoint_delay       = var.asg_checkpoint_delay_seconds
+      skip_matching          = true
+
+      alarm_specification {
+        alarms = [
+          aws_cloudwatch_metric_alarm.alb_5xx_critical.alarm_name,
+          aws_cloudwatch_metric_alarm.target_5xx_critical.alarm_name,
+          aws_cloudwatch_metric_alarm.alb_unhealthy.alarm_name
+        ]
+      }
     }
     triggers = ["launch_template"]
   }

@@ -118,11 +118,22 @@ variable "asg_min_healthy_percentage" {
 variable "asg_instance_warmup_seconds" {
   type        = number
   description = "Warmup time in seconds for ASG instance refresh"
-  default     = 180
+  default     = 120
 
   validation {
     condition     = var.asg_instance_warmup_seconds >= 30
     error_message = "asg_instance_warmup_seconds must be at least 30."
+  }
+}
+
+variable "asg_checkpoint_delay_seconds" {
+  type        = number
+  description = "Checkpoint delay in seconds for ASG instance refresh"
+  default     = 180
+
+  validation {
+    condition     = var.asg_checkpoint_delay_seconds >= 30
+    error_message = "asg_checkpoint_delay_seconds must be at least 30."
   }
 }
 
