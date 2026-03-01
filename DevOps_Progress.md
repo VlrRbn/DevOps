@@ -74,3 +74,4 @@
 | * | 2026-02-21 | Lesson 14 - Performance Triage: CPU/RAM/IO, `vmstat`/`iostat`/`pidstat`, snapshot workflow |
 | * | 2026-02-22 | Lesson 15 - Linux Capstone: Incident Runbook, Evidence-First Triage, Handoff |
 | 56 | 2026-02-24 | Guardrailed Deployments (Auto Rollback, Checkpoints, Skip Matching) |
+| 57 | 2026-03-01 | Deployment Quality Gates (Load, Latency, SLO-Style Release Rules) |

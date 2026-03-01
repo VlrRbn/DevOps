@@ -59,7 +59,8 @@ build {
 
   provisioner "shell" {
     script          = "scripts/disable-nginx.sh"
-    execute_command = "sudo -n bash '{{.Path}}'"
+    # Pass BUILD_ID so disable-nginx can run only for intentionally bad builds.
+    execute_command = "sudo -n BUILD_ID='${var.build_id}' bash '{{.Path}}'"
   }
 
 }
