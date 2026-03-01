@@ -8,6 +8,18 @@
 
 **Focus:** Deploy new versions safely using **two target groups** and **controlled traffic shifting**, with rollback that’s basically “flip the switch”.
 
+## Deployment Models Map
+
+This lesson is one deployment model, not "the next level above everything else".
+
+| Model | Main idea | Strength | Cost/Complexity | Best use |
+|---|---|---|---|---|
+| Blue/Green | two fleets, traffic switch | fastest rollback | higher cost | safest cutover |
+| Rolling Refresh | one fleet, gradual replacement | cheaper/simple | weaker rollback | small/medium services |
+| Canary / Weighted | small % first, then expand | best risk control | most operational thinking | high-risk releases |
+
+This lesson focuses on **Blue/Green**. Lessons 55-56 focus on the **single-fleet rolling** branch.
+
 ---
 
 ## Target Architecture

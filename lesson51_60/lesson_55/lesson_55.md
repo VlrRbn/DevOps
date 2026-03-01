@@ -10,6 +10,18 @@
 
 **Mindset:** Immutable infra, rebuild-not-fix, evidence-based verification.
 
+## Deployment Models Map
+
+This lesson is not "better than Blue/Green". It is a different deployment model with different trade-offs.
+
+| Model | Main idea | Strength | Cost/Complexity | Best use |
+|---|---|---|---|---|
+| Blue/Green | two fleets, traffic switch | fastest rollback | higher cost | safest cutover |
+| Rolling Refresh | one fleet, gradual replacement | cheaper/simple | weaker rollback | small/medium services |
+| Canary / Weighted | small % first, then expand | best risk control | most operational thinking | high-risk releases |
+
+This lesson focuses on **Rolling Refresh**: one fleet, gradual AMI replacement through ASG.
+
 ---
 
 ## Why This Lesson Exists
