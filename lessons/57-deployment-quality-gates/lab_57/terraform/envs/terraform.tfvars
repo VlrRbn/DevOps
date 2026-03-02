@@ -10,8 +10,10 @@ private_subnet_cidrs = ["10.30.11.0/24", "10.30.12.0/24"]
 
 enable_ssm_vpc_endpoints       = true
 enable_web_ssm                 = true
-web_ami_id                     = "ami-0ff02c319e33722b1"
-ssm_proxy_ami_id               = "ami-0b530e53505a44fe4"
+web_ami_id                     = "ami-0358ca03959d7b689"
+# ami-0ff02c319e33722b1
+# ami-0358ca03959d7b689
+ssm_proxy_ami_id               = "ami-055a5cb906b0088b0"
 web_min_size                   = 2
 web_max_size                   = 2
 web_desired_capacity           = 2

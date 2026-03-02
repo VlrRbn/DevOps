@@ -8,7 +8,7 @@ source "amazon-ebs" "ssm_proxy" {
   instance_type = var.instance_type
   ssh_username  = var.ssh_username
 
-  ami_name = "${var.ssm_ami_name_prefix}-${formatdate("YYYYMMDD-hhmm", timestamp())}"
+  ami_name = "${var.ssm_ami_name_prefix}-${var.build_id}-${formatdate("YYYYMMDD-hhmm", timestamp())}"
 
   source_ami_filter {
     filters     = local.ubuntu_noble_ami_filters
@@ -17,7 +17,8 @@ source "amazon-ebs" "ssm_proxy" {
   }
 
   tags = merge(local.common_tags, {
-    Role = "ssm-proxy"
+    Role    = "ssm-proxy"
+    BuildId = var.build_id
   })
 }
 
@@ -27,5 +28,10 @@ build {
   provisioner "shell" {
     script          = "scripts/install-ssm-agent.sh"
     execute_command = "sudo -n bash '{{.Path}}'"
+  }
+
+  provisioner "shell" {
+    script          = "scripts/install-wrk.sh"
+    execute_command = "sudo -n BUILD_ID='${var.build_id}' bash '{{.Path}}'"
   }
 }

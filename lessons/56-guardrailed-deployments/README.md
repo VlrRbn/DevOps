@@ -108,8 +108,6 @@ done
 3. Checkpoint Go/No-Go decision
 4. Skip matching sanity check
 
-Details and acceptance for each drill are in `lesson.en.md` and `lesson.ru.md`.
-
 ## Troubleshooting
 
 - Refresh not starting: verify LT version changed; if refresh did not auto-start, run `start-instance-refresh` manually and check alarm states.

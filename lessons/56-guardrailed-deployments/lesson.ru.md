@@ -17,11 +17,11 @@
 
 Этот урок не заменяет Blue/Green или Canary. Он добавляет guardrails к модели **single-fleet rolling** из lesson 55.
 
-| Model | Main idea | Strength | Cost/Complexity | Best use |
+| Модель | Основная идея | Сильная сторона | Стоимость/сложность | Где лучше использовать |
 |---|---|---|---|---|
-| Blue/Green | two fleets, traffic switch | fastest rollback | higher cost | safest cutover |
-| Rolling Refresh | one fleet, gradual replacement | cheaper/simple | weaker rollback | small/medium services |
-| Canary / Weighted | small % first, then expand | best risk control | most operational thinking | high-risk releases |
+| Blue/Green | две среды, переключение трафика | самый быстрый rollback | выше стоимость | самый безопасный cutover |
+| Rolling Refresh | один флот, поэтапная замена | дешевле и проще | rollback слабее, чем в blue/green | небольшие и средние сервисы |
+| Canary / Weighted | сначала малый %, потом расширение | лучший контроль рисков | выше операционная сложность | рискованные релизы |
 
 В этом уроке фокус именно на **guardrails для Rolling Refresh**: alarm-gates, auto rollback, checkpoints, skip matching.
 

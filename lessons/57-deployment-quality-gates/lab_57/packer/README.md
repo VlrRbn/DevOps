@@ -16,5 +16,6 @@ packer build -var 'build_id=57-bad' .
 
 ```bash
 cd ../ssm_proxy
-packer build .
+packer build -var 'build_id=57-proxy' .
+packer build -var 'build_id=57-wrk' .
 ```
