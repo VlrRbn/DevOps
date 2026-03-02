@@ -1,5 +1,5 @@
 aws_region   = "eu-west-1"
-project_name = "lab56"
+project_name = "lab57"
 environment  = "full"
 
 vpc_cidr = "10.30.0.0/16"
@@ -10,7 +10,7 @@ private_subnet_cidrs = ["10.30.11.0/24", "10.30.12.0/24"]
 
 enable_ssm_vpc_endpoints       = true
 enable_web_ssm                 = true
-web_ami_id                     = "ami-0dba509df57840c06"
+web_ami_id                     = "ami-0ff02c319e33722b1"
 ssm_proxy_ami_id               = "ami-0b530e53505a44fe4"
 web_min_size                   = 2
 web_max_size                   = 2

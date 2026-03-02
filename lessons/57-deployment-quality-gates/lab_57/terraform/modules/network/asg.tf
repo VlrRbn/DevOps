@@ -72,6 +72,7 @@ resource "aws_autoscaling_group" "web" {
 
       alarm_specification {
         alarms = [
+          # Use safety critical signals for rollback decisions.
           aws_cloudwatch_metric_alarm.target_5xx_critical.alarm_name,
           aws_cloudwatch_metric_alarm.alb_unhealthy.alarm_name
         ]

@@ -9,9 +9,9 @@ Build commands:
 
 ```bash
 cd web
-packer build -var 'build_id=56-01' .
-packer build -var 'build_id=56-02' .
-packer build -var 'build_id=56-bad' .
+packer build -var 'build_id=57-01' .
+packer build -var 'build_id=57-02' .
+packer build -var 'build_id=57-bad' .
 ```
 
 ```bash
