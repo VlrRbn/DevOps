@@ -88,6 +88,8 @@ devops-notes/
 | **Lesson 54** | Blue/Green Deployments with ALB + ASG | [Materials_54](lesson51_60/lesson_54/lesson_54.md) | [Readme](lesson51_60/lesson_54/README.md) |
 | **Lesson 55** | Rolling Deployments & Safe Rollback (ASG Instance Refresh as a Deployment Engine) | [Materials_55](lesson51_60/lesson_55/lesson_55.md) | [Readme](lesson51_60/lesson_55/README.md) |
 | **Lesson 56** | Guardrailed Deployments (Auto Rollback, Checkpoints, Skip Matching) | [Materials_56](lessons/56-guardrailed-deployments/lesson.en.md) | [Readme](lessons/56-guardrailed-deployments/README.md) |
+| **Lesson 57** | Deployment Quality Gates (Load, Latency, SLO-Style Release Rules) | [Materials_57](lessons/57-deployment-quality-gates/lesson.en.md) | [Readme](lessons/57-deployment-quality-gates/README.md) |
+| **Lesson 58** | Release Automation & Runbook Standardization | [Materials_58](lessons/58-release-automation-runbook-standardization/lesson.en.md) | [Readme](lessons/58-release-automation-runbook-standardization/README.md) |
 ---
 
 ## How to use

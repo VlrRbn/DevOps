@@ -6,6 +6,7 @@
 **/.venv/
 **/venv/
 **/env/
+**/evidence/
 
 # файлы
 *.py[cod]
