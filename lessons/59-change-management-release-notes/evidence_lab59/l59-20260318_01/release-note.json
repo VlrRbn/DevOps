@@ -1,0 +1,211 @@
+{
+  "release_id": "l58-canary-20260303_195546",
+  "generated_at": "2026-03-18T19:35:20Z",
+  "metadata": {
+    "timestamp_utc": "2026-03-03T20:00:58+00:00",
+    "environment": "lab57",
+    "decision": "GO",
+    "asg_name": "lab57-web-asg",
+    "alb_url": "http://<ip>:18080/",
+    "target_group_arn": "arn:aws:elasticloadbalancing:eu-west-1:<account-id>:targetgroup/<resource>/<hash>"
+  },
+  "change": {
+    "candidate_builds": "57-01,57-02",
+    "previous_builds": "57-02",
+    "why": "Promote candidate based on release gate evidence"
+  },
+  "evidence": {
+    "baseline": {
+      "total": "36960",
+      "ok": "36960",
+      "bad": "0",
+      "avg_seconds": "0.078"
+    },
+    "canary": {
+      "total": "54960",
+      "ok": "54960",
+      "bad": "0",
+      "avg_seconds": "0.090"
+    },
+    "alarms": [
+      {
+        "AlarmName": "lab57-alb-unhealthy-hosts",
+        "AlarmArn": "arn:aws:cloudwatch:eu-west-1:<account-id>:alarm:lab57-alb-unhealthy-hosts",
+        "AlarmDescription": "ALB Unhealthy hosts - safety critical signal",
+        "AlarmConfigurationUpdatedTimestamp": "2026-03-03T19:12:59.386000+00:00",
+        "ActionsEnabled": true,
+        "OKActions": [],
+        "AlarmActions": [],
+        "InsufficientDataActions": [],
+        "StateValue": "OK",
+        "StateReason": "Threshold Crossed: no datapoints were received for 1 period and 1 missing datapoint was treated as [NonBreaching].",
+        "StateReasonData": "{\"version\":\"1.0\",\"queryDate\":\"2026-03-03T19:14:27.078+0000\",\"statistic\":\"Average\",\"period\":60,\"recentDatapoints\":[],\"threshold\":0.0,\"evaluatedDatapoints\":[{\"timestamp\":\"2026-03-03T19:11:00.000+0000\"}]}",
+        "StateUpdatedTimestamp": "2026-03-03T19:14:27.079000+00:00",
+        "MetricName": "UnHealthyHostCount",
+        "Namespace": "AWS/ApplicationELB",
+        "Statistic": "Average",
+        "Dimensions": [
+          {
+            "Name": "TargetGroup",
+            "Value": "targetgroup/<resource>/<hash>"
+          },
+          {
+            "Name": "LoadBalancer",
+            "Value": "app/<resource>/<hash>"
+          }
+        ],
+        "Period": 60,
+        "EvaluationPeriods": 1,
+        "Threshold": 0.0,
+        "ComparisonOperator": "GreaterThanThreshold",
+        "TreatMissingData": "notBreaching",
+        "StateTransitionedTimestamp": "2026-03-03T19:14:27.079000+00:00"
+      },
+      {
+        "AlarmName": "lab57-release-latency",
+        "AlarmArn": "arn:aws:cloudwatch:eu-west-1:<account-id>:alarm:lab57-release-latency",
+        "AlarmDescription": "Release quality gate: backend latency regression",
+        "AlarmConfigurationUpdatedTimestamp": "2026-03-03T19:12:59.394000+00:00",
+        "ActionsEnabled": true,
+        "OKActions": [],
+        "AlarmActions": [],
+        "InsufficientDataActions": [],
+        "StateValue": "OK",
+        "StateReason": "Threshold Crossed: no datapoints were received for 5 periods and 5 missing datapoints were treated as [NonBreaching].",
+        "StateReasonData": "{\"version\":\"1.0\",\"queryDate\":\"2026-03-03T19:14:01.578+0000\",\"statistic\":\"Average\",\"period\":60,\"recentDatapoints\":[],\"threshold\":0.5,\"evaluatedDatapoints\":[{\"timestamp\":\"2026-03-03T19:11:00.000+0000\"}]}",
+        "StateUpdatedTimestamp": "2026-03-03T19:14:01.579000+00:00",
+        "MetricName": "TargetResponseTime",
+        "Namespace": "AWS/ApplicationELB",
+        "Statistic": "Average",
+        "Dimensions": [
+          {
+            "Name": "LoadBalancer",
+            "Value": "app/<resource>/<hash>"
+          },
+          {
+            "Name": "TargetGroup",
+            "Value": "targetgroup/<resource>/<hash>"
+          }
+        ],
+        "Period": 60,
+        "EvaluationPeriods": 5,
+        "Threshold": 0.5,
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "TreatMissingData": "notBreaching",
+        "StateTransitionedTimestamp": "2026-03-03T19:14:01.579000+00:00"
+      },
+      {
+        "AlarmName": "lab57-release-target-5xx",
+        "AlarmArn": "arn:aws:cloudwatch:eu-west-1:<account-id>:alarm:lab57-release-target-5xx",
+        "AlarmDescription": "Release quality gate: backend 5xx regression",
+        "AlarmConfigurationUpdatedTimestamp": "2026-03-03T19:12:59.360000+00:00",
+        "ActionsEnabled": true,
+        "OKActions": [],
+        "AlarmActions": [],
+        "InsufficientDataActions": [],
+        "StateValue": "OK",
+        "StateReason": "Threshold Crossed: no datapoints were received for 2 periods and 2 missing datapoints were treated as [NonBreaching].",
+        "StateReasonData": "{\"version\":\"1.0\",\"queryDate\":\"2026-03-03T19:13:43.717+0000\",\"statistic\":\"Sum\",\"period\":60,\"recentDatapoints\":[],\"threshold\":2.0,\"evaluatedDatapoints\":[{\"timestamp\":\"2026-03-03T19:10:00.000+0000\"}]}",
+        "StateUpdatedTimestamp": "2026-03-03T19:13:43.718000+00:00",
+        "MetricName": "HTTPCode_Target_5XX_Count",
+        "Namespace": "AWS/ApplicationELB",
+        "Statistic": "Sum",
+        "Dimensions": [
+          {
+            "Name": "TargetGroup",
+            "Value": "targetgroup/<resource>/<hash>"
+          },
+          {
+            "Name": "LoadBalancer",
+            "Value": "app/<resource>/<hash>"
+          }
+        ],
+        "Period": 60,
+        "EvaluationPeriods": 2,
+        "Threshold": 2.0,
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "TreatMissingData": "notBreaching",
+        "StateTransitionedTimestamp": "2026-03-03T19:13:43.718000+00:00"
+      },
+      {
+        "AlarmName": "lab57-target-5xx-critical",
+        "AlarmArn": "arn:aws:cloudwatch:eu-west-1:<account-id>:alarm:lab57-target-5xx-critical",
+        "AlarmDescription": "Safety critical signal: backend 5xx regression",
+        "AlarmConfigurationUpdatedTimestamp": "2026-03-03T19:12:59.405000+00:00",
+        "ActionsEnabled": true,
+        "OKActions": [],
+        "AlarmActions": [],
+        "InsufficientDataActions": [],
+        "StateValue": "OK",
+        "StateReason": "Threshold Crossed: no datapoints were received for 2 periods and 2 missing datapoints were treated as [NonBreaching].",
+        "StateReasonData": "{\"version\":\"1.0\",\"queryDate\":\"2026-03-03T19:14:09.038+0000\",\"statistic\":\"Sum\",\"period\":60,\"recentDatapoints\":[],\"threshold\":5.0,\"evaluatedDatapoints\":[{\"timestamp\":\"2026-03-03T19:11:00.000+0000\"}]}",
+        "StateUpdatedTimestamp": "2026-03-03T19:14:09.039000+00:00",
+        "MetricName": "HTTPCode_Target_5XX_Count",
+        "Namespace": "AWS/ApplicationELB",
+        "Statistic": "Sum",
+        "Dimensions": [
+          {
+            "Name": "TargetGroup",
+            "Value": "targetgroup/<resource>/<hash>"
+          },
+          {
+            "Name": "LoadBalancer",
+            "Value": "app/<resource>/<hash>"
+          }
+        ],
+        "Period": 60,
+        "EvaluationPeriods": 2,
+        "Threshold": 5.0,
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "TreatMissingData": "notBreaching",
+        "StateTransitionedTimestamp": "2026-03-03T19:14:09.039000+00:00"
+      }
+    ],
+    "target_health": [
+      {
+        "Target": {
+          "Id": "<instance-id>",
+          "Port": 80
+        },
+        "HealthCheckPort": "80",
+        "TargetHealth": {
+          "State": "healthy"
+        },
+        "AdministrativeOverride": {
+          "State": "no_override",
+          "Reason": "AdministrativeOverride.NoOverride",
+          "Description": "No override is currently active on target"
+        }
+      },
+      {
+        "Target": {
+          "Id": "<instance-id>",
+          "Port": 80
+        },
+        "HealthCheckPort": "80",
+        "TargetHealth": {
+          "State": "healthy"
+        },
+        "AdministrativeOverride": {
+          "State": "no_override",
+          "Reason": "AdministrativeOverride.NoOverride",
+          "Description": "No override is currently active on target"
+        }
+      }
+    ],
+    "instance_refresh": {
+      "status": "InProgress",
+      "percentage_complete": "100",
+      "reason": "Waiting for terminating instances before continuing. For example: <instance-id> is terminating."
+    }
+  },
+  "decision": {
+    "result": "GO",
+    "rationale": "Decision is GO because gates are healthy and canary evidence is stable. Source reason: all gates OK.",
+    "actions": "- Continue rollout to 100%.\n- Monitor alarms and target health for 10 minutes.\n- Attach this note to release record/PR."
+  },
+  "references": {
+    "canary_artifact_dir": "<redacted-path>",
+    "baseline_artifact_dir": "<redacted-path>"
+  }
+}
