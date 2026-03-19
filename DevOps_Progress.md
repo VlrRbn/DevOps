@@ -76,3 +76,6 @@
 | 56 | 2026-02-24 | Guardrailed Deployments (Auto Rollback, Checkpoints, Skip Matching) |
 | 57 | 2026-03-01 | Deployment Quality Gates (Load, Latency, SLO-Style Release Rules) |
 | 58 | 2026-03-03 | Release Automation & Runbook Standardization |
+| * | 2026-03-(04-17) | Study was paused due to personal reasons |
+| 59 | 2026-03-18 | Change Management & Release Notes (Evidence -> Decision -> Record) |
+| 60 | 2026-03-19 | Remote State & Locking (S3 Backend, Lockfile, Versioning, Safe Recovery) |

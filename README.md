@@ -30,19 +30,24 @@ devops-notes/
 ## 📅 Calendar
 | Lesson | Topic | Materials | README |
 |-----|-------|-----------|-----------|
-| **Lesson 1** | Linux Foundations: Environment, Commands, FHS, and Permissions | [Materials_1](lessons/01-linux-foundations/lesson.en.md) |
-| **Lesson 2** | Files, Nano, and Permissions in Linux | [Materials_2](lessons/02-files-nano-permissions/lesson.en.md) |
-| **Lesson 3** | Networking Foundations: IP, DNS, Routes, and Diagnostics | [Materials_3](lessons/03-networking-foundations/lesson.en.md) | [Readme](lessons/03-networking-foundations/scripts/README.md) |
-| **Lesson 4** | Users, Groups, ACL, Umask, and Sudoers | [Materials_4](lessons/04-users-groups-acl-sudoers/lesson.en.md) | [Readme](lessons/04-users-groups-acl-sudoers/scripts/README.md) |
-| **Lesson 5** | Processes, Systemd Services, Timers, and Journalctl | [Materials_5](lessons/05-processes-systemd-services/lesson.en.md) | [Readme](lessons/05-processes-systemd-services/scripts/README.md) |
-| **Lesson 6** | Package Management with APT and DPKG | [Materials_6](lessons/06-apt-dpkg-package-management/lesson.en.md) | [Readme](lessons/06-apt-dpkg-package-management/scripts/README.md) |
-| **Lesson 7** | Bash Scripting: Safe Patterns and Practical Automation | [Materials_7](lessons/07-bash-scripting-automation/lesson.en.md) | [Readme](lessons/07-bash-scripting-automation/scripts/README.md) |
-| **Lesson 8** | Text Processing for Ops: `grep`, `sed`, `awk` | [Materials_8](lessons/08-text-processing-grep-sed-awk/lesson.en.md) | [Readme](lessons/08-text-processing-grep-sed-awk/scripts/README.md) |
-| **Lesson 9** | Networking Deep Dive: `iproute2`, `ss`, `dig`, `tcpdump`, `ufw`, `netns` | [Materials_9](lessons/09-networking-deep-dive/lesson.en.md) | [Readme](lessons/09-networking-deep-dive/scripts/README.md) |
-| **Lesson 10** | Networking (Part 2): NAT / DNAT / `netns` / UFW | [Materials_10](lessons/10-networking-nat-dnat-netns-ufw/lesson.en.md) | [Readme](lessons/10-networking-nat-dnat-netns-ufw/scripts/README.md) |
-| **Lesson 11** | Networking (Part 3): `nftables` NAT/DNAT + Persistence | [Materials_11](lessons/11-nftables-nat-dnat-persistence/lesson.en.md) | [Readme](lessons/11-nftables-nat-dnat-persistence/scripts/README.md) |
-| **Lesson 12** | Nginx Reverse Proxy + TLS (self-signed) | [Materials_12](lesson11_20/lesson_12.md) |
-| **Lesson 13** | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs | [Materials_13](lesson11_20/lesson_13_v1.md) |
+| **Lesson 1** | Linux Foundations: Environment, Commands, FHS, and Permissions | [Materials_1](lessons/Linux/01-linux-foundations/lesson.en.md) |
+| **Lesson 2** | Files, Nano, and Permissions in Linux | [Materials_2](lessons/Linux/02-files-nano-permissions/lesson.en.md) |
+| **Lesson 3** | Networking Foundations: IP, DNS, Routes, and Diagnostics | [Materials_3](lessons/Linux/03-networking-foundations/lesson.en.md) | [Readme](lessons/Linux/03-networking-foundations/scripts/README.md) |
+| **Lesson 4** | Users, Groups, ACL, Umask, and Sudoers | [Materials_4](lessons/Linux/04-users-groups-acl-sudoers/lesson.en.md) | [Readme](lessons/Linux/04-users-groups-acl-sudoers/scripts/README.md) |
+| **Lesson 5** | Processes, Systemd Services, Timers, and Journalctl | [Materials_5](lessons/Linux/05-processes-systemd-services/lesson.en.md) | [Readme](lessons/Linux/05-processes-systemd-services/scripts/README.md) |
+| **Lesson 6** | Package Management with APT and DPKG | [Materials_6](lessons/Linux/06-apt-dpkg-package-management/lesson.en.md) | [Readme](lessons/Linux/06-apt-dpkg-package-management/scripts/README.md) |
+| **Lesson 7** | Bash Scripting: Safe Patterns and Practical Automation | [Materials_7](lessons/Linux/07-bash-scripting-automation/lesson.en.md) | [Readme](lessons/Linux/07-bash-scripting-automation/scripts/README.md) |
+| **Lesson 8** | Text Processing for Ops: `grep`, `sed`, `awk` | [Materials_8](lessons/Linux/08-text-processing-grep-sed-awk/lesson.en.md) | [Readme](lessons/Linux/08-text-processing-grep-sed-awk/scripts/README.md) |
+| **Lesson 9** | Networking Deep Dive: `iproute2`, `ss`, `dig`, `tcpdump`, `ufw`, `netns` | [Materials_9](lessons/Linux/09-networking-deep-dive/lesson.en.md) | [Readme](lessons/Linux/09-networking-deep-dive/scripts/README.md) |
+| **Lesson 10** | Networking (Part 2): NAT / DNAT / `netns` / UFW | [Materials_10](lessons/Linux/10-networking-nat-dnat-netns-ufw/lesson.en.md) | [Readme](lessons/Linux/10-networking-nat-dnat-netns-ufw/scripts/README.md) |
+| **Lesson 11** | Networking (Part 3): `nftables` NAT/DNAT + Persistence | [Materials_11](lessons/Linux/11-nftables-nat-dnat-persistence/lesson.en.md) | [Readme](lessons/Linux/11-nftables-nat-dnat-persistence/scripts/README.md) |
+| **Lesson 12** | Storage and Filesystems: `mount`, `fstab`, `fsck`, `swap`, `LVM` | [Materials_12](lessons/Linux/12-storage-filesystems-fstab-lvm/lesson.en.md) | [Readme](lessons/Linux/12-storage-filesystems-fstab-lvm/scripts/README.md) |
+| **Lesson 13** | Boot and Recovery: `journalctl -b`, `systemctl --failed`, `dmesg`, `rescue/emergency` | [Materials_13](lessons/Linux/13-boot-recovery-troubleshooting/lesson.en.md) | [Readme](lessons/Linux/13-boot-recovery-troubleshooting/scripts/README.md) |
+| **Lesson 14** | Performance Triage: CPU/RAM/IO, `vmstat`/`iostat`/`pidstat`, snapshot workflow | [Materials_14](lessons/Linux/14-performance-triage/lesson.en.md) | [Readme](lessons/Linux/14-performance-triage/scripts/README.md) |
+| **Lesson 15** | Linux Capstone: Incident Runbook, Evidence-First Triage, Handoff | [Materials_15](lessons/Linux/15-linux-capstone-incident-runbook/lesson.en.md) | [Readme](lessons/Linux/15-linux-capstone-incident-runbook/scripts/README.md) |
+
+| **Lesson 12** | 	Nginx Reverse Proxy + TLS (self-signed) | [Materials_12](lesson11_20/lesson_12.md) |
+| **Lesson 13** | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs | [Materials_13](lesson11_20/lesson_13.md) |
 | **Lesson 14** | Ansible Fundamentals: Inventory, Playbooks, Roles, Idempotence | [Materials_14](lesson11_20/lesson_14.md) |
 | **Lesson 15** | Ansible Advanced: Multi-Host, Vault, Rolling Updates, Health Checks | [Materials_15](lesson11_20/lesson_15.md) |
 | **Lesson 16** | Ansible Role Testing: Molecule + Testinfra + CI | [Materials_16](lesson11_20/lesson_16.md) |
@@ -90,6 +95,8 @@ devops-notes/
 | **Lesson 56** | Guardrailed Deployments (Auto Rollback, Checkpoints, Skip Matching) | [Materials_56](lessons/56-guardrailed-deployments/lesson.en.md) | [Readme](lessons/56-guardrailed-deployments/README.md) |
 | **Lesson 57** | Deployment Quality Gates (Load, Latency, SLO-Style Release Rules) | [Materials_57](lessons/57-deployment-quality-gates/lesson.en.md) | [Readme](lessons/57-deployment-quality-gates/README.md) |
 | **Lesson 58** | Release Automation & Runbook Standardization | [Materials_58](lessons/58-release-automation-runbook-standardization/lesson.en.md) | [Readme](lessons/58-release-automation-runbook-standardization/README.md) |
+| **Lesson 59** | Change Management & Release Notes (Evidence -> Decision -> Record) | [Materials_59](lessons/59-change-management-release-notes/lesson.en.md) | [Readme](lessons/59-change-management-release-notes/README.md) |
+| **Lesson 60** | Remote State & Locking (S3 Backend, Lockfile, Versioning, Safe Recovery) | [Materials_60](lessons/60-remote-state-and-locking/lesson.en.md) | [Readme](lessons/60-remote-state-and-locking/README.md) |
 ---
 
 ## How to use
@@ -110,4 +117,4 @@ devops-notes/
 ---
 
 ## 🎯 Goal
-Learn Linux, networking, scripting, CI/CD, containers, cloud, and automation to get a DevOps job.  
+Learn Linux, networking, scripting, CI/CD, containers, cloud, and automation.  
