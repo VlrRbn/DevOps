@@ -28,6 +28,7 @@ devops-notes/
 ---
 
 ## 📅 Calendar
+### Linux Track
 | Lesson | Topic | Materials | README |
 |-----|-------|-----------|-----------|
 | **Lesson 1** | Linux Foundations: Environment, Commands, FHS, and Permissions | [Materials_1](lessons/Linux/01-linux-foundations/lesson.en.md) |
@@ -46,6 +47,9 @@ devops-notes/
 | **Lesson 14** | Performance Triage: CPU/RAM/IO, `vmstat`/`iostat`/`pidstat`, snapshot workflow | [Materials_14](lessons/Linux/14-performance-triage/lesson.en.md) | [Readme](lessons/Linux/14-performance-triage/scripts/README.md) |
 | **Lesson 15** | Linux Capstone: Incident Runbook, Evidence-First Triage, Handoff | [Materials_15](lessons/Linux/15-linux-capstone-incident-runbook/lesson.en.md) | [Readme](lessons/Linux/15-linux-capstone-incident-runbook/scripts/README.md) |
 
+### Core DevOps Track
+| Lesson | Topic | Materials | README |
+|-----|-------|-----------|-----------|
 | **Lesson 12** | 	Nginx Reverse Proxy + TLS (self-signed) | [Materials_12](lesson11_20/lesson_12.md) |
 | **Lesson 13** | Nginx Advanced: Upstreams, Zero-Downtime, Rate-Limits, Security, Caching, JSON Logs | [Materials_13](lesson11_20/lesson_13.md) |
 | **Lesson 14** | Ansible Fundamentals: Inventory, Playbooks, Roles, Idempotence | [Materials_14](lesson11_20/lesson_14.md) |
