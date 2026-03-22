@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "project_name" {
   type        = string
   description = "Project prefix for resource names"
-  default     = "lab57"
+  default     = "lab60"
 }
 
 variable "environment" {

@@ -1,6 +1,10 @@
+terraform {
+  # Backend values come from backend.hcl during init, not from Terraform variables.
+  backend "s3" {}
+}
+
 provider "aws" {
   region = var.aws_region
-
 }
 
 module "network" {
