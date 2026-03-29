@@ -79,4 +79,4 @@
 | * | 2026-03-(04-17) | Study was paused due to personal reasons |
 | 59 | 2026-03-18 | Change Management & Release Notes (Evidence -> Decision -> Record) |
 | 60 | 2026-03-20 | Remote State & Locking (S3 Backend, Lockfile, Versioning, Safe Recovery) |
-| 61 | 2026-03-22 | State Hygiene & Refactors |
+| 61 | 2026-03-22 | State Hygiene & Safe Refactors (`moved`, `state mv`, `state rm`, `import`) |

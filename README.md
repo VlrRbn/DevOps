@@ -101,6 +101,7 @@ devops-notes/
 | **Lesson 58** | Release Automation & Runbook Standardization | [Materials_58](lessons/58-release-automation-runbook-standardization/lesson.en.md) | [Readme](lessons/58-release-automation-runbook-standardization/README.md) |
 | **Lesson 59** | Change Management & Release Notes (Evidence -> Decision -> Record) | [Materials_59](lessons/59-change-management-release-notes/lesson.en.md) | [Readme](lessons/59-change-management-release-notes/README.md) |
 | **Lesson 60** | Remote State & Locking (S3 Backend, Lockfile, Versioning, Safe Recovery) | [Materials_60](lessons/60-remote-state-and-locking/lesson.en.md) | [Readme](lessons/60-remote-state-and-locking/README.md) |
+| **Lesson 61** | State Hygiene & Safe Refactors (`moved`, `state mv`, `state rm`, `import`) | [Materials_61](lessons/61-state-hygiene-and-refactors/lesson.en.md) | [Readme](lessons/61-state-hygiene-and-refactors/README.md) |
 ---
 
 ## How to use
