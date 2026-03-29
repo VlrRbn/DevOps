@@ -1,0 +1,40 @@
+decision=STATE_SURGERY_OK
+timestamp=2026-03-22T16:31:18+01:00
+operator=leprecha
+env=prod
+workspace=default
+
+Drill: Terraform state mv after resource address rename
+
+Change:
+Moved Terraform state binding from:
+  aws_cloudwatch_metric_alarm.release_latency
+to:
+  aws_cloudwatch_metric_alarm.latency_gate
+
+Command:
+  terraform state mv \
+    aws_cloudwatch_metric_alarm.release_latency \
+    aws_cloudwatch_metric_alarm.latency_gate
+
+Why it was safe:
+Only the Terraform state address changed.
+The existing AWS CloudWatch alarm was kept in place and was not recreated.
+
+Pre-check:
+`terraform plan` showed a create/destroy pair caused by the address rename.
+
+Post-check:
+- `terraform plan` returned no infrastructure changes
+- `terraform state list` showed `aws_cloudwatch_metric_alarm.latency_gate`
+- old address was no longer present in state
+
+Risks:
+- If resource arguments changed at the same time, `plan` could still show a real diff
+- If the source or destination address was wrong, state could point to the wrong object
+- Running this against a non-clean working tree/plan could hide unrelated changes
+
+Rollback:
+  terraform state mv \
+    aws_cloudwatch_metric_alarm.latency_gate \
+    aws_cloudwatch_metric_alarm.release_latency
