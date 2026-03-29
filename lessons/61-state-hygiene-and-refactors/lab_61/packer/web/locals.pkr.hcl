@@ -9,6 +9,6 @@ locals {
 
   common_tags = {
     Project = "DevOps"
-    Lesson  = "57-deployment-quality-gates"
+    Lesson  = "61-state-hygiene-and-refactors"
   }
 }

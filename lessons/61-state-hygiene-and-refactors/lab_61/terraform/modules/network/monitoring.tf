@@ -79,7 +79,7 @@ resource "aws_cloudwatch_metric_alarm" "target_5xx_critical" {
 }
 
 # Target 5XX - release quality gate. Catch regressions early.
-resource "aws_cloudwatch_metric_alarm" "release_target_5xx" {
+resource "aws_cloudwatch_metric_alarm" "release_5xx_gate" {
   alarm_name          = "${var.project_name}-release-target-5xx"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   metric_name         = "HTTPCode_Target_5XX_Count"
@@ -100,7 +100,7 @@ resource "aws_cloudwatch_metric_alarm" "release_target_5xx" {
 }
 
 # Target latency - release quality gate. Catch latency regressions early.
-resource "aws_cloudwatch_metric_alarm" "release_latency" {
+resource "aws_cloudwatch_metric_alarm" "latency_gate" {
   alarm_name          = "${var.project_name}-release-latency"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   metric_name         = "TargetResponseTime"
