@@ -1,0 +1,10 @@
+terraform scan results:
+
+Passed checks: 109, Failed checks: 1, Skipped checks: 0
+
+Check: CKV_AWS_260: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 80"
+	FAILED for resource: module.network.aws_security_group_rule.web_http_from_world_bad
+	File: /modules/network/security_groups.tf:162-170
+	Calling File: /envs/main.tf:10-32
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-networking-policies/ensure-aws-security-groups-do-not-allow-ingress-from-00000-to-port-80
+

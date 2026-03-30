@@ -1,0 +1,11 @@
+decision=QUALITY_GATES_OK
+timestamp=2026-03-24T15:45:54+01:00
+operator=leprecha
+env=prod
+workspace=default
+
+Drill: Backend bucket protection broken
+Bad change: weakened one backend bucket protection layer (versioning, encryption, or public access block)
+Expected catcher: checkov
+Why it matters: terraform backend state storage must stay protected against loss, tampering, and accidental exposure
+State flow: baseline -> fail -> fix -> clean

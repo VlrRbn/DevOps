@@ -1,0 +1,11 @@
+decision=QUALITY_GATES_OK
+timestamp=2026-03-24T15:35:11+01:00
+operator=leprecha
+env=prod
+workspace=default
+
+Drill: IMDSv2 removed
+Bad change: removed or weakened metadata_options http_tokens = "required"
+Expected catcher: checkov
+Why it matters: instance metadata must require IMDSv2 to reduce credential theft and SSRF risk
+State flow: baseline -> fail -> fix -> clean

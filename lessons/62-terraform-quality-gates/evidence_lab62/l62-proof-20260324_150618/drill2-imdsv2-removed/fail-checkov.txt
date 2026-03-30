@@ -1,0 +1,15 @@
+terraform scan results:
+
+Passed checks: 103, Failed checks: 2, Skipped checks: 0
+
+Check: CKV_AWS_79: "Ensure Instance Metadata Service Version 1 is not enabled"
+	FAILED for resource: module.network.aws_launch_template.web
+	File: /modules/network/asg.tf:4-38
+	Calling File: /envs/main.tf:10-32
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-general-31
+Check: CKV_AWS_79: "Ensure Instance Metadata Service Version 1 is not enabled"
+	FAILED for resource: module.network.aws_instance.ssm_proxy
+	File: /modules/network/ssm.tf:2-30
+	Calling File: /envs/main.tf:10-32
+	Guide: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/bc-aws-general-31
+

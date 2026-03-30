@@ -1,0 +1,70 @@
+name: terraform-quality-gates
+
+on:
+  pull_request:
+    paths:
+      - 'lessons/62-testing-and-policy/lab_62/terraform/**'
+      - '.github/workflows/terraform-quality-gates.yml'
+  push:
+    branches: ['main']
+    paths:
+      - 'lessons/62-testing-and-policy/lab_62/terraform/**'
+      - '.github/workflows/terraform-quality-gates.yml'
+  workflow_dispatch: {}
+
+env:
+  TF_IN_AUTOMATION: 'true'
+  TF_INPUT: 'false'
+  TF_ROOT: 'lessons/62-testing-and-policy/lab_62/terraform'
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.TF_ROOT }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.14.0'
+          terraform_wrapper: false
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init (no backend)
+        run: terraform -chdir=envs init -backend=false -input=false -no-color
+
+      - name: Terraform validate
+        run: terraform -chdir=envs validate -no-color
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: 'v0.60.0'
+          cache: true
+
+      - name: TFLint init
+        run: tflint --chdir=envs --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: TFLint
+        run: tflint --chdir=envs -f compact
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Checkov
+        run: checkov -d . --framework terraform --config-file ../../checkov.yaml
