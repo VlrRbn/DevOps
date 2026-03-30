@@ -10,6 +10,15 @@ resource "aws_vpc" "main" {
 
 }
 
+# Lock down the default security group so the VPC does not keep an implicit allow-all group.
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.main.id
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-default_sg"
+  })
+}
+
 # Internet gateway for public subnet internet access.
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id

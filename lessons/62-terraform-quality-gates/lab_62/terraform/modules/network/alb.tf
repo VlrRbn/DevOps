@@ -27,9 +27,11 @@ resource "aws_lb_target_group" "web" {
 
 # Internal application load balancer across private subnets.
 resource "aws_lb" "app" {
-  name               = "${var.project_name}-app-alb"
-  internal           = true
-  load_balancer_type = "application"
+  name                       = "${var.project_name}-app-alb"
+  internal                   = true
+  load_balancer_type         = "application"
+  drop_invalid_header_fields = true
+  enable_deletion_protection = true
 
   security_groups = [aws_security_group.alb.id]
   subnets         = local.private_subnet_ids

@@ -117,5 +117,5 @@ resource "aws_cloudwatch_metric_alarm" "latency_gate" {
   }
 
   alarm_description = "Release quality gate: backend latency regression"
-  
+
 }
