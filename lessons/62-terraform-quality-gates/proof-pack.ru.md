@@ -42,7 +42,7 @@ Proof pack для lesson 62 — это набор артефактов, кото
 
 Запускай из:
 
-`lessons/62-testing-and-policy/lab_62/terraform`
+`lessons/62-terraform-quality-gates/lab_62/terraform`
 
 ```bash
 STAMP="$(date +%Y%m%d_%H%M%S)"

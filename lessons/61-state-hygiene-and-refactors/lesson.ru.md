@@ -450,7 +450,7 @@ terraform import \
 
 ---
 
-## Частые Ошибки
+## Common Pitfalls
 
 - делать surgery поверх посторонних pending changes
 - забывать, что resource address и AWS object ID это разные вещи
@@ -474,7 +474,7 @@ terraform import \
 
 ---
 
-## Итоги Урока
+## Lesson Summary
 
 - **Что изучил:** state это не просто storage, а address map между Terraform-кодом и реальной инфраструктурой.
 - **Что практиковал:** `moved`, `terraform state mv`, `terraform state rm`, `terraform import` и clean-plan surgery workflow.

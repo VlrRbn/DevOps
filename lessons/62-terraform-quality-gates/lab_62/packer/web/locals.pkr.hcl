@@ -9,6 +9,6 @@ locals {
 
   common_tags = {
     Project = "DevOps"
-    Lesson  = "62-testing-and-policy"
+    Lesson  = "62-terraform-quality-gates"
   }
 }

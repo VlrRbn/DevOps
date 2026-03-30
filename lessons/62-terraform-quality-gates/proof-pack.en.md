@@ -42,7 +42,7 @@ Minimum drills:
 
 Run from:
 
-`lessons/62-testing-and-policy/lab_62/terraform`
+`lessons/62-terraform-quality-gates/lab_62/terraform`
 
 ```bash
 STAMP="$(date +%Y%m%d_%H%M%S)"
