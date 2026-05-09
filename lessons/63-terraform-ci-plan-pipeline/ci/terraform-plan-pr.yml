@@ -1,21 +1,26 @@
 name: terraform-plan-pr
 
 on:
+  # Run automatically only when Terraform files for lesson 63 change in a PR.
   pull_request:
     paths:
       - 'lessons/63-terraform-ci-plan-pipeline/lab_63/terraform/**'
       - '.github/workflows/terraform-plan-pr.yml'
+  # Keep a manual trigger for debugging without opening a new PR.
   workflow_dispatch: {}
 
 permissions:
+  # Required for GitHub OIDC -> AWS assume-role.
   id-token: write
   contents: read
 
 concurrency:
+  # Cancel older runs for the same PR/ref so only the latest plan survives.
   group: terraform-plan-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
+  # All shell steps run from the Terraform root for this lesson.
   TF_ROOT: lessons/63-terraform-ci-plan-pipeline/lab_63/terraform
   TF_IN_AUTOMATION: true
   TF_INPUT: false
@@ -23,6 +28,7 @@ env:
 
 jobs:
   terraform-plan:
+    # Avoid running the AWS-backed plan job on forked PRs.
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
 
@@ -42,6 +48,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Configure AWS credentials via OIDC
+        # Exchange the GitHub OIDC token for short-lived AWS credentials.
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
@@ -49,9 +56,11 @@ jobs:
           role-session-name: gha-terraform-plan
 
       - name: Terraform fmt
+        # Fast formatting gate before any provider/backend work happens.
         run: terraform fmt -check -recursive
 
       - name: Terraform init (no backend)
+        # Syntax/schema validation does not need remote state access.
         run: terraform -chdir=envs init -backend=false -input=false -no-color
 
       - name: Terraform validate
@@ -65,6 +74,7 @@ jobs:
           tflint_config_path: ${{ env.TF_ROOT }}/.tflint.hcl
 
       - name: TFLint init
+        # Plugin download step for the AWS and Terraform rulesets.
         run: tflint --chdir=envs --config=../.tflint.hcl --init
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -81,11 +91,14 @@ jobs:
         run: pip install checkov==3.2.469
 
       - name: Checkov
+        # Scan the whole lesson Terraform root, not only envs/.
         run: checkov -d . --framework terraform --config-file ../../checkov.yaml
 
       - name: Write backend.hcl
         working-directory: ${{ env.TF_ROOT }}/envs
         run: |
+          # Backend config is generated in CI from repo variables.
+          # CI must reconfigure the backend, but must never migrate state.
           cat > backend.hcl <<EOF2
           bucket       = "${{ vars.TF_STATE_BUCKET }}"
           key          = "lab63/dev/full/terraform.tfstate"
@@ -95,15 +108,19 @@ jobs:
           EOF2
 
       - name: Terraform init (remote backend)
+        # Reconfigure to the shared S3 backend used by the lab.
         run: terraform -chdir=envs init -reconfigure -backend-config=backend.hcl -input=false -no-color
 
       - name: Terraform plan
+        # Keep both the binary plan and a readable console transcript.
         run: terraform -chdir=envs plan -input=false -no-color -out=tfplan | tee envs/plan.txt
 
       - name: Terraform show
+        # Convert the binary plan into a readable artifact for reviewers.
         run: terraform -chdir=envs show -no-color tfplan > envs/tfplan.txt
 
       - name: Upload plan artifact
+        # Persist plan outputs after the ephemeral GitHub runner is destroyed.
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
@@ -113,6 +130,7 @@ jobs:
             ${{ env.TF_ROOT }}/envs/plan.txt
 
       - name: Job summary
+        # Lightweight summary in the Actions UI so reviewers know which gates passed.
         run: |
           {
             echo "## Terraform PR Plan"
