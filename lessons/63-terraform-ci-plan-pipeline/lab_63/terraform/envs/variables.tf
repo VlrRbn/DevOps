@@ -83,3 +83,25 @@ variable "health_check_healthy_threshold" {
 variable "ssm_proxy_ami_id" {
   type = string
 }
+
+variable "github_owner" {
+  type = string
+}
+
+variable "github_repo" {
+  type = string
+}
+
+variable "github_branch" {
+  type    = string
+  default = "main"
+}
+
+variable "tf_state_bucket_name" {
+  type = string
+}
+
+variable "tf_state_key" {
+  type    = string
+  default = "lab63/dev/full/terraform.tfstate"
+}

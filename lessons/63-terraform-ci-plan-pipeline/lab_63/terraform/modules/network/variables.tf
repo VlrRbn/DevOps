@@ -142,3 +142,30 @@ variable "ssm_proxy_ami_id" {
   description = "AMI for the SSM proxy (must be explicit to avoid coupling with web_ami_id)"
   nullable    = false
 }
+
+variable "github_owner" {
+  description = "GitHub organization or username"
+  type        = string
+}
+
+variable "github_repo" {
+  description = "GitHub repository name"
+  type        = string
+}
+
+variable "github_branch" {
+  description = "GitHub branch allowed to assume this role"
+  type        = string
+  default     = "main"
+}
+
+variable "tf_state_bucket_name" {
+  description = "Remote state S3 bucket used by the Terraform CI plan role"
+  type        = string
+}
+
+variable "tf_state_key" {
+  description = "Remote state object key used by the Terraform CI plan role"
+  type        = string
+  default     = "lab63/dev/full/terraform.tfstate"
+}

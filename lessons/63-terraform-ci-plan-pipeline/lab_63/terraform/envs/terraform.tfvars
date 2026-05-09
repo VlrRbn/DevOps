@@ -22,5 +22,10 @@ asg_instance_warmup_seconds    = 120
 asg_checkpoint_delay_seconds   = 360
 tg_slow_start_seconds          = 60
 health_check_healthy_threshold = 2
+github_owner                   = "VlrRbn"
+github_repo                    = "DevOps"
+github_branch                  = "main"
+tf_state_bucket_name           = "vlrrbn-tfstate-179151669003-eu-west-1"
+tf_state_key                   = "lab63/dev/full/terraform.tfstate"
 
 instance_type_web = "t3.micro"

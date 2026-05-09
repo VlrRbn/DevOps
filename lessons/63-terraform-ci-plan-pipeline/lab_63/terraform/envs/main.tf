@@ -29,4 +29,9 @@ module "network" {
   asg_checkpoint_delay_seconds   = var.asg_checkpoint_delay_seconds
   tg_slow_start_seconds          = var.tg_slow_start_seconds
   health_check_healthy_threshold = var.health_check_healthy_threshold
+  github_owner                   = var.github_owner
+  github_repo                    = var.github_repo
+  github_branch                  = var.github_branch
+  tf_state_bucket_name           = var.tf_state_bucket_name
+  tf_state_key                   = var.tf_state_key
 }

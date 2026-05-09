@@ -62,3 +62,8 @@ output "ssm_vpc_endpoint_ids" {
   description = "SSM VPC endpoint IDs keyed by service (empty if disabled)"
   value       = module.network.ssm_vpc_endpoint_ids
 }
+
+output "tf_plan_role_arn" {
+  description = "IAM role ARN for GitHub Actions OIDC Terraform plan workflow"
+  value       = module.network.tf_plan_role_arn
+}
