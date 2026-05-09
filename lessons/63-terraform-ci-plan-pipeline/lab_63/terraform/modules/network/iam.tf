@@ -29,6 +29,7 @@ resource "aws_iam_instance_profile" "ec2_ssm_instance_profile" {
 # ***** IAM for GitHub Actions OIDC *****
 
 resource "aws_iam_openid_connect_provider" "github_actions" {
+  # GitHub Actions exchanges its job identity token against this OIDC provider.
   url = "https://token.actions.githubusercontent.com"
 
   client_id_list = [
@@ -59,11 +60,12 @@ resource "aws_iam_role" "github_actions_role" {
 
         Condition = {
           StringEquals = {
+            # GitHub OIDC tokens for AWS STS must always use this audience.
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
 
           StringLike = {
-            # Allow the specific repo on the main branch and PR-triggered workflow runs.
+            # Allow this exact repo either on the protected branch or as a PR workflow.
             "token.actions.githubusercontent.com:sub" = [
               "repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/${var.github_branch}",
               "repo:${var.github_owner}/${var.github_repo}:pull_request"
@@ -76,11 +78,13 @@ resource "aws_iam_role" "github_actions_role" {
 }
 
 resource "aws_iam_role_policy_attachment" "github_actions_readonly" {
+  # Broad read access keeps terraform refresh/plan from failing on Describe/Get APIs.
   role       = aws_iam_role.github_actions_role.name
   policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }
 
 resource "aws_iam_role_policy" "github_actions_backend_access" {
+  # Terraform plan still needs write access to the backend object and lockfile.
   name = "${var.project_name}-github-actions-backend-access"
   role = aws_iam_role.github_actions_role.id
 

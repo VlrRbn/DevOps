@@ -14,7 +14,7 @@
 
 ## Why This Lesson Exists
 
-After lesson 61, you already know how to work safely with state.
+After lesson 61, already know how to work safely with state.
 Even with good state and a clean refactor, you can still commit bad infrastructure code:
 
 - overly open ingress
