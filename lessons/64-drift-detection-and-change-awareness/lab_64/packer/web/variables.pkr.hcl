@@ -19,7 +19,7 @@ variable "ami_version" {
 }
 
 variable "build_id" {
-  # Deployment identity shown on the page (examples: 63-01, 63-02).
+  # Deployment identity shown on the page (examples: 64-01, 64-02).
   type    = string
-  default = "63-01"
+  default = "64-01"
 }

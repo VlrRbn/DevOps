@@ -1,0 +1,135 @@
+name: terraform-drift
+
+on:
+  # Scheduled drift check against deployed reality and the main branch code.
+  schedule:
+    - cron: '0 6 * * *'
+  # Manual run is useful while learning and during incident triage.
+  workflow_dispatch: {}
+
+permissions:
+  # Required for GitHub OIDC -> AWS assume-role.
+  id-token: write
+  contents: read
+
+concurrency:
+  # Drift detection is global for this env; keep only one active run.
+  group: terraform-drift-lab64-main
+  cancel-in-progress: true
+
+env:
+  TF_ROOT: lessons/64-drift-detection-and-change-awareness/lab_64/terraform
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+  AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-1' }}
+
+jobs:
+  drift-detection:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.TF_ROOT }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.14.0'
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.TF_PLAN_ROLE_ARN }}
+          role-session-name: gha-terraform-drift
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init (no backend)
+        run: terraform -chdir=envs init -backend=false -input=false -no-color
+
+      - name: Terraform validate
+        run: terraform -chdir=envs validate -no-color
+
+      - name: Write backend.hcl
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: |
+          # CI writes backend config from repo variables and never migrates state.
+          cat > backend.hcl <<EOF2
+          bucket       = "${{ vars.TF_STATE_BUCKET }}"
+          key          = "lab64/dev/full/terraform.tfstate"
+          region       = "${{ env.AWS_REGION }}"
+          encrypt      = true
+          use_lockfile = true
+          EOF2
+
+      - name: Terraform init (remote backend)
+        run: terraform -chdir=envs init -reconfigure -backend-config=backend.hcl -input=false -no-color
+
+      - name: Terraform plan (detect drift)
+        id: drift_plan
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: |
+          set +e
+          terraform plan -detailed-exitcode -input=false -no-color -out=tfplan > plan.txt 2>&1
+          ec=$?
+          echo "exitcode=$ec" >> "$GITHUB_OUTPUT"
+
+          if [ "$ec" -eq 0 ]; then
+            echo "NO_DRIFT" > decision.txt
+          elif [ "$ec" -eq 2 ]; then
+            echo "DRIFT_DETECTED" > decision.txt
+          else
+            echo "PIPELINE_ERROR" > decision.txt
+          fi
+
+          exit 0
+
+      - name: Terraform show
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: |
+          if [ -f tfplan ]; then
+            terraform show -no-color tfplan > tfplan.txt
+          else
+            : > tfplan.txt
+          fi
+
+      - name: Upload drift artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-drift
+          path: |
+            ${{ env.TF_ROOT }}/envs/plan.txt
+            ${{ env.TF_ROOT }}/envs/tfplan.txt
+            ${{ env.TF_ROOT }}/envs/decision.txt
+
+      - name: Job summary
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: |
+          {
+            echo "## Terraform Drift Detection"
+            echo
+            echo "- decision: $(cat decision.txt)"
+            echo "- artifact: terraform-drift"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail on drift
+        if: steps.drift_plan.outputs.exitcode == '2'
+        run: |
+          echo "Drift detected. See terraform-drift artifact."
+          exit 2
+
+      - name: Fail on pipeline error
+        if: steps.drift_plan.outputs.exitcode == '1'
+        run: |
+          echo "Pipeline error during drift check."
+          exit 1

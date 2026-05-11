@@ -103,5 +103,5 @@ variable "tf_state_bucket_name" {
 
 variable "tf_state_key" {
   type    = string
-  default = "lab63/dev/full/terraform.tfstate"
+  default = "lab64/dev/full/terraform.tfstate"
 }

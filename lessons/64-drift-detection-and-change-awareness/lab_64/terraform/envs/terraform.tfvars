@@ -1,5 +1,5 @@
 aws_region   = "eu-west-1"
-project_name = "lab63"
+project_name = "lab64"
 environment  = "full"
 
 vpc_cidr = "10.30.0.0/16"
@@ -26,6 +26,6 @@ github_owner                   = "VlrRbn"
 github_repo                    = "DevOps"
 github_branch                  = "main"
 tf_state_bucket_name           = "vlrrbn-tfstate-179151669003-eu-west-1"
-tf_state_key                   = "lab63/dev/full/terraform.tfstate"
+tf_state_key                   = "lab64/dev/full/terraform.tfstate"
 
 instance_type_web = "t3.micro"

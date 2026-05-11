@@ -9,6 +9,6 @@ locals {
 
   common_tags = {
     Project = "DevOps"
-    Lesson  = "63-terraform-ci-plan-pipeline"
+    Lesson  = "64-drift-detection-and-change-awareness"
   }
 }

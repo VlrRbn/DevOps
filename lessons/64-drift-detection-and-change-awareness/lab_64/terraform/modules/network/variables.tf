@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "project_name" {
   type        = string
   description = "Project prefix for resource names"
-  default     = "lab63"
+  default     = "lab64"
 }
 
 variable "environment" {
@@ -167,5 +167,5 @@ variable "tf_state_bucket_name" {
 variable "tf_state_key" {
   description = "Remote state object key used by the Terraform CI plan role"
   type        = string
-  default     = "lab63/dev/full/terraform.tfstate"
+  default     = "lab64/dev/full/terraform.tfstate"
 }
