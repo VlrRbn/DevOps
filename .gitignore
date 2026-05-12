@@ -1,21 +1,29 @@
-# виртуальные окружения и любые директории в любом месте проекта
-**/.terraform/
-**/grafana-data/
-**/__pycache__/
+# Директории
 **/.pytest_cache/
+**/.terraform/
 **/.venv/
-**/venv/
+**/__pycache__/
 **/env/
 **/evidence/
+**/grafana-data/
 **/tmp/
+**/venv/
 
-# файлы
+# Python
 *.py[cod]
-*.pyc
+
+# Terraform state и lock
 **/.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 
+# Terraform variables
+*.auto.tfvars
+backend.hcl
+terraform.tfvars
+
 # Terraform plan files
 *.tfplan
+plan.txt
 tfplan
+tfplan.txt

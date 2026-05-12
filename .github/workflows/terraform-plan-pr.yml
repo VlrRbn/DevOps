@@ -1,28 +1,39 @@
 name: terraform-plan-pr
 
 on:
+  # Run automatically only when Terraform files for lesson 63 change in a PR.
   pull_request:
     paths:
       - 'lessons/63-terraform-ci-plan-pipeline/lab_63/terraform/**'
       - '.github/workflows/terraform-plan-pr.yml'
+  # Keep a manual trigger for debugging without opening a new PR.
   workflow_dispatch: {}
 
 permissions:
+  # Required for GitHub OIDC -> AWS assume-role.
   id-token: write
   contents: read
 
 concurrency:
+  # Cancel older runs for the same PR/ref so only the latest plan survives.
   group: terraform-plan-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
+  # All shell steps run from the Terraform root for this lesson.
   TF_ROOT: lessons/63-terraform-ci-plan-pipeline/lab_63/terraform
+  TERRAFORM_VERSION: '1.14.0'
+  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform-plugin-cache
+  TF_PARALLELISM: 5
+  TF_PLAN_RETRY_ATTEMPTS: 3
+  TF_PLAN_RETRY_SLEEP_SECONDS: 10
   TF_IN_AUTOMATION: true
   TF_INPUT: false
   AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-1' }}
 
 jobs:
   terraform-plan:
+    # Avoid running the AWS-backed plan job on forked PRs.
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
 
@@ -38,24 +49,42 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: '1.14.0'
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Prepare Terraform plugin cache
+        # Terraform requires this directory to exist before it can use TF_PLUGIN_CACHE_DIR.
+        run: mkdir -p "$TF_PLUGIN_CACHE_DIR"
+
+      - name: Cache Terraform providers
+        # Cache provider plugins between runs so init does not download them every time.
+        uses: actions/cache@v4
         with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ vars.TF_PLAN_ROLE_ARN }}
-          role-session-name: gha-terraform-plan
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: terraform-plugin-cache-${{ runner.os }}-${{ env.TERRAFORM_VERSION }}-${{ hashFiles('lessons/63-terraform-ci-plan-pipeline/lab_63/terraform/**/*.tf') }}
+          restore-keys: |
+            terraform-plugin-cache-${{ runner.os }}-${{ env.TERRAFORM_VERSION }}-
 
       - name: Terraform fmt
-        run: terraform fmt -check -recursive
+        # Fast formatting gate before any provider/backend work happens.
+        run: terraform fmt -check -diff -recursive
+
+      - name: Checkov
+        # Scan only this Terraform lab before init creates .terraform/ working files.
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: ${{ env.TF_ROOT }}
+          framework: terraform
+          config_file: lessons/63-terraform-ci-plan-pipeline/checkov.yaml
 
       - name: Terraform init (no backend)
-        run: terraform -chdir=envs init -backend=false -input=false -no-color
+        # Syntax/schema validation does not need remote state access.
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: terraform init -backend=false -input=false -no-color
 
       - name: Terraform validate
-        run: terraform -chdir=envs validate -no-color
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: terraform validate -no-color
 
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v6
@@ -65,27 +94,49 @@ jobs:
           tflint_config_path: ${{ env.TF_ROOT }}/.tflint.hcl
 
       - name: TFLint init
-        run: tflint --chdir=envs --config=../.tflint.hcl --init
+        # Plugin download step for the AWS and Terraform rulesets.
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: tflint --config=../.tflint.hcl --init
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: TFLint
-        run: tflint --chdir=envs --config=../.tflint.hcl -f compact
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: tflint --config=../.tflint.hcl -f compact
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Check required repo variables
+        # Fail with a clear message before trying to assume AWS credentials.
+        run: |
+          missing=0
+
+          if [ -z "${TF_PLAN_ROLE_ARN}" ]; then
+            echo "Missing required repository variable: TF_PLAN_ROLE_ARN"
+            missing=1
+          fi
+
+          if [ -z "${TF_STATE_BUCKET}" ]; then
+            echo "Missing required repository variable: TF_STATE_BUCKET"
+            missing=1
+          fi
+
+          exit "$missing"
+        env:
+          TF_PLAN_ROLE_ARN: ${{ vars.TF_PLAN_ROLE_ARN }}
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+
+      - name: Configure AWS credentials via OIDC
+        # Exchange the GitHub OIDC token only after local/static gates pass.
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          python-version: '3.12'
-
-      - name: Install Checkov
-        run: pip install checkov==3.2.469
-
-      - name: Checkov
-        run: checkov -d . --framework terraform --config-file ../../checkov.yaml
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.TF_PLAN_ROLE_ARN }}
+          role-session-name: gha-terraform-plan
 
       - name: Write backend.hcl
         working-directory: ${{ env.TF_ROOT }}/envs
         run: |
+          # Backend config is generated in CI from repo variables.
+          # CI must reconfigure the backend, but must never migrate state.
           cat > backend.hcl <<EOF2
           bucket       = "${{ vars.TF_STATE_BUCKET }}"
           key          = "lab63/dev/full/terraform.tfstate"
@@ -95,24 +146,57 @@ jobs:
           EOF2
 
       - name: Terraform init (remote backend)
-        run: terraform -chdir=envs init -reconfigure -backend-config=backend.hcl -input=false -no-color
+        # Reconfigure to the shared S3 backend used by the lab.
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: terraform init -reconfigure -backend-config=backend.hcl -input=false -no-color
 
       - name: Terraform plan
-        run: terraform -chdir=envs plan -input=false -no-color -out=tfplan | tee envs/plan.txt
+        # Keep both the binary plan and a readable console transcript.
+        # PIPESTATUS preserves Terraform's exit code when output is piped to tee.
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: |
+          for attempt in $(seq 1 "${TF_PLAN_RETRY_ATTEMPTS}"); do
+            set +e
+            terraform plan -parallelism="${TF_PARALLELISM}" -input=false -no-color -out=tfplan 2>&1 | tee plan.txt
+            ec="${PIPESTATUS[0]}"
+            set -e
+
+            if [ "$ec" -eq 0 ]; then
+              exit 0
+            fi
+
+            if [ "$attempt" -lt "${TF_PLAN_RETRY_ATTEMPTS}" ]; then
+              echo "terraform plan failed with exit code ${ec}; retrying in ${TF_PLAN_RETRY_SLEEP_SECONDS}s..."
+              sleep "${TF_PLAN_RETRY_SLEEP_SECONDS}"
+            fi
+          done
+
+          exit "$ec"
 
       - name: Terraform show
-        run: terraform -chdir=envs show -no-color tfplan > envs/tfplan.txt
+        # Convert the binary plan into a readable artifact for reviewers.
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: terraform show -no-color tfplan > tfplan.txt
+
+      - name: Terraform show JSON
+        # Machine-readable plan output for future automation or deeper review.
+        working-directory: ${{ env.TF_ROOT }}/envs
+        run: terraform show -json tfplan > tfplan.json
 
       - name: Upload plan artifact
+        # Persist plan outputs after the ephemeral GitHub runner is destroyed.
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
+          retention-days: 7
           path: |
             ${{ env.TF_ROOT }}/envs/tfplan
             ${{ env.TF_ROOT }}/envs/tfplan.txt
+            ${{ env.TF_ROOT }}/envs/tfplan.json
             ${{ env.TF_ROOT }}/envs/plan.txt
 
       - name: Job summary
+        # Lightweight summary in the Actions UI so reviewers know which gates passed.
         run: |
           {
             echo "## Terraform PR Plan"
@@ -121,5 +205,6 @@ jobs:
             echo "- validate: passed"
             echo "- tflint: passed"
             echo "- checkov: passed"
+            echo "- terraform parallelism: ${TF_PARALLELISM}"
             echo "- plan artifact: uploaded"
           } >> "$GITHUB_STEP_SUMMARY"
