@@ -1,9 +1,11 @@
 name: terraform-drift
 
+# CI compares Terraform state in S3 with real AWS resources and the code from main.
+# If `terraform plan` sees changes, we treat that as drift/change awareness signal.
 on:
   # Scheduled drift check against deployed reality and the main branch code.
-  schedule:
-    - cron: '0 6 * * *'
+  #schedule:
+    #- cron: '0 6 * * *'
   # Manual run is useful while learning and during incident triage.
   workflow_dispatch: {}
 
@@ -18,6 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  # Terraform code root for the lab; commands below run from this directory by default.
   TF_ROOT: lessons/64-drift-detection-and-change-awareness/lab_64/terraform
   TF_IN_AUTOMATION: true
   TF_INPUT: false
@@ -36,7 +39,26 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
         with:
+          # Drift is checked against the deployed baseline branch, not a feature branch.
           ref: main
+
+      - name: Capture drift run metadata
+        id: drift_metadata
+        run: |
+          # Keep audit context with the plan: which Actions run produced it and
+          # which exact main commit was used as the desired Terraform code.
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          main_commit_sha="$(git rev-parse HEAD)"
+
+          {
+            echo "run_url=${run_url}"
+            echo "main_commit_sha=${main_commit_sha}"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "workflow_run_url=${run_url}"
+            echo "main_commit_sha=${main_commit_sha}"
+          } > envs/drift-metadata.txt
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -44,17 +66,40 @@ jobs:
           terraform_version: '1.14.0'
           terraform_wrapper: false
 
+      - name: Check required repo variables
+        # Fail with a clear message before trying to assume AWS credentials or open remote state.
+        run: |
+          missing=0
+
+          if [ -z "${TF_PLAN_ROLE_ARN}" ]; then
+            echo "Missing required repository variable: TF_PLAN_ROLE_ARN"
+            missing=1
+          fi
+
+          if [ -z "${TF_STATE_BUCKET}" ]; then
+            echo "Missing required repository variable: TF_STATE_BUCKET"
+            missing=1
+          fi
+
+          exit "$missing"
+        env:
+          TF_PLAN_ROLE_ARN: ${{ vars.TF_PLAN_ROLE_ARN }}
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
+          # This role should have read/plan-level permissions, not apply permissions.
           role-to-assume: ${{ vars.TF_PLAN_ROLE_ARN }}
           role-session-name: gha-terraform-drift
 
       - name: Terraform fmt
+        # Static check before touching remote state or AWS APIs.
         run: terraform fmt -check -recursive
 
       - name: Terraform init (no backend)
+        # Validate module syntax without requiring S3 backend access yet.
         run: terraform -chdir=envs init -backend=false -input=false -no-color
 
       - name: Terraform validate
@@ -63,7 +108,8 @@ jobs:
       - name: Write backend.hcl
         working-directory: ${{ env.TF_ROOT }}/envs
         run: |
-          # CI writes backend config from repo variables and never migrates state.
+          # CI writes backend config from repo variables so secrets/state settings
+          # are not hardcoded in the repo. `-reconfigure` below never migrates state.
           cat > backend.hcl <<EOF2
           bucket       = "${{ vars.TF_STATE_BUCKET }}"
           key          = "lab64/dev/full/terraform.tfstate"
@@ -73,12 +119,17 @@ jobs:
           EOF2
 
       - name: Terraform init (remote backend)
+        # Re-open Terraform with the real remote state; this is the source of truth
+        # for comparing desired code with deployed infrastructure.
         run: terraform -chdir=envs init -reconfigure -backend-config=backend.hcl -input=false -no-color
 
       - name: Terraform plan (detect drift)
         id: drift_plan
         working-directory: ${{ env.TF_ROOT }}/envs
         run: |
+          # detailed-exitcode contract:
+          # 0 = no changes, 2 = changes detected, 1 = command/pipeline error.
+          # The step exits 0 here so artifacts and summary are uploaded first.
           set +e
           terraform plan -detailed-exitcode -input=false -no-color -out=tfplan > plan.txt 2>&1
           ec=$?
@@ -97,6 +148,7 @@ jobs:
       - name: Terraform show
         working-directory: ${{ env.TF_ROOT }}/envs
         run: |
+          # Human-readable plan output for artifact review after the run.
           if [ -f tfplan ]; then
             terraform show -no-color tfplan > tfplan.txt
           else
@@ -107,28 +159,35 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: terraform-drift
+          retention-days: 7
           path: |
             ${{ env.TF_ROOT }}/envs/plan.txt
             ${{ env.TF_ROOT }}/envs/tfplan.txt
             ${{ env.TF_ROOT }}/envs/decision.txt
+            ${{ env.TF_ROOT }}/envs/drift-metadata.txt
 
       - name: Job summary
         working-directory: ${{ env.TF_ROOT }}/envs
         run: |
+          # Short summary in the GitHub Actions UI; full details live in artifacts.
           {
             echo "## Terraform Drift Detection"
             echo
             echo "- decision: $(cat decision.txt)"
+            echo "- workflow run: ${{ steps.drift_metadata.outputs.run_url }}"
+            echo "- main commit SHA: ${{ steps.drift_metadata.outputs.main_commit_sha }}"
             echo "- artifact: terraform-drift"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fail on drift
+        # Mark the workflow red only after preserving artifacts and metadata.
         if: steps.drift_plan.outputs.exitcode == '2'
         run: |
           echo "Drift detected. See terraform-drift artifact."
           exit 2
 
       - name: Fail on pipeline error
+        # Separate infrastructure drift from CI/Terraform execution failures.
         if: steps.drift_plan.outputs.exitcode == '1'
         run: |
           echo "Pipeline error during drift check."
