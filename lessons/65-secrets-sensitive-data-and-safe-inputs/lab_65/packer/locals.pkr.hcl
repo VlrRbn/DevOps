@@ -9,6 +9,6 @@ locals {
 
   common_tags = {
     Project = "DevOps"
-    Lesson  = "64"
+    Lesson  = "65-secrets-sensitive-data-and-safe-inputs"
   }
 }

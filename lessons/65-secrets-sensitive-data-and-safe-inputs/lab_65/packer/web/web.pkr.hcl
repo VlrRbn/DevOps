@@ -1,6 +1,6 @@
 variable "ami_name_prefix" {
   type    = string
-  default = "lab64-web"
+  default = "lab65-web"
 }
 
 source "amazon-ebs" "web" {
@@ -58,7 +58,7 @@ build {
   }
 
   provisioner "shell" {
-    script          = "scripts/disable-nginx.sh"
+    script = "scripts/disable-nginx.sh"
     # Pass BUILD_ID so disable-nginx can run only for intentionally bad builds.
     execute_command = "sudo -n BUILD_ID='${var.build_id}' bash '{{.Path}}'"
   }

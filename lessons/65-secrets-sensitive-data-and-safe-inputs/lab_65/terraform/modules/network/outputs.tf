@@ -73,3 +73,13 @@ output "tf_plan_role_arn" {
   description = "IAM role ARN for GitHub Actions OIDC Terraform plan workflow"
   value       = aws_iam_role.github_actions_role.arn
 }
+
+output "demo_api_token_parameter_name" {
+  description = "SSM parameter name for lesson 65. This exposes only metadata."
+  value       = var.demo_api_token_parameter_name
+}
+
+output "demo_app_secret_name" {
+  description = "Secrets Manager secret name for lesson 65. This exposes only metadata."
+  value       = var.demo_app_secret_name
+}

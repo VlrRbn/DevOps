@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "project_name" {
   type        = string
   description = "Project prefix for resource names"
-  default     = "lab64"
+  default     = "lab65"
 }
 
 variable "environment" {
@@ -167,5 +167,17 @@ variable "tf_state_bucket_name" {
 variable "tf_state_key" {
   description = "Remote state object key used by the Terraform CI plan role"
   type        = string
-  default     = "lab64/dev/full/terraform.tfstate"
+  default     = "lab65/dev/full/terraform.tfstate"
+}
+
+variable "demo_api_token_parameter_name" {
+  type        = string
+  description = "SSM SecureString name that the EC2 runtime role may read. Terraform should not read its plaintext value."
+  default     = "/devops/lab65/demo/api-token"
+}
+
+variable "demo_app_secret_name" {
+  type        = string
+  description = "Secrets Manager secret name that the EC2 runtime role may read. Terraform references metadata only."
+  default     = "/devops/lab65/demo/app-secret"
 }

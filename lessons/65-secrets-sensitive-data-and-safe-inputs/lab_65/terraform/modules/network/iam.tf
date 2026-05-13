@@ -26,6 +26,44 @@ resource "aws_iam_instance_profile" "ec2_ssm_instance_profile" {
   role = aws_iam_role.ec2_ssm_role.name
 }
 
+data "aws_caller_identity" "current" {}
+
+data "aws_iam_policy_document" "runtime_secret_read" {
+  statement {
+    sid    = "ReadLesson65SecureString"
+    effect = "Allow"
+
+    actions = [
+      "ssm:GetParameter"
+    ]
+
+    # The role gets access to a named parameter, but Terraform never reads the plaintext SecureString.
+    resources = [
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter${var.demo_api_token_parameter_name}"
+    ]
+  }
+
+  statement {
+    sid    = "ReadLesson65Secret"
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:GetSecretValue"
+    ]
+
+    # Secrets Manager ARNs include a random suffix, so the IAM resource uses the secret name prefix.
+    resources = [
+      "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:${var.demo_app_secret_name}*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "runtime_secret_read" {
+  name   = "${var.project_name}-runtime-secret-read"
+  role   = aws_iam_role.ec2_ssm_role.id
+  policy = data.aws_iam_policy_document.runtime_secret_read.json
+}
+
 # ***** IAM for GitHub Actions OIDC *****
 
 resource "aws_iam_openid_connect_provider" "github_actions" {

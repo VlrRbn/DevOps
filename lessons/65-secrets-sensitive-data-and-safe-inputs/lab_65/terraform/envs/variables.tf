@@ -103,5 +103,17 @@ variable "tf_state_bucket_name" {
 
 variable "tf_state_key" {
   type    = string
-  default = "lab64/dev/full/terraform.tfstate"
+  default = "lab65/dev/full/terraform.tfstate"
+}
+
+variable "demo_api_token_parameter_name" {
+  type        = string
+  description = "SSM SecureString name used by the runtime secret-access drill."
+  default     = "/devops/lab65/demo/api-token"
+}
+
+variable "demo_app_secret_name" {
+  type        = string
+  description = "Secrets Manager secret name used by the metadata-only drill."
+  default     = "/devops/lab65/demo/app-secret"
 }

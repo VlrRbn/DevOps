@@ -9,13 +9,13 @@ Build commands:
 
 ```bash
 cd web
-packer build -var 'build_id=64-01' .
-packer build -var 'build_id=64-02' .
-packer build -var 'build_id=64-bad' .
+packer build -var 'build_id=65-01' .
+packer build -var 'build_id=65-02' .
+packer build -var 'build_id=65-bad' .
 ```
 
 ```bash
 cd ../ssm_proxy
-packer build -var 'build_id=64-proxy' .
-packer build -var 'build_id=64-wrk' .
+packer build -var 'build_id=65-proxy' .
+packer build -var 'build_id=65-wrk' .
 ```

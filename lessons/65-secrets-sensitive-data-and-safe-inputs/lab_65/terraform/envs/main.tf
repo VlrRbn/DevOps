@@ -34,4 +34,6 @@ module "network" {
   github_branch                  = var.github_branch
   tf_state_bucket_name           = var.tf_state_bucket_name
   tf_state_key                   = var.tf_state_key
+  demo_api_token_parameter_name  = var.demo_api_token_parameter_name
+  demo_app_secret_name           = var.demo_app_secret_name
 }
