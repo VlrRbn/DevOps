@@ -1,6 +1,6 @@
 # ***** Security Groups (stateful L4) *****
 
-# SG for SSM interface endpoints; allow HTTPS from proxy (and optional web).
+# SG for private interface endpoints; allow HTTPS from proxy (and optional web).
 resource "aws_security_group" "ssm_endpoint" {
   name        = "${var.project_name}-ssm_endpoint_sg"
   description = "Allow HTTPS to SSM Interface Endpoints"
@@ -54,7 +54,7 @@ resource "aws_security_group" "ssm_proxy" {
     cidr_blocks = ["${cidrhost(var.vpc_cidr, 2)}/32"]
   }
 
-  # HTTPS to private SSM interface endpoint ENIs within VPC CIDR.
+  # HTTPS to private interface endpoint ENIs.
   dynamic "egress" {
     for_each = var.enable_ssm_vpc_endpoints ? [1] : []
     content {
@@ -123,7 +123,7 @@ resource "aws_security_group_rule" "alb_http_from_ssm_proxy" {
 
 }
 
-# Allow HTTPS from SSM proxy to SSM interface endpoints SG.
+# Allow HTTPS from SSM proxy to private interface endpoints SG.
 resource "aws_security_group_rule" "ssm_endpoint_https_from_proxy" {
   count                    = var.enable_ssm_vpc_endpoints ? 1 : 0
   type                     = "ingress"
@@ -135,7 +135,7 @@ resource "aws_security_group_rule" "ssm_endpoint_https_from_proxy" {
   source_security_group_id = aws_security_group.ssm_proxy.id
 }
 
-# Optional: allow HTTPS from web SG to SSM endpoints when web SSM is enabled.
+# Optional: allow HTTPS from web SG to private interface endpoints when web SSM is enabled.
 resource "aws_security_group_rule" "ssm_endpoint_https_from_web" {
   count                    = var.enable_ssm_vpc_endpoints && var.enable_web_ssm ? 1 : 0
   type                     = "ingress"

@@ -57,9 +57,9 @@ resource "aws_security_group" "db" {
 }
 */
 
-# SSM interface endpoints in private subnets.
+# Private interface endpoints used by Session Manager and runtime secret reads.
 resource "aws_vpc_endpoint" "ssm" {
-  for_each          = local.ssm_services
+  for_each          = local.private_endpoint_services
   vpc_id            = aws_vpc.main.id
   service_name      = "com.amazonaws.${var.aws_region}.${each.key}"
   vpc_endpoint_type = "Interface"

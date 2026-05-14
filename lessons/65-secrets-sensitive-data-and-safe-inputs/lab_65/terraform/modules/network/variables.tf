@@ -54,13 +54,13 @@ variable "instance_type_web" {
 
 variable "enable_ssm_vpc_endpoints" {
   type        = bool
-  description = "Create SSM interface VPC endpoints (ssm, ssmmessages, ec2messages)."
+  description = "Create private interface VPC endpoints for Session Manager and runtime secret reads."
   default     = true
 }
 
 variable "enable_web_ssm" {
   type        = bool
-  description = "If true, web instances can reach SSM VPC endpoints (debug). If false, only ssm-proxy is allowed."
+  description = "If true, web instances can reach private interface endpoints (debug). If false, only ssm-proxy is allowed."
   default     = false
 }
 

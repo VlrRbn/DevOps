@@ -77,7 +77,6 @@ resource "aws_autoscaling_group" "web" {
         ]
       }
     }
-    triggers = ["launch_template"]
   }
 
   tag {

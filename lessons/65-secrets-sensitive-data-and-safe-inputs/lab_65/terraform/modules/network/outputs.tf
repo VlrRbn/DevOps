@@ -65,7 +65,7 @@ output "web_tg_arn" {
 }
 
 output "ssm_vpc_endpoint_ids" {
-  description = "SSM VPC endpoint IDs keyed by service (empty if disabled)"
+  description = "Private interface VPC endpoint IDs keyed by service (empty if disabled)"
   value       = { for k, ep in aws_vpc_endpoint.ssm : k => ep.id }
 }
 
