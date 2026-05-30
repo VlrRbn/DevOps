@@ -1,6 +1,6 @@
 variable "ssm_ami_name_prefix" {
   type    = string
-  default = "lab65-ssm-proxy"
+  default = "lab66-ssm-proxy"
 }
 
 source "amazon-ebs" "ssm_proxy" {

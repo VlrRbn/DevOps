@@ -79,6 +79,16 @@ resource "aws_autoscaling_group" "web" {
     }
   }
 
+  dynamic "tag" {
+    for_each = local.tags
+
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
+  }
+
   tag {
     key                 = "Role"
     value               = "web"
@@ -93,5 +103,15 @@ resource "aws_autoscaling_group" "web" {
 
   lifecycle {
     create_before_destroy = true
+
+    precondition {
+      condition     = length(local.private_subnet_ids) >= 2
+      error_message = "ASG requires at least two private subnets for this lab design."
+    }
+
+    precondition {
+      condition     = var.web_min_size <= var.web_desired_capacity && var.web_desired_capacity <= var.web_max_size
+      error_message = "ASG capacity contract requires web_min_size <= web_desired_capacity <= web_max_size."
+    }
   }
 }

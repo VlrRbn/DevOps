@@ -1,0 +1,271 @@
+name: lesson66-contract-tests
+
+on:
+  pull_request:
+    paths:
+      - 'lessons/66-module-contracts-and-interface-guarantees/**'
+      - '.github/workflows/lesson66-contract-tests.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'lessons/66-module-contracts-and-interface-guarantees/**'
+      - '.github/workflows/lesson66-contract-tests.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lesson66-contract-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_ROOT: lessons/66-module-contracts-and-interface-guarantees/lab_66/terraform
+  TF_ENV: lessons/66-module-contracts-and-interface-guarantees/lab_66/terraform/envs
+  TERRAFORM_VERSION: '1.14.0'
+  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform-plugin-cache
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+  AWS_EC2_METADATA_DISABLED: true
+
+jobs:
+  contract-tests:
+    name: Terraform contract tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Prepare Terraform plugin cache
+        # Terraform does not create TF_PLUGIN_CACHE_DIR automatically.
+        run: mkdir -p "$TF_PLUGIN_CACHE_DIR"
+
+      - name: Cache Terraform providers
+        # This keeps the static contract job fast without changing test behavior.
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: lesson66-terraform-plugin-cache-${{ runner.os }}-${{ env.TERRAFORM_VERSION }}-${{ hashFiles('lessons/66-module-contracts-and-interface-guarantees/lab_66/terraform/**/*.tf') }}
+          restore-keys: |
+            lesson66-terraform-plugin-cache-${{ runner.os }}-${{ env.TERRAFORM_VERSION }}-
+
+      - name: Terraform fmt
+        # Formatting is part of the public module contract.
+        working-directory: ${{ env.TF_ROOT }}
+        run: terraform fmt -check -diff -recursive
+
+      - name: Terraform init without backend
+        # Contract tests must not require AWS credentials or remote state.
+        working-directory: ${{ env.TF_ENV }}
+        run: |
+          rm -rf .terraform
+          terraform init -backend=false -input=false -no-color
+
+      - name: Terraform validate
+        # Static schema validation only; no cloud read/write should happen here.
+        working-directory: ${{ env.TF_ENV }}
+        run: terraform validate -no-color
+
+      - name: Build backend-less contract test root
+        # terraform plan needs an initialized backend when the root has backend "s3" {}.
+        # The negative drills only test the module interface, so CI uses a temporary root
+        # with no backend and the same module inputs.
+        run: |
+          CONTRACT_ROOT="${RUNNER_TEMP}/lesson66-contract-root"
+          rm -rf "$CONTRACT_ROOT"
+          mkdir -p "$CONTRACT_ROOT"
+
+          cp "${TF_ENV}/variables.tf" "${CONTRACT_ROOT}/variables.tf"
+          cp "${TF_ENV}/.terraform.lock.hcl" "${CONTRACT_ROOT}/.terraform.lock.hcl"
+
+          cat > "${CONTRACT_ROOT}/versions.tf" <<'EOF'
+          terraform {
+            required_version = "~> 1.14.0"
+
+            required_providers {
+              aws = {
+                source  = "hashicorp/aws"
+                version = "~> 6.0"
+              }
+            }
+          }
+          EOF
+
+          cat > "${CONTRACT_ROOT}/main.tf" <<EOF
+          provider "aws" {
+            region = var.aws_region
+
+            access_key                  = "contract-test"
+            secret_key                  = "contract-test"
+            skip_credentials_validation = true
+            skip_metadata_api_check     = true
+            skip_requesting_account_id  = true
+          }
+
+          module "network" {
+            source = "${GITHUB_WORKSPACE}/${TF_ROOT}/modules/network"
+
+            aws_region                     = var.aws_region
+            project_name                   = var.project_name
+            environment                    = var.environment
+            vpc_cidr                       = var.vpc_cidr
+            public_subnet_cidrs            = var.public_subnet_cidrs
+            private_subnet_cidrs           = var.private_subnet_cidrs
+            instance_type_web              = var.instance_type_web
+            common_tags                    = var.common_tags
+            enable_ssm_vpc_endpoints       = var.enable_ssm_vpc_endpoints
+            enable_web_ssm                 = var.enable_web_ssm
+            web_ami_id                     = var.web_ami_id
+            ssm_proxy_ami_id               = var.ssm_proxy_ami_id
+            web_min_size                   = var.web_min_size
+            web_max_size                   = var.web_max_size
+            web_desired_capacity           = var.web_desired_capacity
+            asg_min_healthy_percentage     = var.asg_min_healthy_percentage
+            asg_instance_warmup_seconds    = var.asg_instance_warmup_seconds
+            asg_checkpoint_delay_seconds   = var.asg_checkpoint_delay_seconds
+            tg_slow_start_seconds          = var.tg_slow_start_seconds
+            health_check_healthy_threshold = var.health_check_healthy_threshold
+            github_owner                   = var.github_owner
+            github_repo                    = var.github_repo
+            github_branch                  = var.github_branch
+            tf_state_bucket_name           = var.tf_state_bucket_name
+            tf_state_key                   = var.tf_state_key
+            demo_api_token_parameter_name  = var.demo_api_token_parameter_name
+            demo_app_secret_name           = var.demo_app_secret_name
+          }
+          EOF
+
+          terraform -chdir="$CONTRACT_ROOT" fmt -check -diff
+          terraform -chdir="$CONTRACT_ROOT" init -backend=false -input=false -no-color
+          terraform -chdir="$CONTRACT_ROOT" validate -no-color
+
+          echo "CONTRACT_ROOT=${CONTRACT_ROOT}" >> "$GITHUB_ENV"
+
+      - name: Negative input contract tests
+        # Each plan must fail before AWS provider calls because the module rejects bad input.
+        env:
+          CONTRACT_TEST_OUTPUT_DIR: ${{ runner.temp }}/lesson66-contract-tests
+        run: |
+          mkdir -p "$CONTRACT_TEST_OUTPUT_DIR"
+
+          cat > "${CONTRACT_ROOT}/ci.auto.tfvars" <<'EOF'
+          aws_region                   = "eu-west-1"
+          project_name                 = "lab66"
+          environment                  = "ci"
+          vpc_cidr                     = "10.30.0.0/16"
+          public_subnet_cidrs          = ["10.30.1.0/24", "10.30.2.0/24"]
+          private_subnet_cidrs         = ["10.30.11.0/24", "10.30.12.0/24"]
+          instance_type_web            = "t3.micro"
+          enable_ssm_vpc_endpoints     = true
+          enable_web_ssm               = true
+          web_ami_id                   = "ami-0123456789abcdef0"
+          ssm_proxy_ami_id             = "ami-0123456789abcdef0"
+          github_owner                 = "example-owner"
+          github_repo                  = "example-repo"
+          tf_state_bucket_name         = "example-tfstate-bucket-123456"
+          tf_state_key                 = "lab66/dev/full/terraform.tfstate"
+          demo_api_token_parameter_name = "/devops/lab66/demo/api-token"
+          demo_app_secret_name          = "/devops/lab66/demo/app-secret"
+          common_tags = {
+            Owner = "ContractCI"
+          }
+          EOF
+
+          expect_plan_failure() {
+            local name="$1"
+            local expected="$2"
+            local outfile="${CONTRACT_TEST_OUTPUT_DIR}/${name}.txt"
+
+            cat > "${CONTRACT_ROOT}/contract-drill.auto.tfvars"
+
+            set +e
+            terraform -chdir="$CONTRACT_ROOT" plan -refresh=false -lock=false -input=false -no-color > "$outfile" 2>&1
+            local ec="$?"
+            set -e
+
+            cat "$outfile"
+            rm -f "${CONTRACT_ROOT}/contract-drill.auto.tfvars"
+
+            if [ "$ec" -eq 0 ]; then
+              echo "Expected ${name} to fail, but terraform plan succeeded."
+              exit 1
+            fi
+
+            if ! grep -Fq "$expected" "$outfile"; then
+              echo "Expected message was not found for ${name}: ${expected}"
+              exit 1
+            fi
+          }
+
+          expect_plan_failure "bad-project-name-plan" "project_name must be lowercase kebab-style" <<'EOF'
+          project_name = "Lab_66"
+          EOF
+
+          expect_plan_failure "one-subnet-plan" "At least two private subnet CIDRs are required" <<'EOF'
+          private_subnet_cidrs = ["10.30.11.0/24"]
+          EOF
+
+          expect_plan_failure "too-many-subnets-plan" "private_subnet_cidrs must contain at most six CIDRs" <<'EOF'
+          private_subnet_cidrs = [
+            "10.30.11.0/24",
+            "10.30.12.0/24",
+            "10.30.13.0/24",
+            "10.30.14.0/24",
+            "10.30.15.0/24",
+            "10.30.16.0/24",
+            "10.30.17.0/24",
+          ]
+          EOF
+
+          expect_plan_failure "bad-ami-id-plan" "web_ami_id must look like an AWS AMI ID" <<'EOF'
+          web_ami_id = "ubuntu-latest"
+          EOF
+
+          expect_plan_failure "empty-tag-plan" "common_tags must not contain empty keys or empty values" <<'EOF'
+          common_tags = {
+            Owner = ""
+          }
+          EOF
+
+          expect_plan_failure "reserved-tag-plan" "common_tags must not set reserved keys" <<'EOF'
+          common_tags = {
+            Project = "override"
+          }
+          EOF
+
+          rm -f "${CONTRACT_ROOT}/ci.auto.tfvars" "${CONTRACT_ROOT}/contract-drill.auto.tfvars"
+
+      - name: Upload contract-test artifacts
+        # Artifacts are short-lived diagnostics, not long-term proof records.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lesson66-contract-tests
+          retention-days: 7
+          path: ${{ runner.temp }}/lesson66-contract-tests/*.txt
+          if-no-files-found: ignore
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Lesson 66 Contract Tests"
+            echo
+            echo "- terraform fmt: checked"
+            echo "- terraform init: backend disabled"
+            echo "- terraform validate: checked"
+            echo "- negative input drills: checked"
+            echo "- AWS credentials: not required"
+          } >> "$GITHUB_STEP_SUMMARY"

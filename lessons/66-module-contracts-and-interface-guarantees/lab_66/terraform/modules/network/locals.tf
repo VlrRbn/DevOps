@@ -31,8 +31,13 @@ locals {
     "sts",
   ]) : toset([])
 
-  tags = {
+  required_tags = {
     Project     = var.project_name
     Environment = var.environment
+    ManagedBy   = "Terraform"
+    Lesson      = "66"
   }
+
+  # Required tags come last so callers can add metadata but cannot override governance tags.
+  tags = merge(var.common_tags, local.required_tags)
 }

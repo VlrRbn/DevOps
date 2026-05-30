@@ -14,7 +14,7 @@ output "private_subnet_ids" {
 }
 
 output "security_groups" {
-  description = "Security group IDs for web, db, ssm endpoints/proxy, and alb"
+  description = "Security group IDs for web, ssm endpoints/proxy, and alb"
   value       = module.network.security_groups
 }
 
@@ -69,11 +69,11 @@ output "tf_plan_role_arn" {
 }
 
 output "demo_api_token_parameter_name" {
-  description = "SSM parameter name for lesson 65. This is metadata, not the secret value."
+  description = "SSM parameter name for lesson 66. This is metadata, not the secret value."
   value       = module.network.demo_api_token_parameter_name
 }
 
 output "demo_app_secret_name" {
-  description = "Secrets Manager secret name for lesson 65. This is metadata, not the secret value."
+  description = "Secrets Manager secret name for lesson 66. This is metadata, not the secret value."
   value       = module.network.demo_app_secret_name
 }

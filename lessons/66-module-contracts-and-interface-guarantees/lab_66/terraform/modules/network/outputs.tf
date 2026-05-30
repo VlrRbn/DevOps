@@ -14,7 +14,7 @@ output "private_subnet_ids" {
 }
 
 output "security_groups" {
-  description = "Security group IDs for web, db, ssm endpoints/proxy, and alb"
+  description = "Security group IDs for web, ssm endpoints/proxy, and alb"
   value = {
     web_sg = aws_security_group.web.id
     #   db_sg           = aws_security_group.db.id
@@ -52,6 +52,11 @@ output "ssm_proxy_private_ip" {
 output "alb_dns_name" {
   description = "DNS name of the internal ALB (reach via SSM port forwarding)"
   value       = aws_lb.app.dns_name
+
+  precondition {
+    condition     = aws_lb.app.dns_name != ""
+    error_message = "alb_dns_name output contract requires a non-empty ALB DNS name."
+  }
 }
 
 output "alb_arn" {
@@ -62,6 +67,11 @@ output "alb_arn" {
 output "web_tg_arn" {
   description = "ARN of the web target group"
   value       = aws_lb_target_group.web.arn
+
+  precondition {
+    condition     = startswith(aws_lb_target_group.web.arn, "arn:")
+    error_message = "web_tg_arn output contract requires a valid ARN-shaped value."
+  }
 }
 
 output "ssm_vpc_endpoint_ids" {
@@ -75,11 +85,11 @@ output "tf_plan_role_arn" {
 }
 
 output "demo_api_token_parameter_name" {
-  description = "SSM parameter name for lesson 65. This exposes only metadata."
+  description = "SSM parameter name for lesson 66. This exposes only metadata."
   value       = var.demo_api_token_parameter_name
 }
 
 output "demo_app_secret_name" {
-  description = "Secrets Manager secret name for lesson 65. This exposes only metadata."
+  description = "Secrets Manager secret name for lesson 66. This exposes only metadata."
   value       = var.demo_app_secret_name
 }

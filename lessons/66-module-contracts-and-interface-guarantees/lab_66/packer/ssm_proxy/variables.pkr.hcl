@@ -14,7 +14,7 @@ variable "instance_type" {
 }
 
 variable "build_id" {
-  # Example values: 65-proxy, 65-wrk.
+  # Example values: 66-proxy, 66-wrk.
   type    = string
-  default = "65-proxy"
+  default = "66-proxy"
 }
