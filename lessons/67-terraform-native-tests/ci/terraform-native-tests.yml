@@ -1,16 +1,16 @@
+# Copy this template to .github/workflows/lesson67-terraform-native-tests.yml.
+# In this repo, the active workflow already exists at that path.
 name: lesson67-terraform-native-tests
 
 on:
   pull_request:
     paths:
       - 'lessons/67-terraform-native-tests/**'
-      - '.github/workflows/lesson67-terraform-native-tests.yml'
   push:
     branches:
       - main
     paths:
       - 'lessons/67-terraform-native-tests/**'
-      - '.github/workflows/lesson67-terraform-native-tests.yml'
   workflow_dispatch: {}
 
 permissions:
