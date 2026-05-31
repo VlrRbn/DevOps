@@ -1,6 +1,6 @@
 # Network Module Contract
 
-This module owns the lesson lab_66 network and application runtime surface.
+This module owns the lesson lab_67 network and application runtime surface.
 
 ## Input Contract
 
@@ -72,3 +72,31 @@ Breaking changes require a note in the lesson or PR:
 - adding a new output
 - tightening documentation without changing behavior
 - adding validation that rejects values the module never safely supported
+
+## Native Contract Tests
+
+Native tests live in `tests/` and can be run from this module directory:
+
+```bash
+terraform init -backend=false
+terraform test -test-directory=tests -no-color
+```
+
+The tests use `mock_provider "aws"` so they validate the module contract without creating real AWS resources.
+
+Current coverage:
+
+- valid contract inputs reach plan
+- invalid `project_name` fails
+- invalid `web_ami_id` fails
+- single private subnet fails
+- too many private subnets fail
+- duplicate private subnet CIDRs fail
+- malformed private subnet CIDR fails
+- invalid `ssm_proxy_ami_id` fails
+- empty tag value fails
+- reserved governance tag override fails
+- invalid health check threshold fails
+- absolute `tf_state_key` fails
+- stable output contract remains available
+- `ssm_vpc_endpoint_ids` remains a map keyed by service

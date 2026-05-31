@@ -69,11 +69,11 @@ output "tf_plan_role_arn" {
 }
 
 output "demo_api_token_parameter_name" {
-  description = "SSM parameter name for lesson 66. This is metadata, not the secret value."
+  description = "SSM parameter name for lesson 67. This is metadata, not the secret value."
   value       = module.network.demo_api_token_parameter_name
 }
 
 output "demo_app_secret_name" {
-  description = "Secrets Manager secret name for lesson 66. This is metadata, not the secret value."
+  description = "Secrets Manager secret name for lesson 67. This is metadata, not the secret value."
   value       = module.network.demo_app_secret_name
 }

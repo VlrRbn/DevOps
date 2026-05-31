@@ -1,5 +1,5 @@
 aws_region   = "eu-west-1"
-project_name = "lab66"
+project_name = "lab67"
 environment  = "full"
 
 vpc_cidr             = "10.30.0.0/16"
@@ -30,9 +30,9 @@ github_repo  = "REPLACE_WITH_GITHUB_REPO"
 github_branch = "main"
 
 tf_state_bucket_name = "REPLACE_WITH_TFSTATE_BUCKET"
-tf_state_key         = "lab66/dev/full/terraform.tfstate"
+tf_state_key         = "lab67/dev/full/terraform.tfstate"
 
 # Names are safe to commit. Secret values are created outside Terraform with AWS CLI and are not committed.
 # Terraform grants runtime IAM access to these names; it does not create/read the plaintext values.
-demo_api_token_parameter_name = "/devops/lab66/demo/api-token"
-demo_app_secret_name          = "/devops/lab66/demo/app-secret"
+demo_api_token_parameter_name = "/devops/lab67/demo/api-token"
+demo_app_secret_name          = "/devops/lab67/demo/app-secret"

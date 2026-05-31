@@ -30,7 +30,7 @@ data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "runtime_secret_read" {
   statement {
-    sid    = "ReadLesson66SecureString"
+    sid    = "ReadLesson67SecureString"
     effect = "Allow"
 
     actions = [
@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "runtime_secret_read" {
   }
 
   statement {
-    sid    = "ReadLesson66Secret"
+    sid    = "ReadLesson67Secret"
     effect = "Allow"
 
     actions = [

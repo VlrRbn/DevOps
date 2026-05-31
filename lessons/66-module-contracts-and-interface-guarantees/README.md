@@ -1,6 +1,6 @@
 # Lesson 66 - Module Contracts & Interface Guarantees
 
-This lesson turns Terraform lab_65 into a contract-driven module.
+This lesson turns Terraform lab_66 into a contract-driven module.
 
 The goal is not to add more infrastructure. The goal is to make the module safer to consume by defining what inputs are accepted, what outputs are stable, and which changes are breaking.
 
