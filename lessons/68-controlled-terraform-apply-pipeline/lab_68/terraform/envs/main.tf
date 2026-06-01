@@ -33,6 +33,7 @@ module "network" {
   github_owner                   = var.github_owner
   github_repo                    = var.github_repo
   github_branch                  = var.github_branch
+  github_apply_environment       = var.github_apply_environment
   tf_state_bucket_name           = var.tf_state_bucket_name
   tf_state_key                   = var.tf_state_key
   demo_api_token_parameter_name  = var.demo_api_token_parameter_name

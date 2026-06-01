@@ -42,9 +42,9 @@ variables {
   aws_region           = "eu-west-1"
   project_name         = "lab68"
   environment          = "test"
-  vpc_cidr             = "10.67.0.0/16"
-  public_subnet_cidrs  = ["10.67.1.0/24", "10.67.2.0/24"]
-  private_subnet_cidrs = ["10.67.11.0/24", "10.67.12.0/24"]
+  vpc_cidr             = "10.68.0.0/16"
+  public_subnet_cidrs  = ["10.68.1.0/24", "10.68.2.0/24"]
+  private_subnet_cidrs = ["10.68.11.0/24", "10.68.12.0/24"]
   web_ami_id           = "ami-0123456789abcdef0"
   ssm_proxy_ami_id     = "ami-0123456789abcdef0"
   github_owner         = "VlrRbn"
@@ -75,5 +75,10 @@ run "stable_output_contract" {
   assert {
     condition     = can(output.ssm_vpc_endpoint_ids["ssm"]) && can(output.ssm_vpc_endpoint_ids["secretsmanager"])
     error_message = "ssm_vpc_endpoint_ids must stay a map keyed by AWS service name."
+  }
+
+  assert {
+    condition     = can(output.tf_apply_role_arn)
+    error_message = "tf_apply_role_arn must stay available for the controlled apply workflow setup."
   }
 }

@@ -273,6 +273,17 @@ variable "github_branch" {
   }
 }
 
+variable "github_apply_environment" {
+  description = "GitHub Environment name allowed to assume the Terraform apply role"
+  type        = string
+  default     = "terraform-dev"
+
+  validation {
+    condition     = length(trimspace(var.github_apply_environment)) > 0
+    error_message = "github_apply_environment must not be empty."
+  }
+}
+
 variable "tf_state_bucket_name" {
   description = "Remote state S3 bucket used by the Terraform CI plan role"
   type        = string

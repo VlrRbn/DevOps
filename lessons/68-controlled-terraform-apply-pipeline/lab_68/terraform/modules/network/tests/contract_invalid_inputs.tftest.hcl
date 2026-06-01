@@ -22,9 +22,9 @@ variables {
   aws_region           = "eu-west-1"
   project_name         = "lab68"
   environment          = "test"
-  vpc_cidr             = "10.67.0.0/16"
-  public_subnet_cidrs  = ["10.67.1.0/24", "10.67.2.0/24"]
-  private_subnet_cidrs = ["10.67.11.0/24", "10.67.12.0/24"]
+  vpc_cidr             = "10.68.0.0/16"
+  public_subnet_cidrs  = ["10.68.1.0/24", "10.68.2.0/24"]
+  private_subnet_cidrs = ["10.68.11.0/24", "10.68.12.0/24"]
   web_ami_id           = "ami-0123456789abcdef0"
   ssm_proxy_ami_id     = "ami-0123456789abcdef0"
   github_owner         = "VlrRbn"
@@ -61,7 +61,7 @@ run "single_private_subnet_fails" {
   command = plan
 
   variables {
-    private_subnet_cidrs = ["10.67.11.0/24"]
+    private_subnet_cidrs = ["10.68.11.0/24"]
   }
 
   expect_failures = [
@@ -74,13 +74,13 @@ run "too_many_private_subnets_fails" {
 
   variables {
     private_subnet_cidrs = [
-      "10.67.11.0/24",
-      "10.67.12.0/24",
-      "10.67.13.0/24",
-      "10.67.14.0/24",
-      "10.67.15.0/24",
-      "10.67.16.0/24",
-      "10.67.17.0/24",
+      "10.68.11.0/24",
+      "10.68.12.0/24",
+      "10.68.13.0/24",
+      "10.68.14.0/24",
+      "10.68.15.0/24",
+      "10.68.16.0/24",
+      "10.68.17.0/24",
     ]
   }
 
@@ -93,7 +93,7 @@ run "duplicate_private_subnets_fail" {
   command = plan
 
   variables {
-    private_subnet_cidrs = ["10.67.11.0/24", "10.67.11.0/24"]
+    private_subnet_cidrs = ["10.68.11.0/24", "10.68.11.0/24"]
   }
 
   expect_failures = [
@@ -105,7 +105,7 @@ run "bad_private_subnet_cidr_fails" {
   command = plan
 
   variables {
-    private_subnet_cidrs = ["10.67.11.0/24", "not-a-cidr"]
+    private_subnet_cidrs = ["10.68.11.0/24", "not-a-cidr"]
   }
 
   expect_failures = [

@@ -28,6 +28,7 @@ common_tags = {
 github_owner = "REPLACE_WITH_GITHUB_OWNER"
 github_repo  = "REPLACE_WITH_GITHUB_REPO"
 github_branch = "main"
+github_apply_environment = "terraform-dev"
 
 tf_state_bucket_name = "REPLACE_WITH_TFSTATE_BUCKET"
 tf_state_key         = "lab68/dev/full/terraform.tfstate"

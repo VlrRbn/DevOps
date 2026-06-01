@@ -68,6 +68,11 @@ output "tf_plan_role_arn" {
   value       = module.network.tf_plan_role_arn
 }
 
+output "tf_apply_role_arn" {
+  description = "IAM role ARN for GitHub Actions OIDC Terraform apply workflow"
+  value       = module.network.tf_apply_role_arn
+}
+
 output "demo_api_token_parameter_name" {
   description = "SSM parameter name for lesson 68. This is metadata, not the secret value."
   value       = module.network.demo_api_token_parameter_name

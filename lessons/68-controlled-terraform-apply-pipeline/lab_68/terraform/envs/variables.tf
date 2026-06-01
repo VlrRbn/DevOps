@@ -102,6 +102,11 @@ variable "github_branch" {
   default = "main"
 }
 
+variable "github_apply_environment" {
+  type    = string
+  default = "terraform-dev"
+}
+
 variable "tf_state_bucket_name" {
   type = string
 }

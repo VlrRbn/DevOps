@@ -29,6 +29,7 @@ This module owns the lesson lab_68 network and application runtime surface.
 | `github_owner` | GitHub owner name used in the OIDC trust policy |
 | `github_repo` | GitHub repository name used in the OIDC trust policy |
 | `github_branch` | non-empty branch name allowed to assume the plan role |
+| `github_apply_environment` | non-empty GitHub Environment name allowed to assume the apply role |
 | `tf_state_bucket_name` | S3 bucket-shaped name used by the plan role policy |
 | `tf_state_key` | non-empty relative state object key |
 | `demo_api_token_parameter_name` | absolute SSM parameter path; plaintext value is not read by Terraform |
@@ -52,8 +53,24 @@ This module owns the lesson lab_68 network and application runtime surface.
 | `web_tg_arn` | health, release, and drift checks | stable ARN-shaped string |
 | `ssm_vpc_endpoint_ids` | private runtime proof | stable map keyed by service |
 | `tf_plan_role_arn` | GitHub Actions OIDC plan workflow setup | stable role ARN string |
+| `tf_apply_role_arn` | GitHub Actions OIDC apply workflow setup | stable role ARN string |
 | `demo_api_token_parameter_name` | runtime secret-read proof | metadata only, no plaintext secret value |
 | `demo_app_secret_name` | runtime secret-read proof | metadata only, no plaintext secret value |
+
+## GitHub OIDC Contract
+
+This module exposes two separate GitHub Actions roles:
+
+- `tf_plan_role_arn` is branch-scoped and intended for PR/plan workflows.
+- `tf_apply_role_arn` is environment-scoped and intended only for approved apply workflows.
+
+The apply role trust policy expects this OIDC subject shape:
+
+```text
+repo:<github_owner>/<github_repo>:environment:<github_apply_environment>
+```
+
+For this lab, the apply role attaches a broad AWS managed policy so the lesson can focus on approval flow, saved plans, artifacts, and post-apply drift checks.
 
 ## Breaking Changes
 
@@ -100,3 +117,4 @@ Current coverage:
 - absolute `tf_state_key` fails
 - stable output contract remains available
 - `ssm_vpc_endpoint_ids` remains a map keyed by service
+- `tf_apply_role_arn` remains available for the controlled apply workflow

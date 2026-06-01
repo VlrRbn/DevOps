@@ -161,3 +161,42 @@ resource "aws_iam_role_policy" "github_actions_backend_access" {
     ]
   })
 }
+
+# Apply role is intentionally separate from the read/plan role.
+# The trust policy is bound to a GitHub Environment subject, so the workflow must
+# pass GitHub Environment protection before AWS STS will issue credentials.
+resource "aws_iam_role" "github_actions_apply_role" {
+  name = "${var.project_name}-github-actions-apply-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github_actions.arn
+        }
+
+        Action = "sts:AssumeRoleWithWebIdentity"
+
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:${var.github_owner}/${var.github_repo}:environment:${var.github_apply_environment}"
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_apply_admin" {
+  # Lab-only broad policy: lesson 68 focuses on pipeline controls, not IAM least-privilege synthesis.
+  role       = aws_iam_role.github_actions_apply_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
