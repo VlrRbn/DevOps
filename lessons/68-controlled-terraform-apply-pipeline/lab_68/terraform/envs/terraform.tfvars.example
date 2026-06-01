@@ -1,0 +1,38 @@
+aws_region   = "eu-west-1"
+project_name = "lab68"
+environment  = "full"
+
+vpc_cidr             = "10.30.0.0/16"
+public_subnet_cidrs  = ["10.30.1.0/24", "10.30.2.0/24"]
+private_subnet_cidrs = ["10.30.11.0/24", "10.30.12.0/24"]
+
+enable_ssm_vpc_endpoints = true
+enable_web_ssm           = true
+
+web_ami_id       = "ami-REPLACE_WITH_WEB_AMI"
+ssm_proxy_ami_id = "ami-REPLACE_WITH_SSM_PROXY_AMI"
+
+web_min_size                   = 2
+web_max_size                   = 2
+web_desired_capacity           = 2
+asg_min_healthy_percentage     = 50
+asg_instance_warmup_seconds    = 120
+asg_checkpoint_delay_seconds   = 360
+tg_slow_start_seconds          = 60
+health_check_healthy_threshold = 2
+instance_type_web              = "t3.micro"
+common_tags = {
+  Owner = "DevOpsTrack"
+}
+
+github_owner = "REPLACE_WITH_GITHUB_OWNER"
+github_repo  = "REPLACE_WITH_GITHUB_REPO"
+github_branch = "main"
+
+tf_state_bucket_name = "REPLACE_WITH_TFSTATE_BUCKET"
+tf_state_key         = "lab68/dev/full/terraform.tfstate"
+
+# Names are safe to commit. Secret values are created outside Terraform with AWS CLI and are not committed.
+# Terraform grants runtime IAM access to these names; it does not create/read the plaintext values.
+demo_api_token_parameter_name = "/devops/lab68/demo/api-token"
+demo_app_secret_name          = "/devops/lab68/demo/app-secret"

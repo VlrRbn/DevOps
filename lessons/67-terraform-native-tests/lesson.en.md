@@ -387,8 +387,9 @@ demo_api_token_parameter_name -> variable/default
 demo_app_secret_name -> variable/default
 ```
 
-In `plan`, this is a computed value, so it may be unknown.
+These specific outputs are safe to assert during `plan` because they are derived from variables or deterministic naming logic.
 
+Outputs that Terraform can only know after resources are created are tested separately with mocked `apply` in `output_contract.tftest.hcl`.
 
 Acceptance:
 
