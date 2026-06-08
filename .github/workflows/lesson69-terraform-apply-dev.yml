@@ -159,6 +159,7 @@ jobs:
 
           common_tags = {
             Owner = "DevOpsTrack"
+            Drill = "safe-apply"
           }
           EOF_TFVARS
 
@@ -314,6 +315,7 @@ jobs:
 
           common_tags = {
             Owner = "DevOpsTrack"
+            Drill = "safe-apply"
           }
           EOF_TFVARS
 
