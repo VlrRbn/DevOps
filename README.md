@@ -77,6 +77,10 @@ devops-notes/
 | **Lesson 36** | K8s NetworkPolicies: Default Deny & Allow Rules | [Materials_36](lesson31_40/lesson_36.md) |
 | **Lesson 37** | K8s TLS: Ingress HTTPS with Self-Signed / mkcert | [Materials_37](lesson31_40/lesson_37.md) |
 | **Lesson 38** | K8s cert-manager: Automatic TLS Certificates | [Materials_38](lesson31_40/lesson_38.md) |
+
+### Terraform / AWS Track
+| Lesson | Topic | Materials | README |
+|-----|-------|-----------|-----------|
 | **Lesson 39** | Cloud 101: VPC, Subnets, Security Groups & IAM (Terraform-ready) | [Materials_39](lesson31_40/lesson_39.md) |
 | **Lesson 40a** | A: Terraform in Practice: Structure, Variables, tfvars & Modules | [Materials_40a](lesson31_40/lesson_40a.md) |
 | **Lesson 40b** | B: Terraform: Add Compute on Top of VPC (Bastion + Web) + Connectivity Tests | [Materials_40b](lesson31_40/lesson_40b.md)|
@@ -103,10 +107,19 @@ devops-notes/
 | **Lesson 60** | Remote State & Locking (S3 Backend, Lockfile, Versioning, Safe Recovery) | [Materials_60](lessons/60-remote-state-and-locking/lesson.en.md) | [Readme](lessons/60-remote-state-and-locking/README.md) |
 | **Lesson 61** | State Hygiene & Safe Refactors (`moved`, `state mv`, `state rm`, `import`) | [Materials_61](lessons/61-state-hygiene-and-refactors/lesson.en.md) | [Readme](lessons/61-state-hygiene-and-refactors/README.md) |
 | **Lesson 62** | Terraform Quality Gates & Policy Baseline (`fmt`, `validate`, `tflint`, `checkov`) | [Materials_62](lessons/62-terraform-quality-gates/lesson.en.md) | [Readme](lessons/62-terraform-quality-gates/README.md) |
+| **Lesson 63** | Terraform CI Plan Pipeline | [Materials_63](lessons/63-terraform-ci-plan-pipeline/lesson.en.md) | [Readme](lessons/63-terraform-ci-plan-pipeline/README.md) |
+| **Lesson 64** | Drift Detection & Change Awareness | [Materials_64](lessons/64-drift-detection-and-change-awareness/lesson.en.md) | [Readme](lessons/64-drift-detection-and-change-awareness/README.md) |
+| **Lesson 65** | Secrets, Sensitive Data & Safe Inputs | [Materials_65](lessons/65-secrets-sensitive-data-and-safe-inputs/lesson.en.md) | [Readme](lessons/65-secrets-sensitive-data-and-safe-inputs/README.md) |
+| **Lesson 66** | Module Contracts & Interface Guarantees | [Materials_66](lessons/66-module-contracts-and-interface-guarantees/lesson.en.md) | [Readme](lessons/66-module-contracts-and-interface-guarantees/README.md) |
+| **Lesson 67** | Terraform Native Tests | [Materials_67](lessons/67-terraform-native-tests/lesson.en.md) | [Readme](lessons/67-terraform-native-tests/README.md) |
+| **Lesson 68** | Controlled Terraform Apply Pipeline | [Materials_68](lessons/68-controlled-terraform-apply-pipeline/lesson.en.md) | [Readme](lessons/68-controlled-terraform-apply-pipeline/README.md) |
+| **Lesson 69** | Production IAM: Least-Privilege Plan and Apply Roles | [Materials_69](lessons/69-production-iam-least-privilege-plan-and-apply-roles/lesson.en.md) | [Readme](lessons/69-production-iam-least-privilege-plan-and-apply-roles/README.md) |
+| **Lesson 70** | Policy as Code on Terraform JSON Plan | [Materials_70](lessons/70-policy-as-code-on%20terraform-JSON-plan/lab_70/) | |
 ---
 
 ## How to use
 - Each lesson: **Goals → Practice → Mini-lab → Summary** in `lesson_N.md`.
+- Modern lessons under `lessons/` usually include both `lesson.en.md` and `lesson.ru.md`.
 - Labs under `labs/lesson_N/...`, scripts under `tools/`.
 - If copied from `/etc` or `/usr/local/bin` with sudo, fix ownership before commit:
   ```bash
@@ -116,6 +129,16 @@ devops-notes/
   ```bash
   chmod +x tools/*.sh
   ```
+---
+
+## CI Workflows
+- `terraform-plan-pr.yml` - Terraform PR plan, validation, security checks, and plan artifacts.
+- `terraform-drift.yml` - Scheduled/manual drift detection against the remote state.
+- `terraform-quality-gates.yml` - Terraform quality gates for formatting, validation, linting, and policy baseline.
+- `lesson66-contract-tests.yml` - Module contract checks for lesson 66.
+- `lesson67-terraform-native-tests.yml` - Native Terraform tests for lesson 67.
+- `lesson69-terraform-apply-dev.yml` - Controlled apply workflow with GitHub Environment approval.
+
 ---
 
 ## 📈 Progress
