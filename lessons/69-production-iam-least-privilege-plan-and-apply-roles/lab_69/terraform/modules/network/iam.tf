@@ -340,6 +340,7 @@ resource "aws_iam_role_policy" "github_actions_apply_scoped" {
           "autoscaling:CreateAutoScalingGroup",
           "autoscaling:UpdateAutoScalingGroup",
           "autoscaling:DeleteAutoScalingGroup",
+          "autoscaling:CreateOrUpdateTags",
           "autoscaling:PutScalingPolicy",
           "autoscaling:DeletePolicy",
           "autoscaling:StartInstanceRefresh",
