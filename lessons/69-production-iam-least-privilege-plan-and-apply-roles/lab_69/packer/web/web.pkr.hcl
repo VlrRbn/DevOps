@@ -1,6 +1,6 @@
 variable "ami_name_prefix" {
   type    = string
-  default = "lab68-web"
+  default = "lab69-web"
 }
 
 source "amazon-ebs" "web" {

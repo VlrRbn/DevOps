@@ -9,6 +9,6 @@ locals {
 
   common_tags = {
     Project = "DevOps"
-    Lesson  = "68-controlled-terraform-apply-pipeline"
+    Lesson  = "69-production-iam-least-privilege-plan-and-apply-roles"
   }
 }

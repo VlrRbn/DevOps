@@ -12,7 +12,7 @@ variable "aws_region" {
 variable "project_name" {
   type        = string
   description = "Project prefix for resource names"
-  default     = "lab68"
+  default     = "lab69"
 
   validation {
     condition     = can(regex("^[a-z][a-z0-9-]{2,30}$", var.project_name))
@@ -297,7 +297,7 @@ variable "tf_state_bucket_name" {
 variable "tf_state_key" {
   description = "Remote state object key used by the Terraform CI plan role"
   type        = string
-  default     = "lab68/dev/full/terraform.tfstate"
+  default     = "lab69/dev/full/terraform.tfstate"
 
   validation {
     condition     = length(trimspace(var.tf_state_key)) > 0 && !startswith(var.tf_state_key, "/")
@@ -308,7 +308,7 @@ variable "tf_state_key" {
 variable "demo_api_token_parameter_name" {
   type        = string
   description = "SSM SecureString name that the EC2 runtime role may read. Terraform should not read its plaintext value."
-  default     = "/devops/lab68/demo/api-token"
+  default     = "/devops/lab69/demo/api-token"
 
   validation {
     condition     = startswith(var.demo_api_token_parameter_name, "/")
@@ -319,7 +319,7 @@ variable "demo_api_token_parameter_name" {
 variable "demo_app_secret_name" {
   type        = string
   description = "Secrets Manager secret name that the EC2 runtime role may read. Terraform references metadata only."
-  default     = "/devops/lab68/demo/app-secret"
+  default     = "/devops/lab69/demo/app-secret"
 
   validation {
     condition     = startswith(var.demo_app_secret_name, "/")

@@ -90,11 +90,11 @@ output "tf_apply_role_arn" {
 }
 
 output "demo_api_token_parameter_name" {
-  description = "SSM parameter name for lesson 68. This exposes only metadata."
+  description = "SSM parameter name for lesson 69. This exposes only metadata."
   value       = var.demo_api_token_parameter_name
 }
 
 output "demo_app_secret_name" {
-  description = "Secrets Manager secret name for lesson 68. This exposes only metadata."
+  description = "Secrets Manager secret name for lesson 69. This exposes only metadata."
   value       = var.demo_app_secret_name
 }

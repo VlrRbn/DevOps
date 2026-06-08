@@ -1,6 +1,6 @@
 # Network Module Contract
 
-This module owns the lesson lab_68 network and application runtime surface.
+This module owns the lesson lab_69 network and application runtime surface.
 
 ## Input Contract
 
@@ -70,7 +70,8 @@ The apply role trust policy expects this OIDC subject shape:
 repo:<github_owner>/<github_repo>:environment:<github_apply_environment>
 ```
 
-For this lab, the apply role attaches a broad AWS managed policy so the lesson can focus on approval flow, saved plans, artifacts, and post-apply drift checks.
+For this lab, the apply role uses a scoped inline policy instead of `AdministratorAccess`.
+The policy is intentionally still pragmatic: some AWS APIs require `Resource = "*"` for Terraform refresh or mutation workflows, so the lesson narrows the action list, role trust, state key, and `iam:PassRole` boundary.
 
 ## Breaking Changes
 

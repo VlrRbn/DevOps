@@ -115,10 +115,34 @@ resource "aws_iam_role" "github_actions_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "github_actions_readonly" {
-  # Broad read access keeps terraform refresh/plan from failing on Describe/Get APIs.
-  role       = aws_iam_role.github_actions_role.name
-  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+resource "aws_iam_role_policy" "github_actions_plan_read" {
+  # Purpose-built plan permissions: enough for refresh/plan, not enough to mutate infrastructure.
+  name = "${var.project_name}-github-actions-plan-read"
+  role = aws_iam_role.github_actions_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ReadForTerraformRefresh"
+        Effect = "Allow"
+        Action = [
+          "autoscaling:Describe*",
+          "cloudwatch:Describe*",
+          "cloudwatch:Get*",
+          "cloudwatch:List*",
+          "ec2:Describe*",
+          "elasticloadbalancing:Describe*",
+          "iam:Get*",
+          "iam:List*",
+          "secretsmanager:DescribeSecret",
+          "ssm:Describe*",
+          "ssm:GetParameter"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 }
 
 resource "aws_iam_role_policy" "github_actions_backend_access" {
@@ -195,8 +219,198 @@ resource "aws_iam_role" "github_actions_apply_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "github_actions_apply_admin" {
-  # Lab-only broad policy: lesson 68 focuses on pipeline controls, not IAM least-privilege synthesis.
-  role       = aws_iam_role.github_actions_apply_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+resource "aws_iam_role_policy" "github_actions_apply_scoped" {
+  # Lesson 69 replaces AdministratorAccess with a scoped policy for this lab stack.
+  # Some AWS APIs, especially Describe/List operations and several EC2 mutations,
+  # do not support tight resource-level scoping; keep the action list narrow instead.
+  name = "${var.project_name}-github-actions-apply-scoped"
+  role = aws_iam_role.github_actions_apply_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ListStateBucket"
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket"
+        ]
+        Resource = "arn:aws:s3:::${var.tf_state_bucket_name}"
+        Condition = {
+          StringLike = {
+            "s3:prefix" = [
+              var.tf_state_key,
+              "${var.tf_state_key}.tflock"
+            ]
+          }
+        }
+      },
+      {
+        Sid    = "ReadWriteStateObjects"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject"
+        ]
+        Resource = [
+          "arn:aws:s3:::${var.tf_state_bucket_name}/${var.tf_state_key}",
+          "arn:aws:s3:::${var.tf_state_bucket_name}/${var.tf_state_key}.tflock"
+        ]
+      },
+      {
+        Sid    = "ReadForTerraformRefresh"
+        Effect = "Allow"
+        Action = [
+          "autoscaling:Describe*",
+          "cloudwatch:Describe*",
+          "cloudwatch:Get*",
+          "cloudwatch:List*",
+          "ec2:Describe*",
+          "elasticloadbalancing:Describe*",
+          "iam:Get*",
+          "iam:List*",
+          "secretsmanager:DescribeSecret",
+          "ssm:Describe*",
+          "ssm:GetParameter"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "ManageLabEc2NetworkAndInstances"
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateVpc",
+          "ec2:DeleteVpc",
+          "ec2:ModifyVpcAttribute",
+          "ec2:CreateSubnet",
+          "ec2:DeleteSubnet",
+          "ec2:ModifySubnetAttribute",
+          "ec2:CreateInternetGateway",
+          "ec2:AttachInternetGateway",
+          "ec2:DetachInternetGateway",
+          "ec2:DeleteInternetGateway",
+          "ec2:CreateRouteTable",
+          "ec2:DeleteRouteTable",
+          "ec2:CreateRoute",
+          "ec2:DeleteRoute",
+          "ec2:AssociateRouteTable",
+          "ec2:DisassociateRouteTable",
+          "ec2:CreateSecurityGroup",
+          "ec2:DeleteSecurityGroup",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress",
+          "ec2:ModifySecurityGroupRules",
+          "ec2:CreateLaunchTemplate",
+          "ec2:CreateLaunchTemplateVersion",
+          "ec2:ModifyLaunchTemplate",
+          "ec2:DeleteLaunchTemplate",
+          "ec2:RunInstances",
+          "ec2:TerminateInstances",
+          "ec2:CreateTags",
+          "ec2:DeleteTags"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "ManageLabLoadBalancing"
+        Effect = "Allow"
+        Action = [
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:CreateListener",
+          "elasticloadbalancing:DeleteListener",
+          "elasticloadbalancing:ModifyListener",
+          "elasticloadbalancing:ModifyLoadBalancerAttributes",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:RemoveTags"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "ManageLabAutoScaling"
+        Effect = "Allow"
+        Action = [
+          "autoscaling:CreateAutoScalingGroup",
+          "autoscaling:UpdateAutoScalingGroup",
+          "autoscaling:DeleteAutoScalingGroup",
+          "autoscaling:PutScalingPolicy",
+          "autoscaling:DeletePolicy",
+          "autoscaling:StartInstanceRefresh",
+          "autoscaling:CancelInstanceRefresh"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "ManageLabCloudWatchAlarms"
+        Effect = "Allow"
+        Action = [
+          "cloudwatch:PutMetricAlarm",
+          "cloudwatch:DeleteAlarms",
+          "cloudwatch:TagResource",
+          "cloudwatch:UntagResource"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "ManageLabIamRolesAndPolicies"
+        Effect = "Allow"
+        Action = [
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:UpdateAssumeRolePolicy",
+          "iam:TagRole",
+          "iam:UntagRole",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy",
+          "iam:CreateInstanceProfile",
+          "iam:DeleteInstanceProfile",
+          "iam:AddRoleToInstanceProfile",
+          "iam:RemoveRoleFromInstanceProfile",
+          "iam:TagInstanceProfile",
+          "iam:CreateOpenIDConnectProvider",
+          "iam:DeleteOpenIDConnectProvider",
+          "iam:TagOpenIDConnectProvider"
+        ]
+        Resource = [
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.project_name}-*",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/${var.project_name}-*",
+          aws_iam_openid_connect_provider.github_actions.arn
+        ]
+      },
+      {
+        Sid      = "CreateRequiredServiceLinkedRoles"
+        Effect   = "Allow"
+        Action   = "iam:CreateServiceLinkedRole"
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "iam:AWSServiceName" = [
+              "autoscaling.amazonaws.com",
+              "elasticloadbalancing.amazonaws.com"
+            ]
+          }
+        }
+      },
+      {
+        Sid      = "PassOnlyLabRuntimeRolesToEc2"
+        Effect   = "Allow"
+        Action   = "iam:PassRole"
+        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.project_name}-ec2-ssm-role"
+        Condition = {
+          StringEquals = {
+            "iam:PassedToService" = "ec2.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
 }

@@ -19,14 +19,14 @@ mock_provider "aws" {
 
   mock_resource "aws_lb" {
     defaults = {
-      arn      = "arn:aws:elasticloadbalancing:eu-west-1:123456789012:loadbalancer/app/lab68-app-alb/test"
-      dns_name = "internal-lab68-app-alb.example.local"
+      arn      = "arn:aws:elasticloadbalancing:eu-west-1:123456789012:loadbalancer/app/lab69-app-alb/test"
+      dns_name = "internal-lab69-app-alb.example.local"
     }
   }
 
   mock_resource "aws_lb_target_group" {
     defaults = {
-      arn = "arn:aws:elasticloadbalancing:eu-west-1:123456789012:targetgroup/lab68-web-tg/test"
+      arn = "arn:aws:elasticloadbalancing:eu-west-1:123456789012:targetgroup/lab69-web-tg/test"
     }
   }
 
@@ -40,17 +40,17 @@ mock_provider "aws" {
 
 variables {
   aws_region           = "eu-west-1"
-  project_name         = "lab68"
+  project_name         = "lab69"
   environment          = "test"
-  vpc_cidr             = "10.68.0.0/16"
-  public_subnet_cidrs  = ["10.68.1.0/24", "10.68.2.0/24"]
-  private_subnet_cidrs = ["10.68.11.0/24", "10.68.12.0/24"]
+  vpc_cidr             = "10.69.0.0/16"
+  public_subnet_cidrs  = ["10.69.1.0/24", "10.69.2.0/24"]
+  private_subnet_cidrs = ["10.69.11.0/24", "10.69.12.0/24"]
   web_ami_id           = "ami-0123456789abcdef0"
   ssm_proxy_ami_id     = "ami-0123456789abcdef0"
   github_owner         = "VlrRbn"
   github_repo          = "DevOps"
   tf_state_bucket_name = "vlrrbn-tfstate-123456789012-eu-west-1"
-  tf_state_key         = "lab68/dev/full/terraform.tfstate"
+  tf_state_key         = "lab69/dev/full/terraform.tfstate"
 }
 
 run "stable_output_contract" {
@@ -58,7 +58,7 @@ run "stable_output_contract" {
   command = apply
 
   assert {
-    condition     = startswith(output.alb_dns_name, "internal-lab68-app-alb")
+    condition     = startswith(output.alb_dns_name, "internal-lab69-app-alb")
     error_message = "alb_dns_name must stay a non-empty DNS name consumed by SSM port-forward tests."
   }
 
