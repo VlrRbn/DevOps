@@ -15,9 +15,8 @@ resource "aws_launch_template" "web" {
   dynamic "iam_instance_profile" {
     for_each = var.enable_web_ssm ? [1] : []
     content {
-      name = aws_iam_instance_profile.ec2_ssm_instance_profile.name
+      name = "l69-passrole-denied-dummy-profile"
     }
-
   }
 
   metadata_options {
