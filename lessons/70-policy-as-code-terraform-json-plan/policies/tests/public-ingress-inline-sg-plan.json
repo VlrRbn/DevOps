@@ -1,0 +1,30 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.network.aws_security_group.web",
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "web",
+      "change": {
+        "actions": ["update"],
+        "after": {
+          "name": "lab70-web_sg",
+          "ingress": [
+            {
+              "cidr_blocks": ["0.0.0.0/0"],
+              "from_port": 22,
+              "to_port": 22,
+              "protocol": "tcp"
+            }
+          ],
+          "tags": {
+            "Project": "lab70",
+            "Environment": "dev",
+            "ManagedBy": "Terraform"
+          }
+        }
+      }
+    }
+  ]
+}

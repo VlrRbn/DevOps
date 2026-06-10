@@ -1,0 +1,371 @@
+name: lesson70-terraform-apply-dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_apply:
+        # Manual friction: an apply must be an explicit human action.
+        description: 'Type APPLY to continue'
+        required: true
+        type: string
+      allow_destroy_exception_path:
+        # Optional exact-address exception file.
+        description: 'Optional repo path to allow-destroy exception JSON'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_ROOT: lessons/70-policy-as-code-terraform-json-plan/lab_70/terraform
+  TF_ENV: lessons/70-policy-as-code-terraform-json-plan/lab_70/terraform/envs
+  TF_MODULE: lessons/70-policy-as-code-terraform-json-plan/lab_70/terraform/modules/network
+  TERRAFORM_VERSION: '1.14.4'
+  AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-1' }}
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+  AWS_EC2_METADATA_DISABLED: true
+
+concurrency:
+  # Only one apply can run for this environment. A newer run must not cancel an active apply halfway through.
+  group: lesson70-terraform-apply-dev
+  cancel-in-progress: false
+
+jobs:
+  plan-dev:
+    name: Plan dev from main
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+
+    steps:
+      - name: Guard workflow inputs
+        run: |
+          # Fail loudly instead of silently skipping the workflow.
+          if [ "${{ github.event.inputs.confirm_apply }}" != "APPLY" ]; then
+            echo "confirm_apply must be exactly APPLY."
+            exit 1
+          fi
+
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Controlled apply runs only from main. Current ref: ${GITHUB_REF}"
+            exit 1
+          fi
+
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform fmt
+        working-directory: ${{ env.TF_ROOT }}
+        run: terraform fmt -check -diff -recursive
+
+      - name: Terraform native tests
+        working-directory: ${{ env.TF_MODULE }}
+        run: |
+          # Module tests are cheap contract checks. They catch broken inputs/outputs before touching remote state.
+          terraform init -backend=false -input=false -no-color
+          terraform test -test-directory=tests -no-color
+
+      - name: Check required repository variables
+        run: |
+          # Fail before assuming AWS credentials or generating half-useful artifacts.
+          missing=0
+          for name in TF_PLAN_ROLE_ARN TF_APPLY_ROLE_ARN TF_STATE_BUCKET TF_WEB_AMI_ID TF_SSM_PROXY_AMI_ID; do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required repository variable: ${name}"
+              missing=1
+            fi
+          done
+          exit "$missing"
+        env:
+          TF_PLAN_ROLE_ARN: ${{ vars.TF_PLAN_ROLE_ARN }}
+          TF_APPLY_ROLE_ARN: ${{ vars.TF_APPLY_ROLE_ARN }}
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_WEB_AMI_ID: ${{ vars.TF_WEB_AMI_ID }}
+          TF_SSM_PROXY_AMI_ID: ${{ vars.TF_SSM_PROXY_AMI_ID }}
+
+      - name: Configure AWS credentials for plan via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.TF_PLAN_ROLE_ARN }}
+          role-session-name: gha-lesson70-terraform-plan-dev
+
+      - name: Write backend config
+        working-directory: ${{ env.TF_ENV }}
+        run: |
+          # backend.hcl is generated in CI so backend coordinates stay out of committed code.
+          cat > backend.hcl <<EOF_BACKEND
+          bucket       = "${{ vars.TF_STATE_BUCKET }}"
+          key          = "lab70/dev/full/terraform.tfstate"
+          region       = "${AWS_REGION}"
+          encrypt      = true
+          use_lockfile = true
+          EOF_BACKEND
+
+      - name: Write Terraform variables
+        working-directory: ${{ env.TF_ENV }}
+        run: |
+          # CI creates an ignored auto tfvars file from GitHub variables.
+          # This avoids committing local terraform.tfvars or environment-specific AMI IDs.
+          cat > terraform.auto.tfvars <<EOF_TFVARS
+          aws_region   = "${AWS_REGION}"
+          project_name = "lab70"
+          environment  = "dev"
+
+          vpc_cidr             = "10.30.0.0/16"
+          public_subnet_cidrs  = ["10.30.1.0/24", "10.30.2.0/24"]
+          private_subnet_cidrs = ["10.30.11.0/24", "10.30.12.0/24"]
+
+          enable_ssm_vpc_endpoints = true
+          enable_web_ssm           = true
+
+          web_ami_id       = "${{ vars.TF_WEB_AMI_ID }}"
+          ssm_proxy_ami_id = "${{ vars.TF_SSM_PROXY_AMI_ID }}"
+
+          web_min_size                   = 2
+          web_max_size                   = 2
+          web_desired_capacity           = 2
+          asg_min_healthy_percentage     = 50
+          asg_instance_warmup_seconds    = 120
+          asg_checkpoint_delay_seconds   = 360
+          tg_slow_start_seconds          = 60
+          health_check_healthy_threshold = 2
+          instance_type_web              = "t3.micro"
+
+          github_owner             = "${{ github.repository_owner }}"
+          github_repo              = "${{ github.event.repository.name }}"
+          github_branch            = "main"
+          github_apply_environment = "terraform-dev"
+
+          tf_state_bucket_name = "${{ vars.TF_STATE_BUCKET }}"
+          tf_state_key         = "lab70/dev/full/terraform.tfstate"
+
+          demo_api_token_parameter_name = "/devops/lab70/demo/api-token"
+          demo_app_secret_name          = "/devops/lab70/demo/app-secret"
+
+          common_tags = {
+            Owner = "DevOpsTrack"
+          }
+          EOF_TFVARS
+
+      - name: Terraform init remote backend
+        working-directory: ${{ env.TF_ENV }}
+        run: terraform init -reconfigure -backend-config=backend.hcl -input=false -no-color
+
+      - name: Terraform validate
+        working-directory: ${{ env.TF_ENV }}
+        run: terraform validate -no-color
+
+      - name: Terraform saved plan
+        working-directory: ${{ env.TF_ENV }}
+        run: |
+          # The apply job must use this exact binary plan artifact after environment approval.
+          terraform plan -input=false -no-color -out=tfplan 2>&1 | tee plan.txt
+          terraform show -no-color tfplan > tfplan.txt
+          terraform show -json tfplan > tfplan.json
+
+      - name: Run Terraform plan policy
+        working-directory: ${{ env.TF_ENV }}
+        run: |
+          # Policy runs after the final saved plan exists and before the approval/apply gate.
+          # The apply job must only receive a plan that already passed policy.
+          mkdir -p policy-results
+
+          exception_path="${{ github.event.inputs.allow_destroy_exception_path }}"
+          if [ -n "${exception_path}" ]; then
+            if [ ! -f "${GITHUB_WORKSPACE}/${exception_path}" ]; then
+              echo "allow_destroy_exception_path does not exist: ${exception_path}"
+              exit 1
+            fi
+            export ALLOW_DESTROY_FILE="${GITHUB_WORKSPACE}/${exception_path}"
+          fi
+
+          OUT_DIR=policy-results ../../../policies/terraform-plan-policy.sh tfplan.json 2>&1 | tee policy-results/policy-output.txt
+
+      - name: Upload plan artifact for approval
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lesson70-terraform-plan-dev
+          retention-days: 7
+          path: |
+            ${{ env.TF_ENV }}/plan.txt
+            ${{ env.TF_ENV }}/tfplan.txt
+            ${{ env.TF_ENV }}/tfplan.json
+            ${{ env.TF_ENV }}/tfplan
+            ${{ env.TF_ENV }}/policy-results/
+          if-no-files-found: ignore
+
+      - name: Plan summary
+        if: always()
+        working-directory: ${{ env.TF_ENV }}
+        run: |
+          {
+            echo "## Lesson 70 Terraform Plan Dev"
+            echo
+            echo "- source: main"
+            echo "- artifact for approval: lesson70-terraform-plan-dev"
+            echo "- policy decision: $(grep 'POLICY_DECISION' policy-results/policy-decision.txt 2>/dev/null || echo n/a)"
+            echo "- policy counts: $(tr '\n' ' ' < policy-results/policy-decision.txt 2>/dev/null || echo n/a)"
+            echo "- next step: review artifact, then approve the terraform-dev environment for apply"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  apply-dev:
+    name: Apply approved dev plan
+    needs: plan-dev
+    runs-on: ubuntu-latest
+
+    environment:
+      # GitHub Environment is the approval gate and also becomes part of the apply-role OIDC subject.
+      name: terraform-dev
+
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Download approved plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lesson70-terraform-plan-dev
+          path: ${{ env.TF_ENV }}
+
+      - name: Configure AWS credentials for apply via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.TF_APPLY_ROLE_ARN }}
+          role-session-name: gha-lesson70-terraform-apply-dev
+
+      - name: Write backend config
+        working-directory: ${{ env.TF_ENV }}
+        run: |
+          # Recreate backend config because jobs do not share workspace files.
+          cat > backend.hcl <<EOF_BACKEND
+          bucket       = "${{ vars.TF_STATE_BUCKET }}"
+          key          = "lab70/dev/full/terraform.tfstate"
+          region       = "${AWS_REGION}"
+          encrypt      = true
+          use_lockfile = true
+          EOF_BACKEND
+
+      - name: Write Terraform variables
+        working-directory: ${{ env.TF_ENV }}
+        run: |
+          # Variables are embedded in tfplan, but post-apply drift check needs them again.
+          cat > terraform.auto.tfvars <<EOF_TFVARS
+          aws_region   = "${AWS_REGION}"
+          project_name = "lab70"
+          environment  = "dev"
+
+          vpc_cidr             = "10.30.0.0/16"
+          public_subnet_cidrs  = ["10.30.1.0/24", "10.30.2.0/24"]
+          private_subnet_cidrs = ["10.30.11.0/24", "10.30.12.0/24"]
+
+          enable_ssm_vpc_endpoints = true
+          enable_web_ssm           = true
+
+          web_ami_id       = "${{ vars.TF_WEB_AMI_ID }}"
+          ssm_proxy_ami_id = "${{ vars.TF_SSM_PROXY_AMI_ID }}"
+
+          web_min_size                   = 2
+          web_max_size                   = 2
+          web_desired_capacity           = 2
+          asg_min_healthy_percentage     = 50
+          asg_instance_warmup_seconds    = 120
+          asg_checkpoint_delay_seconds   = 360
+          tg_slow_start_seconds          = 60
+          health_check_healthy_threshold = 2
+          instance_type_web              = "t3.micro"
+
+          github_owner             = "${{ github.repository_owner }}"
+          github_repo              = "${{ github.event.repository.name }}"
+          github_branch            = "main"
+          github_apply_environment = "terraform-dev"
+
+          tf_state_bucket_name = "${{ vars.TF_STATE_BUCKET }}"
+          tf_state_key         = "lab70/dev/full/terraform.tfstate"
+
+          demo_api_token_parameter_name = "/devops/lab70/demo/api-token"
+          demo_app_secret_name          = "/devops/lab70/demo/app-secret"
+
+          common_tags = {
+            Owner = "DevOpsTrack"
+          }
+          EOF_TFVARS
+
+      - name: Terraform init remote backend
+        working-directory: ${{ env.TF_ENV }}
+        run: terraform init -reconfigure -backend-config=backend.hcl -input=false -no-color
+
+      - name: Terraform apply approved saved plan
+        working-directory: ${{ env.TF_ENV }}
+        run: terraform apply -input=false -no-color tfplan 2>&1 | tee apply.txt
+
+      - name: Post-apply drift check
+        working-directory: ${{ env.TF_ENV }}
+        run: |
+          # A clean apply must converge to exit code 0. Exit code 2 means there is still a diff.
+          set +e
+          terraform plan -detailed-exitcode -input=false -no-color > post_apply_plan.txt 2>&1
+          ec=$?
+          echo "$ec" > post_apply_exitcode.txt
+          if [ "$ec" -ne 0 ]; then
+            echo "Post-apply plan is not clean or errored. Exit code: $ec"
+            exit "$ec"
+          fi
+
+      - name: Upload apply artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lesson70-terraform-apply-dev
+          retention-days: 7
+          path: |
+            ${{ env.TF_ENV }}/plan.txt
+            ${{ env.TF_ENV }}/tfplan.txt
+            ${{ env.TF_ENV }}/tfplan.json
+            ${{ env.TF_ENV }}/policy-results/
+            ${{ env.TF_ENV }}/apply.txt
+            ${{ env.TF_ENV }}/post_apply_plan.txt
+            ${{ env.TF_ENV }}/post_apply_exitcode.txt
+          if-no-files-found: ignore
+
+      - name: Apply summary
+        if: always()
+        working-directory: ${{ env.TF_ENV }}
+        run: |
+          {
+            echo "## Lesson 70 Terraform Apply Dev"
+            echo
+            echo "- source: main"
+            echo "- environment: terraform-dev"
+            echo "- applied artifact: lesson70-terraform-plan-dev/tfplan"
+            echo "- post-apply exit code: $(cat post_apply_exitcode.txt 2>/dev/null || echo n/a)"
+            echo "- artifact: lesson70-terraform-apply-dev"
+          } >> "$GITHUB_STEP_SUMMARY"

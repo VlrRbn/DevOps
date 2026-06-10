@@ -1,0 +1,16 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.network.aws_launch_template.web",
+      "mode": "managed",
+      "type": "aws_launch_template",
+      "name": "web",
+      "change": {
+        "actions": ["delete", "create"],
+        "before": { "name": "lab70-web-old" },
+        "after": { "name": "lab70-web-new" }
+      }
+    }
+  ]
+}

@@ -9,6 +9,6 @@ locals {
 
   common_tags = {
     Project = "DevOps"
-    Lesson  = "70-policy-as-code-on-terraform-json-plan"
+    Lesson  = "70-policy-as-code-terraform-json-plan"
   }
 }

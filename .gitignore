@@ -27,3 +27,4 @@ terraform.tfvars
 plan.txt
 tfplan
 tfplan.txt
+tfplan.json
