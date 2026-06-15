@@ -114,7 +114,7 @@ devops-notes/
 | **Lesson 67** | Terraform Native Tests | [Materials_67](lessons/67-terraform-native-tests/lesson.en.md) | [Readme](lessons/67-terraform-native-tests/README.md) |
 | **Lesson 68** | Controlled Terraform Apply Pipeline | [Materials_68](lessons/68-controlled-terraform-apply-pipeline/lesson.en.md) | [Readme](lessons/68-controlled-terraform-apply-pipeline/README.md) |
 | **Lesson 69** | Production IAM: Least-Privilege Plan and Apply Roles | [Materials_69](lessons/69-production-iam-least-privilege-plan-and-apply-roles/lesson.en.md) | [Readme](lessons/69-production-iam-least-privilege-plan-and-apply-roles/README.md) |
-| **Lesson 70** | Policy as Code on Terraform JSON Plan | [Materials_70](lessons/70-policy-as-code-on%20terraform-JSON-plan/lab_70/) | |
+| **Lesson 70** | Policy as Code on Terraform JSON Plan | [Materials_70](lessons/70-policy-as-code-terraform-json-plan/lesson.en.md) | [Readme](lessons/70-policy-as-code-terraform-json-plan/README.md) |
 ---
 
 ## How to use

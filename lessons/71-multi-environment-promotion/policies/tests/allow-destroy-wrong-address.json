@@ -1,0 +1,8 @@
+{
+  "reason": "Wrong address example for test only.",
+  "approved_by": "CHANGE-TEST",
+  "expires": "2099-12-31",
+  "allowed_addresses": [
+    "module.network.aws_cloudwatch_metric_alarm.other_alarm"
+  ]
+}

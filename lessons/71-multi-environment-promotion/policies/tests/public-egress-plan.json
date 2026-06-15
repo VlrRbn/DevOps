@@ -1,0 +1,21 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.network.aws_security_group_rule.web_egress",
+      "mode": "managed",
+      "type": "aws_security_group_rule",
+      "name": "web_egress",
+      "change": {
+        "actions": ["create"],
+        "after": {
+          "type": "egress",
+          "cidr_blocks": ["0.0.0.0/0"],
+          "from_port": 0,
+          "to_port": 0,
+          "protocol": "-1"
+        }
+      }
+    }
+  ]
+}

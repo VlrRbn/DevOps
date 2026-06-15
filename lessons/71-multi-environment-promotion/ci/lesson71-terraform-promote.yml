@@ -1,0 +1,649 @@
+# Copy this template to .github/workflows/lesson71-terraform-promote.yml when you want to run the lesson through GitHub Actions.
+# Plan runs before environment approval; apply uses the exact saved plan after approval.
+name: lesson71-terraform-promote
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: 'Environment to promote'
+        required: true
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
+      source_env:
+        description: 'Previous environment that approved this release candidate'
+        required: true
+        type: choice
+        options:
+          - none
+          - dev
+          - stage
+      release_id:
+        description: 'Stable release/change id, for example rel-2026-06-10-01'
+        required: true
+        type: string
+      source_workflow_run_url:
+        description: 'Required for stage/prod: evidence URL from previous environment'
+        required: false
+        type: string
+      source_commit_sha:
+        description: 'Required for stage/prod: commit SHA approved in previous environment'
+        required: false
+        type: string
+      allow_destroy_exception_path:
+        description: 'Optional repo-relative allow-destroy exception JSON path'
+        required: false
+        type: string
+      confirm_apply:
+        description: 'Type APPLY to continue'
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+
+env:
+  TF_BASE: lessons/71-multi-environment-promotion/lab_71/terraform
+  TF_MODULE: lessons/71-multi-environment-promotion/lab_71/terraform/modules/network
+  TERRAFORM_VERSION: '1.14.4'
+  AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-1' }}
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+  AWS_EC2_METADATA_DISABLED: true
+
+concurrency:
+  group: lesson71-${{ github.event.inputs.target_env }}-promotion
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Plan ${{ github.event.inputs.target_env }}
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+
+    steps:
+      - name: Guard workflow inputs
+        run: |
+          target_env="${{ github.event.inputs.target_env }}"
+          source_env="${{ github.event.inputs.source_env }}"
+          release_id="${{ github.event.inputs.release_id }}"
+          source_url="${{ github.event.inputs.source_workflow_run_url }}"
+          source_sha="${{ github.event.inputs.source_commit_sha }}"
+
+          if [ "${{ github.event.inputs.confirm_apply }}" != "APPLY" ]; then
+            echo "confirm_apply must be exactly APPLY."
+            exit 1
+          fi
+
+          if [ -z "$release_id" ]; then
+            echo "release_id is required."
+            exit 1
+          fi
+
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Promotion workflow runs only from main. Current ref: ${GITHUB_REF}"
+            exit 1
+          fi
+
+          case "$target_env" in
+            dev|stage|prod) ;;
+            *) echo "Invalid target_env=${target_env}"; exit 1 ;;
+          esac
+
+          case "$source_env" in
+            none|dev|stage) ;;
+            *) echo "Invalid source_env=${source_env}"; exit 1 ;;
+          esac
+
+          case "$target_env:$source_env" in
+            dev:none|stage:dev|prod:stage) ;;
+            *)
+              echo "Invalid promotion path: source_env=${source_env}, target_env=${target_env}. Required: none->dev, dev->stage, stage->prod."
+              exit 1
+              ;;
+          esac
+
+          if [ "$target_env" != "dev" ]; then
+            if [ -z "$source_url" ] || [ -z "$source_sha" ]; then
+              echo "stage/prod promotions require source_workflow_run_url and source_commit_sha."
+              exit 1
+            fi
+
+            if [ "$source_sha" != "$GITHUB_SHA" ]; then
+              echo "source_commit_sha must match this workflow commit. source=${source_sha}, current=${GITHUB_SHA}"
+              exit 1
+            fi
+          fi
+
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Verify previous promotion evidence
+        if: ${{ github.event.inputs.target_env != 'dev' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          source_env="${{ github.event.inputs.source_env }}"
+          source_url="${{ github.event.inputs.source_workflow_run_url }}"
+          source_sha="${{ github.event.inputs.source_commit_sha }}"
+
+          case "$source_url" in
+            "https://github.com/${GITHUB_REPOSITORY}/actions/runs/"*) ;;
+            *)
+              echo "source_workflow_run_url must point to this repository's GitHub Actions run."
+              exit 1
+              ;;
+          esac
+
+          run_id="$(printf '%s' "$source_url" | sed -E 's#^https://github\.com/[^/]+/[^/]+/actions/runs/([0-9]+).*#\1#')"
+          if ! [[ "$run_id" =~ ^[0-9]+$ ]]; then
+            echo "Could not parse GitHub Actions run id from source_workflow_run_url."
+            exit 1
+          fi
+
+          read -r status conclusion head_sha workflow_name < <(
+            gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" \
+              --jq '[.status, .conclusion, .head_sha, .name] | @tsv'
+          )
+
+          if [ "$workflow_name" != "lesson71-terraform-promote" ]; then
+            echo "Source run belongs to unexpected workflow: ${workflow_name}"
+            exit 1
+          fi
+
+          if [ "$status" != "completed" ] || [ "$conclusion" != "success" ]; then
+            echo "Source run is not a successful completed run: status=${status}, conclusion=${conclusion}"
+            exit 1
+          fi
+
+          if [ "$head_sha" != "$source_sha" ] || [ "$head_sha" != "$GITHUB_SHA" ]; then
+            echo "Source run commit does not match this promotion commit. source_run=${head_sha}, input=${source_sha}, current=${GITHUB_SHA}"
+            exit 1
+          fi
+
+          expected_artifact="lesson71-${source_env}-apply"
+          artifact_count="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts" \
+            --jq "[.artifacts[] | select(.name == \"${expected_artifact}\" and .expired == false)] | length")"
+
+          if [ "$artifact_count" -lt 1 ]; then
+            echo "Source run does not contain expected non-expired artifact: ${expected_artifact}"
+            exit 1
+          fi
+
+          rm -rf /tmp/l71-source-promotion
+          gh run download "$run_id" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "$expected_artifact" \
+            --dir /tmp/l71-source-promotion
+
+          manifest="/tmp/l71-source-promotion/promotion-manifest.json"
+          if [ ! -f "$manifest" ]; then
+            echo "Source apply artifact does not contain promotion-manifest.json"
+            exit 1
+          fi
+
+          jq -e \
+            --arg release_id "${{ github.event.inputs.release_id }}" \
+            --arg source_env "$source_env" \
+            --arg commit_sha "$GITHUB_SHA" \
+            --arg source_url "$source_url" \
+            '.release_id == $release_id
+             and .target_env == $source_env
+             and .commit_sha == $commit_sha
+             and .policy_decision == "ALLOW"
+             and (.tfplan_sha256 | type == "string" and length > 0)
+             and .workflow_run_url == $source_url' \
+            "$manifest" >/dev/null
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform fmt
+        working-directory: ${{ env.TF_BASE }}
+        run: terraform fmt -check -diff -recursive
+
+      - name: Terraform native tests
+        working-directory: ${{ env.TF_MODULE }}
+        run: |
+          terraform init -backend=false -input=false -no-color
+          terraform test -test-directory=tests -no-color
+
+      - name: Check required repository variables
+        run: |
+          missing=0
+          for name in TF_STATE_BUCKET TF_WEB_AMI_ID TF_SSM_PROXY_AMI_ID TF_GITHUB_OWNER TF_GITHUB_REPO TF_GITHUB_OIDC_PROVIDER_ARN; do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required repository variable: ${name}"
+              missing=1
+            fi
+          done
+
+          case "${{ github.event.inputs.target_env }}" in
+            dev) role="$TF_PLAN_ROLE_ARN_DEV"; role_name="TF_PLAN_ROLE_ARN_DEV" ;;
+            stage) role="$TF_PLAN_ROLE_ARN_STAGE"; role_name="TF_PLAN_ROLE_ARN_STAGE" ;;
+            prod) role="$TF_PLAN_ROLE_ARN_PROD"; role_name="TF_PLAN_ROLE_ARN_PROD" ;;
+          esac
+
+          if [ -z "$role" ]; then
+            echo "Missing required repository variable for target env: ${role_name}"
+            missing=1
+          fi
+
+          exit "$missing"
+        env:
+          TF_PLAN_ROLE_ARN_DEV: ${{ vars.TF_PLAN_ROLE_ARN_DEV }}
+          TF_PLAN_ROLE_ARN_STAGE: ${{ vars.TF_PLAN_ROLE_ARN_STAGE }}
+          TF_PLAN_ROLE_ARN_PROD: ${{ vars.TF_PLAN_ROLE_ARN_PROD }}
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_WEB_AMI_ID: ${{ vars.TF_WEB_AMI_ID }}
+          TF_SSM_PROXY_AMI_ID: ${{ vars.TF_SSM_PROXY_AMI_ID }}
+          TF_GITHUB_OWNER: ${{ vars.TF_GITHUB_OWNER || github.repository_owner }}
+          TF_GITHUB_REPO: ${{ vars.TF_GITHUB_REPO || github.event.repository.name }}
+          TF_GITHUB_OIDC_PROVIDER_ARN: ${{ vars.TF_GITHUB_OIDC_PROVIDER_ARN }}
+
+      - name: Select environment plan role
+        id: plan-role
+        run: |
+          case "${{ github.event.inputs.target_env }}" in
+            dev) role="$TF_PLAN_ROLE_ARN_DEV" ;;
+            stage) role="$TF_PLAN_ROLE_ARN_STAGE" ;;
+            prod) role="$TF_PLAN_ROLE_ARN_PROD" ;;
+          esac
+
+          echo "arn=${role}" >> "$GITHUB_OUTPUT"
+        env:
+          TF_PLAN_ROLE_ARN_DEV: ${{ vars.TF_PLAN_ROLE_ARN_DEV }}
+          TF_PLAN_ROLE_ARN_STAGE: ${{ vars.TF_PLAN_ROLE_ARN_STAGE }}
+          TF_PLAN_ROLE_ARN_PROD: ${{ vars.TF_PLAN_ROLE_ARN_PROD }}
+
+      - name: Configure AWS credentials for plan via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ steps.plan-role.outputs.arn }}
+          role-session-name: gha-l71-plan-${{ github.event.inputs.target_env }}
+
+      - name: Write backend and Terraform variables
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          target_env="${{ github.event.inputs.target_env }}"
+          state_key="lab71/${target_env}/full/terraform.tfstate"
+
+          case "$target_env" in
+            dev)
+              project_name="lab71-dev"
+              vpc_cidr="10.71.0.0/16"
+              public_subnets='["10.71.1.0/24", "10.71.2.0/24"]'
+              private_subnets='["10.71.11.0/24", "10.71.12.0/24"]'
+              web_min=1
+              web_desired=1
+              web_max=2
+              enable_web_ssm=true
+              apply_environment="terraform-dev"
+              criticality="low"
+              ;;
+            stage)
+              project_name="lab71-stage"
+              vpc_cidr="10.72.0.0/16"
+              public_subnets='["10.72.1.0/24", "10.72.2.0/24"]'
+              private_subnets='["10.72.11.0/24", "10.72.12.0/24"]'
+              web_min=2
+              web_desired=2
+              web_max=3
+              enable_web_ssm=true
+              apply_environment="terraform-stage"
+              criticality="medium"
+              ;;
+            prod)
+              project_name="lab71-prod"
+              vpc_cidr="10.73.0.0/16"
+              public_subnets='["10.73.1.0/24", "10.73.2.0/24"]'
+              private_subnets='["10.73.11.0/24", "10.73.12.0/24"]'
+              web_min=2
+              web_desired=2
+              web_max=4
+              enable_web_ssm=false
+              apply_environment="terraform-prod"
+              criticality="high"
+              ;;
+          esac
+
+          cat > backend.hcl <<EOF_BACKEND
+          bucket       = "${{ vars.TF_STATE_BUCKET }}"
+          key          = "${state_key}"
+          region       = "${AWS_REGION}"
+          encrypt      = true
+          use_lockfile = true
+          EOF_BACKEND
+
+          cat > terraform.auto.tfvars <<EOF_TFVARS
+          aws_region   = "${AWS_REGION}"
+          project_name = "${project_name}"
+          environment  = "${target_env}"
+
+          vpc_cidr             = "${vpc_cidr}"
+          public_subnet_cidrs  = ${public_subnets}
+          private_subnet_cidrs = ${private_subnets}
+
+          enable_ssm_vpc_endpoints = true
+          enable_web_ssm           = ${enable_web_ssm}
+
+          web_ami_id       = "${{ vars.TF_WEB_AMI_ID }}"
+          ssm_proxy_ami_id = "${{ vars.TF_SSM_PROXY_AMI_ID }}"
+
+          web_min_size         = ${web_min}
+          web_desired_capacity = ${web_desired}
+          web_max_size         = ${web_max}
+
+          github_owner             = "${{ vars.TF_GITHUB_OWNER || github.repository_owner }}"
+          github_repo              = "${{ vars.TF_GITHUB_REPO || github.event.repository.name }}"
+          github_branch            = "main"
+          github_apply_environment = "${apply_environment}"
+          github_oidc_provider_arn = "${{ vars.TF_GITHUB_OIDC_PROVIDER_ARN }}"
+
+          tf_state_bucket_name = "${{ vars.TF_STATE_BUCKET }}"
+          tf_state_key         = "${state_key}"
+
+          demo_api_token_parameter_name = "/devops/lab71/${target_env}/demo/api-token"
+          demo_app_secret_name          = "/devops/lab71/${target_env}/demo/app-secret"
+
+          common_tags = {
+            Owner       = "DevOpsTrack"
+            Criticality = "${criticality}"
+          }
+          EOF_TFVARS
+
+      - name: Terraform init
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: terraform init -reconfigure -backend-config=backend.hcl -input=false -no-color
+
+      - name: Terraform validate
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: terraform validate -no-color
+
+      - name: Terraform saved plan
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          terraform plan -input=false -no-color -out=tfplan 2>&1 | tee plan.txt
+          terraform show -no-color tfplan > tfplan.txt
+          terraform show -json tfplan > tfplan.json
+
+      - name: Policy check
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          mkdir -p policy-results
+          allow_destroy="${{ github.event.inputs.allow_destroy_exception_path }}"
+
+          if [ -n "$allow_destroy" ]; then
+            case "$allow_destroy" in
+              /*|*..*)
+                echo "allow_destroy_exception_path must be repo-relative and must not contain '..'."
+                exit 1
+                ;;
+            esac
+
+            if ! [[ "$allow_destroy" =~ ^[A-Za-z0-9._/-]+\.json$ ]]; then
+              echo "allow_destroy_exception_path must contain only letters, numbers, slash, dot, underscore, dash and end with .json."
+              exit 1
+            fi
+
+            workspace_abs="$(realpath "$GITHUB_WORKSPACE")"
+            allow_destroy_abs="$(realpath -m "$GITHUB_WORKSPACE/$allow_destroy")"
+
+            case "$allow_destroy_abs" in
+              "$workspace_abs"/*) ;;
+              *)
+                echo "allow_destroy_exception_path resolved outside repository workspace."
+                exit 1
+                ;;
+            esac
+
+            if [ ! -f "$allow_destroy_abs" ]; then
+              echo "allow_destroy_exception_path does not exist: $allow_destroy"
+              exit 1
+            fi
+
+            allow_destroy="$allow_destroy_abs"
+          fi
+
+          ALLOW_DESTROY_FILE="$allow_destroy" OUT_DIR=policy-results ../../../policies/terraform-plan-policy.sh tfplan.json 2>&1 | tee policy-results/policy-output.txt
+
+      - name: Write plan summary
+        if: always()
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          policy_decision="UNKNOWN"
+          if [ -f policy-results/policy-decision.txt ]; then
+            policy_decision="$(grep '^POLICY_DECISION=' policy-results/policy-decision.txt | cut -d= -f2 || true)"
+          fi
+
+          {
+            echo "## Lesson 71 Promotion Plan"
+            echo
+            echo "- release_id: \`${{ github.event.inputs.release_id }}\`"
+            echo "- source_env: \`${{ github.event.inputs.source_env }}\`"
+            echo "- target_env: \`${{ github.event.inputs.target_env }}\`"
+            echo "- commit: \`${GITHUB_SHA}\`"
+            echo "- backend_key: \`lab71/${{ github.event.inputs.target_env }}/full/terraform.tfstate\`"
+            echo "- policy_decision: \`${policy_decision:-UNKNOWN}\`"
+            echo "- plan_artifact: \`lesson71-${{ github.event.inputs.target_env }}-plan\`"
+            if [ -n "${{ github.event.inputs.source_workflow_run_url }}" ]; then
+              echo "- source_workflow_run_url: ${{ github.event.inputs.source_workflow_run_url }}"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload plan artifact for approval
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lesson71-${{ github.event.inputs.target_env }}-plan
+          retention-days: 7
+          path: |
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/tfplan
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/tfplan.txt
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/tfplan.json
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/plan.txt
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/terraform.auto.tfvars
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/policy-results/
+          if-no-files-found: ignore
+
+  apply:
+    name: Apply ${{ github.event.inputs.target_env }} after approval
+    needs: plan
+    runs-on: ubuntu-latest
+
+    environment:
+      name: terraform-${{ github.event.inputs.target_env }}
+
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Download approved plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lesson71-${{ github.event.inputs.target_env }}-plan
+          path: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+
+      - name: Verify approved policy decision
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          decision_file="policy-results/policy-decision.txt"
+
+          if [ ! -f "$decision_file" ]; then
+            echo "Missing policy decision artifact: ${decision_file}"
+            exit 1
+          fi
+
+          if ! grep -qx 'POLICY_DECISION=ALLOW' "$decision_file"; then
+            echo "Refusing apply because policy decision is not ALLOW."
+            cat "$decision_file"
+            exit 1
+          fi
+
+      - name: Select environment apply role
+        id: apply-role
+        run: |
+          case "${{ github.event.inputs.target_env }}" in
+            dev) role="$TF_APPLY_ROLE_ARN_DEV"; role_name="TF_APPLY_ROLE_ARN_DEV" ;;
+            stage) role="$TF_APPLY_ROLE_ARN_STAGE"; role_name="TF_APPLY_ROLE_ARN_STAGE" ;;
+            prod) role="$TF_APPLY_ROLE_ARN_PROD"; role_name="TF_APPLY_ROLE_ARN_PROD" ;;
+          esac
+
+          if [ -z "$role" ]; then
+            echo "Missing required repository variable for target env: ${role_name}"
+            exit 1
+          fi
+
+          echo "arn=${role}" >> "$GITHUB_OUTPUT"
+        env:
+          TF_APPLY_ROLE_ARN_DEV: ${{ vars.TF_APPLY_ROLE_ARN_DEV }}
+          TF_APPLY_ROLE_ARN_STAGE: ${{ vars.TF_APPLY_ROLE_ARN_STAGE }}
+          TF_APPLY_ROLE_ARN_PROD: ${{ vars.TF_APPLY_ROLE_ARN_PROD }}
+
+      - name: Configure AWS credentials for apply via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ steps.apply-role.outputs.arn }}
+          role-session-name: gha-l71-apply-${{ github.event.inputs.target_env }}
+
+      - name: Write backend config
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          cat > backend.hcl <<EOF_BACKEND
+          bucket       = "${{ vars.TF_STATE_BUCKET }}"
+          key          = "lab71/${{ github.event.inputs.target_env }}/full/terraform.tfstate"
+          region       = "${AWS_REGION}"
+          encrypt      = true
+          use_lockfile = true
+          EOF_BACKEND
+
+      - name: Terraform init
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: terraform init -reconfigure -backend-config=backend.hcl -input=false -no-color
+
+      - name: Terraform apply approved saved plan
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: terraform apply -input=false -no-color tfplan 2>&1 | tee apply.txt
+
+      - name: Write apply metadata
+        if: always()
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          tfplan_sha256="MISSING"
+          if [ -f tfplan ]; then
+            tfplan_sha256="$(sha256sum tfplan | awk '{print $1}')"
+          fi
+
+          jq -n \
+            --arg release_id "${{ github.event.inputs.release_id }}" \
+            --arg source_env "${{ github.event.inputs.source_env }}" \
+            --arg target_env "${{ github.event.inputs.target_env }}" \
+            --arg commit_sha "$GITHUB_SHA" \
+            --arg workflow_run_url "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            --arg tfplan_sha256 "$tfplan_sha256" \
+            --arg generated_at "$(date -u +%FT%TZ)" \
+            '{
+              release_id: $release_id,
+              source_env: $source_env,
+              target_env: $target_env,
+              commit_sha: $commit_sha,
+              workflow_run_url: $workflow_run_url,
+              tfplan_sha256: $tfplan_sha256,
+              generated_at: $generated_at
+            }' > apply-metadata.json
+
+      - name: Post-apply drift check
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          set +e
+          terraform plan -detailed-exitcode -input=false -no-color > post_apply_plan.txt 2>&1
+          ec=$?
+          echo "$ec" > post_apply_exitcode.txt
+          if [ "$ec" -ne 0 ]; then
+            echo "Post-apply plan is not clean or errored. Exit code: $ec"
+            exit "$ec"
+          fi
+
+      - name: Write promotion manifest
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          policy_decision="UNKNOWN"
+          if [ -f policy-results/policy-decision.txt ]; then
+            policy_decision="$(grep '^POLICY_DECISION=' policy-results/policy-decision.txt | cut -d= -f2 || true)"
+          fi
+
+          tfplan_sha256="$(sha256sum tfplan | awk '{print $1}')"
+          workflow_run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          jq -n \
+            --arg release_id "${{ github.event.inputs.release_id }}" \
+            --arg source_env "${{ github.event.inputs.source_env }}" \
+            --arg target_env "${{ github.event.inputs.target_env }}" \
+            --arg commit_sha "$GITHUB_SHA" \
+            --arg workflow_run_url "$workflow_run_url" \
+            --arg tfplan_sha256 "$tfplan_sha256" \
+            --arg policy_decision "$policy_decision" \
+            '{
+              release_id: $release_id,
+              source_env: $source_env,
+              target_env: $target_env,
+              commit_sha: $commit_sha,
+              workflow_run_url: $workflow_run_url,
+              tfplan_sha256: $tfplan_sha256,
+              policy_decision: $policy_decision
+            }' > promotion-manifest.json
+
+      - name: Upload apply artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lesson71-${{ github.event.inputs.target_env }}-apply
+          retention-days: 7
+          path: |
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/apply.txt
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/apply-metadata.json
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/post_apply_plan.txt
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/post_apply_exitcode.txt
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/promotion-manifest.json
+          if-no-files-found: ignore
+
+      - name: Write apply summary
+        if: always()
+        run: |
+          {
+            echo "## Lesson 71 Promotion Apply"
+            echo
+            echo "- release_id: \`${{ github.event.inputs.release_id }}\`"
+            echo "- target_env: \`${{ github.event.inputs.target_env }}\`"
+            echo "- commit: \`${GITHUB_SHA}\`"
+            echo "- backend_key: \`lab71/${{ github.event.inputs.target_env }}/full/terraform.tfstate\`"
+            echo "- manifest: \`promotion-manifest.json\`"
+            echo "- apply_artifact: \`lesson71-${{ github.event.inputs.target_env }}-apply\`"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -76,8 +76,20 @@
 | 56 | 2026-02-24 | Guardrailed Deployments (Auto Rollback, Checkpoints, Skip Matching) |
 | 57 | 2026-03-01 | Deployment Quality Gates (Load, Latency, SLO-Style Release Rules) |
 | 58 | 2026-03-03 | Release Automation & Runbook Standardization |
-| * | 2026-03-(04-17) | Study was paused due to personal reasons |
+| * | 2026-03-(04-17) | Study was paused due to personal reasons 💀 |
 | 59 | 2026-03-18 | Change Management & Release Notes (Evidence -> Decision -> Record) |
 | 60 | 2026-03-20 | Remote State & Locking (S3 Backend, Lockfile, Versioning, Safe Recovery) |
 | 61 | 2026-03-22 | State Hygiene & Safe Refactors (`moved`, `state mv`, `state rm`, `import`) |
 | 62 | 2026-03-24 | Terraform Quality Gates & Policy Baseline (`fmt`, `validate`, `tflint`, `checkov`) |
+| * | 2026-(03-25/05-08) | Study was paused due to personal reasons 💀 |
+| 63 | 2026-05-09 | Terraform CI Plan Pipeline (OIDC, Remote State, PR-Safe Delivery) |
+| 64 | 2026-05-10 | Drift Detection & Change Awareness (Scheduled Plan, Evidence, Triage) |
+| 65 | 2026-05-13 | Secrets, Sensitive Data & Safe Inputs |
+| * | 2026-05-(15-28) | Study was paused due to personal reasons 💀 |
+| 66 | 2026-05-30 | Module Contracts & Interface Guarantees |
+| 67 | 2026-05-31 | Terraform Native Tests |
+| 68 | 2026-06-01 | Controlled Terraform Apply Pipeline |
+| 69 | 2026-06-03 | Production IAM: Least-Privilege Plan and Apply Roles |
+| 70 | 2026-06-05 | Policy as Code on Terraform JSON Plan |
+| 71 | 2026-06-08 | Multi-Environment Promotion: dev -> stage -> prod |
+| 72 | 2026-06-10 | |
