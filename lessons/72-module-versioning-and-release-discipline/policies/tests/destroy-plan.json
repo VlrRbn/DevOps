@@ -1,0 +1,15 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.network.aws_cloudwatch_metric_alarm.old_alarm",
+      "mode": "managed",
+      "type": "aws_cloudwatch_metric_alarm",
+      "name": "old_alarm",
+      "change": {
+        "actions": ["delete"],
+        "after": null
+      }
+    }
+  ]
+}

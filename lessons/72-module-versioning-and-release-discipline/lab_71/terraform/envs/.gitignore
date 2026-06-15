@@ -1,0 +1,14 @@
+backend.hcl
+terraform.tfvars
+*.auto.tfvars
+*.tfplan
+tfplan
+plan.txt
+tfplan.txt
+tfplan.json
+policy-results/
+apply.txt
+post_apply_plan.txt
+post_apply_exitcode.txt
+.terraform/
+.terraform.lock.hcl
