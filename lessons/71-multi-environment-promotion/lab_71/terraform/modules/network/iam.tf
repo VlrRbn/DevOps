@@ -12,6 +12,11 @@ resource "aws_iam_role" "ec2_ssm_role" {
       Action    = "sts:AssumeRole"
     }]
   })
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-ec2-ssm-role"
+    Role = "runtime-ssm"
+  })
 }
 
 # Attach AmazonSSMManagedInstanceCore to the role.
@@ -24,6 +29,11 @@ resource "aws_iam_role_policy_attachment" "ec2_ssm_role_attach" {
 resource "aws_iam_instance_profile" "ec2_ssm_instance_profile" {
   name = "${var.project_name}-ec2-ssm-instance-profile"
   role = aws_iam_role.ec2_ssm_role.name
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-ec2-ssm-instance-profile"
+    Role = "runtime-ssm"
+  })
 }
 
 data "aws_caller_identity" "current" {}
@@ -118,6 +128,11 @@ resource "aws_iam_role" "github_actions_plan_role" {
         }
       }
     ]
+  })
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-github-actions-plan-role"
+    Role = "ci-plan"
   })
 }
 
@@ -222,6 +237,11 @@ resource "aws_iam_role" "github_actions_apply_role" {
         }
       }
     ]
+  })
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-github-actions-apply-role"
+    Role = "ci-apply"
   })
 }
 

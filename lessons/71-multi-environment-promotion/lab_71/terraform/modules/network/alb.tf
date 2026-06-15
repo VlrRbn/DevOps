@@ -53,4 +53,8 @@ resource "aws_lb_listener" "http" {
     target_group_arn = aws_lb_target_group.web.arn
   }
 
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-http-listener"
+  })
+
 }

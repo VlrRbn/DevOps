@@ -7,6 +7,11 @@ resource "aws_launch_template" "web" {
   instance_type          = var.instance_type_web
   update_default_version = true
 
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-web-launch-template"
+    Role = "web"
+  })
+
   network_interfaces {
     associate_public_ip_address = false
     security_groups             = [aws_security_group.web.id]

@@ -35,6 +35,11 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealthy" {
 
   alarm_description = "ALB Unhealthy hosts - safety critical signal"
 
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-alb-unhealthy-hosts"
+    Role = "release-safety"
+  })
+
 }
 
 # ALB 5XX - safety critical signal.
@@ -54,6 +59,11 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_critical" {
   }
 
   alarm_description = "ALB 5XX - safety critical signal"
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-alb-5xx-critical"
+    Role = "release-safety"
+  })
 
 }
 
@@ -76,6 +86,11 @@ resource "aws_cloudwatch_metric_alarm" "target_5xx_critical" {
 
   alarm_description = "Safety critical signal: backend 5xx regression"
 
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-target-5xx-critical"
+    Role = "release-safety"
+  })
+
 }
 
 # Target 5XX - release quality gate. Catch regressions early.
@@ -97,6 +112,11 @@ resource "aws_cloudwatch_metric_alarm" "release_5xx_gate" {
 
   alarm_description = "Release quality gate: backend 5xx regression"
 
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-release-target-5xx"
+    Role = "release-gate"
+  })
+
 }
 
 # Target latency - release quality gate. Catch latency regressions early.
@@ -117,5 +137,10 @@ resource "aws_cloudwatch_metric_alarm" "latency_gate" {
   }
 
   alarm_description = "Release quality gate: backend latency regression"
+
+  tags = merge(local.tags, {
+    Name = "${var.project_name}-release-latency"
+    Role = "release-gate"
+  })
 
 }
