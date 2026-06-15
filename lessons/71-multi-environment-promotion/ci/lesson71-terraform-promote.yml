@@ -419,7 +419,7 @@ jobs:
             allow_destroy="$allow_destroy_abs"
           fi
 
-          ALLOW_DESTROY_FILE="$allow_destroy" OUT_DIR=policy-results ../../../policies/terraform-plan-policy.sh tfplan.json 2>&1 | tee policy-results/policy-output.txt
+          ALLOW_DESTROY_FILE="$allow_destroy" OUT_DIR=policy-results ../../../../policies/terraform-plan-policy.sh tfplan.json 2>&1 | tee policy-results/policy-output.txt
 
       - name: Write plan summary
         if: always()
