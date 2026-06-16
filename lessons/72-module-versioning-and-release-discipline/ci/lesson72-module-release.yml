@@ -55,6 +55,7 @@ permissions:
 env:
   LESSON_DIR: lessons/72-module-versioning-and-release-discipline
   TERRAFORM_VERSION: '1.14.4'
+  OPA_VERSION: '1.15.2'
 
 concurrency:
   group: lesson72-module-release-${{ github.ref }}-${{ inputs.module_name }}
@@ -125,6 +126,13 @@ jobs:
       - name: Shell policy tests
         working-directory: ${{ env.LESSON_DIR }}
         run: policies/test-policy.sh
+
+      - name: Install OPA
+        run: |
+          curl -fsSL -o opa "https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/opa_linux_amd64_static"
+          chmod +x opa
+          sudo mv opa /usr/local/bin/opa
+          opa version
 
       - name: OPA policy tests
         working-directory: ${{ env.LESSON_DIR }}
