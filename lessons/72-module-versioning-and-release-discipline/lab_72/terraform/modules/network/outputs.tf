@@ -108,3 +108,8 @@ output "demo_app_secret_name" {
   description = "Secrets Manager secret name for lesson 71. This exposes only metadata."
   value       = var.demo_app_secret_name
 }
+
+output "alb_zone_id" {
+  value       = aws_lb.app.zone_id
+  description = "ALB hosted zone ID for DNS automation."
+}
