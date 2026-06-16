@@ -131,6 +131,19 @@ devops-notes/
   ```
 ---
 
+## Local Git Safety Hook
+Enable the repository-managed pre-commit hook:
+
+```bash
+git config core.hooksPath scripts/git-hooks
+```
+
+The hook blocks accidental commits of Terraform runtime/private files such as `backend.hcl`, `terraform.tfvars`, `terraform.tfstate`, plan/apply artifacts, `.terraform/`, private keys, and `*.auto.tfvars`.
+
+Commit `.example`, `.sample`, or `.template` files instead.
+
+---
+
 ## CI Workflows
 - `terraform-plan-pr.yml` - Terraform PR plan, validation, security checks, and plan artifacts.
 - `terraform-drift.yml` - Scheduled/manual drift detection against the remote state.

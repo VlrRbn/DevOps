@@ -1,0 +1,5 @@
+# Known fake lab27 teaching secrets kept for historical lesson context.
+# These fingerprints suppress only the exact historical findings below.
+9bc64c812ef6a09004f0b511afb202b868bb4d25:labs/prep_evening/k8s_ci/kustomize/base/web-config.yaml:generic-api-key:22
+d71d54160c4b012d92c316f9d5030c88aed98e23:labs/lesson_29/k8s/web-config.yaml:generic-api-key:23
+c1ecc64dda0f11a176e0b00753ff9f54065b865a:labs/lesson_28/k8s/web-config.yaml:generic-api-key:23

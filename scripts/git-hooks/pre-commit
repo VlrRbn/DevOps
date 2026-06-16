@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+blocked_regex='(^|/)(backend\.hcl|terraform\.tfvars|[^/]+\.tfvars|terraform\.tfstate|terraform\.tfstate\.backup|tfplan|plan\.txt|tfplan\.txt|tfplan\.json|apply\.txt|post_apply_plan\.txt|post_apply_exitcode\.txt|\.terraform/|\.terraform\.lock\.hcl)$|\.auto\.tfvars$|\.pem$|\.key$'
+
+# Allow examples/templates but block real runtime/private files.
+staged_files="$(git diff --cached --name-only --diff-filter=ACMR || true)"
+
+if [[ -z "$staged_files" ]]; then
+  exit 0
+fi
+
+blocked_files="$(printf '%s\n' "$staged_files" \
+  | grep -E "$blocked_regex" \
+  | grep -Ev '(\.example$|\.sample$|\.template$)' || true)"
+
+if [[ -n "$blocked_files" ]]; then
+  cat >&2 <<MSG
+pre-commit blocked potentially sensitive/runtime files:
+
+$blocked_files
+
+Commit .example/.sample/.template files instead.
+If this is intentional, review the file contents and use:
+  git commit --no-verify
+MSG
+  exit 1
+fi
+
+exit 0

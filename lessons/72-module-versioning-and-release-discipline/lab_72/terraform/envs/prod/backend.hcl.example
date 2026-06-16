@@ -1,0 +1,5 @@
+bucket       = "REPLACE_WITH_TFSTATE_BUCKET"
+key          = "lab72/prod/full/terraform.tfstate"
+region       = "eu-west-1"
+encrypt      = true
+use_lockfile = true

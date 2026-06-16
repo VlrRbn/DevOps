@@ -1,4 +1,9 @@
-# Директории
+# ---------------------------------------------------------------------------
+# Local runtime directories
+# ---------------------------------------------------------------------------
+# **/env/ - too wide
+# **/tmp/ - too wide
+# ---------------------------------------------------------------------------
 **/.pytest_cache/
 **/.terraform/
 **/.venv/
@@ -8,23 +13,122 @@
 **/grafana-data/
 **/tmp/
 **/venv/
+.tmp/
+tmp/
 
+# ---------------------------------------------------------------------------
+# editor noise
+# ---------------------------------------------------------------------------
+*.swp
+*.swo
+*~
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ---------------------------------------------------------------------------
 # Python
+# ---------------------------------------------------------------------------
 *.py[cod]
 
-# Terraform state и lock
+# ---------------------------------------------------------------------------
+# Environment files and local secrets
+# ---------------------------------------------------------------------------
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+!.env.sample
+!.env.template
+*.secret
+*.secrets
+*.token
+*.credentials
+credentials
+credentials.*
+secrets.json
+secrets.yaml
+secrets.yml
+
+# ---------------------------------------------------------------------------
+# Cloud / CLI credentials
+# ---------------------------------------------------------------------------
+.aws/
+**/.aws/
+
+# ---------------------------------------------------------------------------
+# SSH keys, private keys, and certificate bundles
+# ---------------------------------------------------------------------------
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+
+# ---------------------------------------------------------------------------
+# Kubernetes local access files
+# ---------------------------------------------------------------------------
+.kube/
+**/.kube/
+kubeconfig
+*.kubeconfig
+*kubeconfig*
+
+# ---------------------------------------------------------------------------
+# Terraform state, cache, variables, backend, and crash logs
+# ---------------------------------------------------------------------------
+# terraform.lock.hcl - temporary ignore
+# ---------------------------------------------------------------------------
 **/.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
-
-# Terraform variables
+*.tfstate.backup
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+terraform.tfvars
+*.tfvars
 *.auto.tfvars
 backend.hcl
-terraform.tfvars
+backend.*.hcl
 
-# Terraform plan files
+# Keep sanitized examples/templates versioned.
+!*.tfvars.example
+!*.tfvars.sample
+!*.tfvars.template
+!backend.hcl.example
+!backend.hcl.sample
+!backend.hcl.template
+
+# ---------------------------------------------------------------------------
+# Terraform plan/apply artifacts and policy outputs
+# ---------------------------------------------------------------------------
 *.tfplan
-plan.txt
 tfplan
+tfplan.*
+plan.txt
 tfplan.txt
 tfplan.json
+policy-results/
+**/policy-results/
+
+# ---------------------------------------------------------------------------
+# Logs and generated reports
+# ---------------------------------------------------------------------------
+*.log
+*.sarif
+*.junit.xml
+gitleaks-report.*
+checkov-report.*
+tflint-report.*
