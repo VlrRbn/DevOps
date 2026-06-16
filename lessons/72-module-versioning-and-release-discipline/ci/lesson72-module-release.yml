@@ -1,0 +1,188 @@
+name: Lesson 72 Module Release Checks
+
+on:
+  workflow_dispatch:
+    inputs:
+      module_name:
+        description: Terraform module name under lab_72/terraform/modules
+        required: true
+        default: network
+      previous_ref:
+        description: Previous module ref or tag for release note diff
+        required: true
+        default: network/v1.0.0
+      new_ref:
+        description: New module ref, tag, branch, or SHA for release note diff
+        required: true
+        default: HEAD
+      release_version:
+        description: New module SemVer label without module prefix, for example v1.1.0
+        required: true
+        default: v1.1.0
+      release_type:
+        description: patch, minor, or major
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      enforce_env_refs:
+        description: Check env roots for pinned module refs
+        required: true
+        type: boolean
+        default: false
+      expected_ref_dev:
+        description: Expected module ref in dev when enforce_env_refs=true
+        required: false
+        default: network/v1.0.0
+      expected_ref_stage:
+        description: Expected module ref in stage when enforce_env_refs=true
+        required: false
+        default: network/v1.0.0
+      expected_ref_prod:
+        description: Expected module ref in prod when enforce_env_refs=true
+        required: false
+        default: network/v1.0.0
+      confirm_release_check:
+        description: Type CHECK to run the release checks
+        required: true
+        default: CHECK
+
+permissions:
+  contents: read
+
+env:
+  LESSON_DIR: lessons/72-module-versioning-and-release-discipline
+  TERRAFORM_VERSION: '1.14.4'
+
+concurrency:
+  group: lesson72-module-release-${{ github.ref }}-${{ inputs.module_name }}
+  cancel-in-progress: false
+
+jobs:
+  module-release-checks:
+    name: Module release checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Guard explicit confirmation and input shape
+        run: |
+          if [[ "${{ inputs.confirm_release_check }}" != "CHECK" ]]; then
+            echo "confirm_release_check must be CHECK" >&2
+            exit 64
+          fi
+
+          if ! [[ "${{ inputs.module_name }}" =~ ^[a-z0-9][a-z0-9_-]*$ ]]; then
+            echo "module_name must contain only lowercase letters, numbers, underscore, or dash." >&2
+            exit 64
+          fi
+
+          if ! [[ "${{ inputs.release_version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "release_version must be a SemVer label like v1.1.0, not a full ref like network/v1.1.0." >&2
+            exit 64
+          fi
+
+      - name: Checkout exact workflow commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify lesson workspace
+        run: |
+          test -d "${LESSON_DIR}"
+          test -d "${LESSON_DIR}/lab_72/terraform/modules/${{ inputs.module_name }}"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+
+      - name: Terraform fmt
+        working-directory: ${{ env.LESSON_DIR }}
+        run: terraform fmt -check -recursive lab_72/terraform
+
+      - name: Packer fmt
+        working-directory: ${{ env.LESSON_DIR }}
+        run: packer fmt -check -recursive lab_72/packer
+
+      - name: Init module for native tests
+        working-directory: ${{ env.LESSON_DIR }}
+        run: terraform -chdir=lab_72/terraform/modules/${{ inputs.module_name }} init -backend=false -input=false -no-color
+
+      - name: Terraform native module tests
+        working-directory: ${{ env.LESSON_DIR }}
+        run: terraform -chdir=lab_72/terraform/modules/${{ inputs.module_name }} test -no-color
+
+      - name: Shell policy tests
+        working-directory: ${{ env.LESSON_DIR }}
+        run: policies/test-policy.sh
+
+      - name: OPA policy tests
+        working-directory: ${{ env.LESSON_DIR }}
+        run: policies/test-opa.sh
+
+      - name: Optional env module-ref checks
+        if: ${{ inputs.enforce_env_refs }}
+        working-directory: ${{ env.LESSON_DIR }}
+        run: |
+          scripts/check-module-version.sh lab_72/terraform/envs/dev   "${{ inputs.expected_ref_dev }}"
+          scripts/check-module-version.sh lab_72/terraform/envs/stage "${{ inputs.expected_ref_stage }}"
+          scripts/check-module-version.sh lab_72/terraform/envs/prod  "${{ inputs.expected_ref_prod }}"
+
+      - name: Generate module release note artifact
+        working-directory: ${{ env.LESSON_DIR }}
+        run: |
+          mkdir -p artifacts
+          scripts/module-release-note.sh \
+            "${{ inputs.module_name }}" \
+            "${{ inputs.release_version }}" \
+            "${{ inputs.previous_ref }}" \
+            "${{ inputs.new_ref }}" \
+            > artifacts/release-note-${{ inputs.module_name }}-${{ inputs.release_version }}.md
+
+          cat > artifacts/module-release-metadata.json <<JSON
+          {
+            "lesson": "72",
+            "module": "${{ inputs.module_name }}",
+            "release_version": "${{ inputs.release_version }}",
+            "release_ref": "${{ inputs.module_name }}/${{ inputs.release_version }}",
+            "release_type": "${{ inputs.release_type }}",
+            "previous_ref": "${{ inputs.previous_ref }}",
+            "new_ref": "${{ inputs.new_ref }}",
+            "commit_sha": "${{ github.sha }}",
+            "enforce_env_refs": ${{ inputs.enforce_env_refs }}
+          }
+          JSON
+
+      - name: Upload release check artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: lesson72-module-release-${{ inputs.module_name }}-${{ inputs.release_version }}
+          path: ${{ env.LESSON_DIR }}/artifacts/
+          if-no-files-found: error
+
+      - name: Summary
+        working-directory: ${{ env.LESSON_DIR }}
+        run: |
+          {
+            echo "## Lesson 72 Module Release Checks"
+            echo
+            echo "- module: \`${{ inputs.module_name }}\`"
+            echo "- release version: \`${{ inputs.release_version }}\`"
+            echo "- release ref: \`${{ inputs.module_name }}/${{ inputs.release_version }}\`"
+            echo "- release type: \`${{ inputs.release_type }}\`"
+            echo "- previous ref: \`${{ inputs.previous_ref }}\`"
+            echo "- new ref: \`${{ inputs.new_ref }}\`"
+            echo "- commit: \`${{ github.sha }}\`"
+            echo "- env ref enforcement: \`${{ inputs.enforce_env_refs }}\`"
+            echo "- artifact: \`lesson72-module-release-${{ inputs.module_name }}-${{ inputs.release_version }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
