@@ -35,7 +35,7 @@ locals {
     Project     = var.project_name
     Environment = var.environment
     ManagedBy   = "Terraform"
-    Lesson      = "71"
+    Lesson      = "72"
   }
 
   # Required tags come last so callers can add metadata but cannot override governance tags.
