@@ -8,7 +8,7 @@ provider "aws" {
 }
 
 module "network" {
-  source = "git::https://github.com/VlrRbn/DevOps.git//lessons/72-module-versioning-and-release-discipline/lab_72/terraform/modules/network?ref=network/v1.0.0"
+  source = "git::https://github.com/VlrRbn/DevOps.git//lessons/72-module-versioning-and-release-discipline/lab_72/terraform/modules/network?ref=network/v1.1.0"
 
   aws_region                     = var.aws_region
   project_name                   = var.project_name
