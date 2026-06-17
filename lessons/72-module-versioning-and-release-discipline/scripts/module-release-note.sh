@@ -4,10 +4,10 @@ set -Eeuo pipefail
 usage() {
   cat >&2 <<'USAGE'
 Usage:
-  module-release-note.sh <module> <version> <previous-ref> <new-ref>
+  module-release-note.sh <module> <version> <previous-ref> <new-ref> [patch|minor|major]
 
 Example:
-  module-release-note.sh network v1.1.0 network/v1.0.0 HEAD
+  module-release-note.sh network v1.1.0 network/v1.0.0 HEAD minor
 USAGE
 }
 
@@ -15,9 +15,15 @@ MODULE="${1:-}"
 VERSION="${2:-}"
 PREVIOUS_REF="${3:-}"
 NEW_REF="${4:-}"
+RELEASE_TYPE="${5:-}"
 
 if [[ -z "$MODULE" || -z "$VERSION" || -z "$PREVIOUS_REF" || -z "$NEW_REF" ]]; then
   usage
+  exit 64
+fi
+
+if [[ -n "$RELEASE_TYPE" && ! "$RELEASE_TYPE" =~ ^(patch|minor|major)$ ]]; then
+  echo "release type must be one of: patch, minor, major" >&2
   exit 64
 fi
 
@@ -64,11 +70,11 @@ git diff --unified=0 "${PREVIOUS_REF}" "${NEW_REF}" -- \
   "${MODULE_PATH}/outputs.tf" \
   "${MODULE_PATH}/versions.tf" || true
 
-cat <<'FOOTER'
+cat <<FOOTER
 
 ## Release decision
 
-- Version type: patch / minor / major
+- Version type: ${RELEASE_TYPE:-patch / minor / major}
 - Breaking change: yes / no
 - Caller action required:
 - Contract tests passed:

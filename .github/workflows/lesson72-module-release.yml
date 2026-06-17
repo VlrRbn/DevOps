@@ -1,4 +1,4 @@
-name: lesson72-module-release-checks
+name: Lesson 72 Module Release Checks
 
 on:
   workflow_dispatch:
@@ -129,9 +129,13 @@ jobs:
 
       - name: Install OPA
         run: |
-          curl -fsSL -o opa "https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/opa_linux_amd64_static"
-          chmod +x opa
-          sudo mv opa /usr/local/bin/opa
+          opa_asset="opa_linux_amd64_static"
+          opa_url="https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/${opa_asset}"
+          curl -fsSL -o "${opa_asset}" "${opa_url}"
+          curl -fsSL -o "${opa_asset}.sha256" "${opa_url}.sha256"
+          sha256sum -c "${opa_asset}.sha256"
+          chmod +x "${opa_asset}"
+          sudo mv "${opa_asset}" /usr/local/bin/opa
           opa version
 
       - name: OPA policy tests
@@ -155,6 +159,7 @@ jobs:
             "${{ inputs.release_version }}" \
             "${{ inputs.previous_ref }}" \
             "${{ inputs.new_ref }}" \
+            "${{ inputs.release_type }}" \
             > artifacts/release-note-${{ inputs.module_name }}-${{ inputs.release_version }}.md
 
           cat > artifacts/module-release-metadata.json <<JSON
