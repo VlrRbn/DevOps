@@ -144,7 +144,7 @@ output "alb_zone_id" {
 }
 ```
 
-Generate release note:
+Before the new tag exists, generate a pre-release note with `HEAD`:
 
 ```bash
 lessons/72-module-versioning-and-release-discipline/scripts/module-release-note.sh \
@@ -154,6 +154,15 @@ lessons/72-module-versioning-and-release-discipline/scripts/module-release-note.
   HEAD \
   > /tmp/release-note-network-v1.1.0.md
 ```
+
+Meaning:
+
+- `network` is the module name;
+- `v1.1.0` is the release label without the module prefix;
+- `network/v1.0.0` is the previous published module snapshot;
+- `HEAD` is the current commit you are preparing to release.
+
+Use `HEAD` only before `network/v1.1.0` exists. It means: "compare the previous published version with the current release candidate."
 
 Read it before tagging:
 
@@ -166,6 +175,24 @@ Create and push the tag:
 ```bash
 git tag -a network/v1.1.0 -m "network module v1.1.0"
 git push origin network/v1.1.0
+```
+
+After the tag exists, generate the final tag-to-tag release note:
+
+```bash
+lessons/72-module-versioning-and-release-discipline/scripts/module-release-note.sh \
+  network \
+  v1.1.0 \
+  network/v1.0.0 \
+  network/v1.1.0 \
+  > /tmp/release-note-network-v1.1.0.md
+```
+
+Short rule:
+
+```text
+HEAD = release candidate before the tag is created.
+network/v1.1.0 = published release snapshot after the tag is created.
 ```
 
 Check:
@@ -295,7 +322,45 @@ If you created a tag locally by mistake and did not push it:
 git tag -d network/v1.1.0
 ```
 
-If the tag was already pushed, do not delete or move it during a production-style release. Create a corrected new version instead.
+This removes only the local tag.
+
+If a tag was already pushed, Git can technically delete it from the remote:
+
+```bash
+git push origin :refs/tags/network/v1.1.0
+```
+
+Then it could be pushed again from the local repository:
+
+```bash
+git push origin network/v1.1.0
+```
+
+Do not use this as normal release practice.
+
+Why remote tag deletion is dangerous:
+
+- somebody may already have fetched the old tag;
+- Terraform module cache may already contain the old snapshot;
+- CI artifacts may reference the old tag object or old commit;
+- an environment may already have been planned or applied against the old tag;
+- audit history becomes ambiguous because the same release label pointed to different content over time.
+
+Production rule:
+
+```text
+If a published release tag is wrong, do not delete it and do not move it.
+Create a new version.
+```
+
+Examples:
+
+```text
+network/v1.1.0 was published incorrectly.
+network/v1.1.1 is the corrected patch release.
+```
+
+Use remote tag deletion only for local training cleanup or repository maintenance before anyone has consumed the tag.
 
 ## 11. Quick Checklist
 
