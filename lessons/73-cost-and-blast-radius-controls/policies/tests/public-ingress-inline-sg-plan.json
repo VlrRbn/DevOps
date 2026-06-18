@@ -9,7 +9,7 @@
       "change": {
         "actions": ["update"],
         "after": {
-          "name": "lab72-web_sg",
+          "name": "lab73-web_sg",
           "ingress": [
             {
               "cidr_blocks": ["0.0.0.0/0"],
@@ -19,7 +19,7 @@
             }
           ],
           "tags": {
-            "Project": "lab72",
+            "Project": "lab73",
             "Environment": "dev",
             "ManagedBy": "Terraform"
           }

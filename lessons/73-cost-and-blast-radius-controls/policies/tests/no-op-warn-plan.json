@@ -11,7 +11,7 @@
         "after": {
           "max_size": 6,
           "tags": {
-            "Project": "lab72",
+            "Project": "lab73",
             "Environment": "dev",
             "ManagedBy": "Terraform"
           }
@@ -27,7 +27,7 @@
         "actions": ["no-op"],
         "after": {
           "tags": {
-            "Project": "lab72",
+            "Project": "lab73",
             "Environment": "dev",
             "ManagedBy": "Terraform"
           }
@@ -43,9 +43,9 @@
         "actions": ["no-op"],
         "after": {
           "internal": false,
-          "name": "lab72-public-alb",
+          "name": "lab73-public-alb",
           "tags": {
-            "Project": "lab72",
+            "Project": "lab73",
             "Environment": "dev",
             "ManagedBy": "Terraform"
           }

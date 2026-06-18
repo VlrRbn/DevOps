@@ -10,7 +10,7 @@
         "actions": ["update"],
         "after": {
           "tags": {
-            "Project": "lab72",
+            "Project": "lab73",
             "Environment": "dev",
             "ManagedBy": "Terraform"
           },

@@ -5,15 +5,9 @@
       "address": "module.network.aws_lb.app",
       "mode": "managed",
       "type": "aws_lb",
-      "name": "app",
       "change": {
-        "actions": ["create"],
-        "after": {
-          "internal": true,
-          "tags": {
-            "Project": "lab73"
-          }
-        }
+        "actions": ["update"],
+        "after": { "name": "lab73-public-alb", "internal": false }
       }
     }
   ]

@@ -5,17 +5,9 @@
       "address": "module.network.aws_autoscaling_group.web",
       "mode": "managed",
       "type": "aws_autoscaling_group",
-      "name": "web",
       "change": {
         "actions": ["update"],
-        "after": {
-          "max_size": 6,
-          "tags": {
-            "Project": "lab73",
-            "Environment": "dev",
-            "ManagedBy": "Terraform"
-          }
-        }
+        "after": { "max_size": 20 }
       }
     }
   ]

@@ -5,11 +5,9 @@
       "address": "module.network.aws_launch_template.web",
       "mode": "managed",
       "type": "aws_launch_template",
-      "name": "web",
       "change": {
-        "actions": ["delete", "create"],
-        "before": { "name": "lab73-web-old" },
-        "after": { "name": "lab73-web-new" }
+        "actions": ["update"],
+        "after": { "instance_type": "t3.2xlarge" }
       }
     }
   ]
