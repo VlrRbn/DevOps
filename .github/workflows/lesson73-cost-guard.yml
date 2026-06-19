@@ -73,7 +73,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           for dir in lab_73/packer/web lab_73/packer/ssm_proxy; do
-            packer init "${dir}"
+            (cd "${dir}" && packer init .)
           done
 
       - name: Packer fmt
@@ -85,7 +85,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           for dir in lab_73/packer/web lab_73/packer/ssm_proxy; do
-            packer validate "${dir}"
+            (cd "${dir}" && packer validate .)
           done
 
       - name: Shell syntax check
