@@ -8,7 +8,7 @@ provider "aws" {
 }
 
 module "network" {
-  source = "git::https://github.com/VlrRbn/DevOps.git//lessons/73-cost-and-blast-radius-controls/lab_73/terraform/modules/network?ref=network/v1.1.0"
+  source = "../../modules/network"
 
   aws_region                     = var.aws_region
   project_name                   = var.project_name
