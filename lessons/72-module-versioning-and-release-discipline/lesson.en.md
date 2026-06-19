@@ -1,4 +1,4 @@
-# Module Versioning & Release Discipline
+# Lesson 72. Module Versioning & Release Discipline
 
 **Date:** 2026-06-10
 
