@@ -9,6 +9,6 @@ locals {
 
   common_tags = {
     Project = "DevOps"
-    Lesson  = "73-cost-and-blast-radius-controls"
+    Lesson  = "74-disaster-recovery-and-incident-runbooks"
   }
 }
