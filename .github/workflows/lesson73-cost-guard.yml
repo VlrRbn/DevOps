@@ -72,7 +72,7 @@ jobs:
         working-directory: ${{ env.LESSON_DIR }}
         run: |
           set -Eeuo pipefail
-          for dir in lab_73/packer lab_73/packer/web lab_73/packer/ssm_proxy; do
+          for dir in lab_73/packer/web lab_73/packer/ssm_proxy; do
             packer init "${dir}"
           done
 
@@ -84,7 +84,7 @@ jobs:
         working-directory: ${{ env.LESSON_DIR }}
         run: |
           set -Eeuo pipefail
-          for dir in lab_73/packer lab_73/packer/web lab_73/packer/ssm_proxy; do
+          for dir in lab_73/packer/web lab_73/packer/ssm_proxy; do
             packer validate "${dir}"
           done
 
