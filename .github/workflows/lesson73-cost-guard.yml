@@ -1,0 +1,197 @@
+name: lesson73-cost-and-blast-radius-controls
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_check:
+        description: Type CHECK to run lesson 73 checks
+        required: true
+        default: CHECK
+  pull_request:
+    paths:
+      - lessons/73-cost-and-blast-radius-controls/**
+      - .github/workflows/lesson73-cost-guard.yml
+  push:
+    branches:
+      - main
+    paths:
+      - lessons/73-cost-and-blast-radius-controls/**
+      - .github/workflows/lesson73-cost-guard.yml
+
+permissions:
+  contents: read
+
+env:
+  LESSON_DIR: lessons/73-cost-and-blast-radius-controls
+  TERRAFORM_VERSION: '1.14.4'
+  OPA_VERSION: '1.15.2'
+
+concurrency:
+  group: lesson73-cost-guard-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  cost-guard-checks:
+    name: Cost and blast-radius checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Guard explicit confirmation
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          if [[ "${{ inputs.confirm_check }}" != "CHECK" ]]; then
+            echo "confirm_check must be CHECK" >&2
+            exit 64
+          fi
+
+      - name: Checkout exact workflow commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform fmt
+        working-directory: ${{ env.LESSON_DIR }}
+        run: terraform fmt -check -recursive lab_73/terraform
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+
+      - name: Packer init
+        working-directory: ${{ env.LESSON_DIR }}
+        run: |
+          set -Eeuo pipefail
+          for dir in lab_73/packer lab_73/packer/web lab_73/packer/ssm_proxy; do
+            packer init "${dir}"
+          done
+
+      - name: Packer fmt
+        working-directory: ${{ env.LESSON_DIR }}
+        run: packer fmt -check -recursive lab_73/packer
+
+      - name: Packer validate
+        working-directory: ${{ env.LESSON_DIR }}
+        run: |
+          set -Eeuo pipefail
+          for dir in lab_73/packer lab_73/packer/web lab_73/packer/ssm_proxy; do
+            packer validate "${dir}"
+          done
+
+      - name: Shell syntax check
+        working-directory: ${{ env.LESSON_DIR }}
+        run: bash -n policies/*.sh
+
+      - name: Init module for native tests
+        working-directory: ${{ env.LESSON_DIR }}
+        env:
+          TF_DATA_DIR: /tmp/l73-module-test-data
+        run: terraform -chdir=lab_73/terraform/modules/network init -backend=false -input=false -no-color
+
+      - name: Terraform native module tests
+        working-directory: ${{ env.LESSON_DIR }}
+        env:
+          TF_DATA_DIR: /tmp/l73-module-test-data
+        run: terraform -chdir=lab_73/terraform/modules/network test -no-color
+
+      - name: Validate environment roots without remote state
+        working-directory: ${{ env.LESSON_DIR }}
+        run: |
+          for env in dev stage prod; do
+            export TF_DATA_DIR="/tmp/l73-${env}-data"
+            terraform -chdir="lab_73/terraform/envs/${env}" init -backend=false -input=false -no-color
+            terraform -chdir="lab_73/terraform/envs/${env}" validate -no-color
+          done
+
+      - name: Baseline security/change policy tests
+        working-directory: ${{ env.LESSON_DIR }}
+        run: policies/test-policy.sh
+
+      - name: Cost and blast-radius policy tests
+        working-directory: ${{ env.LESSON_DIR }}
+        run: policies/test-cost-policy.sh
+
+      - name: Install OPA
+        run: |
+          set -Eeuo pipefail
+          opa_asset="opa_linux_amd64_static"
+          opa_url="https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/${opa_asset}"
+          curl -fsSL -o "${opa_asset}" "${opa_url}"
+          curl -fsSL -o "${opa_asset}.sha256" "${opa_url}.sha256"
+          sha256sum -c "${opa_asset}.sha256"
+          chmod +x "${opa_asset}"
+          sudo mv "${opa_asset}" /usr/local/bin/opa
+          opa version
+
+      - name: OPA policy tests
+        working-directory: ${{ env.LESSON_DIR }}
+        run: policies/test-opa.sh
+
+      - name: Generate sample cost evidence
+        working-directory: ${{ env.LESSON_DIR }}
+        run: |
+          mkdir -p artifacts/cost-policy
+
+          run_cost_sample() {
+            local name="$1"
+            local plan="$2"
+            local target_env="$3"
+            local expected_exit="$4"
+
+            set +e
+            OUT_DIR="artifacts/cost-policy/${name}" \
+              policies/cost-policy.sh "${plan}" "${target_env}" \
+              > "artifacts/cost-policy/${name}.txt" 2>&1
+            local ec=$?
+            set -e
+
+            if [[ "$ec" -ne "$expected_exit" ]]; then
+              echo "Unexpected exit code for ${name}: expected=${expected_exit} actual=${ec}" >&2
+              cat "artifacts/cost-policy/${name}.txt" >&2
+              exit 1
+            fi
+          }
+
+          for env in dev stage prod; do
+            run_cost_sample "safe-${env}" policies/tests/cost-safe-plan.json "${env}" 0
+          done
+
+          run_cost_sample "nat-dev-deny" policies/tests/cost-nat-plan.json dev 2
+          run_cost_sample "nat-stage-warn" policies/tests/cost-nat-plan.json stage 0
+          run_cost_sample "high-asg-dev-deny" policies/tests/cost-high-asg-plan.json dev 2
+          run_cost_sample "large-instance-deny" policies/tests/cost-large-instance-plan.json stage 2
+          run_cost_sample "public-lb-prod-warn" policies/tests/cost-public-lb-plan.json prod 0
+
+      - name: Upload cost guard artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: lesson73-cost-guard
+          path: ${{ env.LESSON_DIR }}/artifacts/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Summary
+        run: |
+          {
+            echo "## Lesson 73 Cost Guard Checks"
+            echo
+            echo "- terraform fmt: passed"
+            echo "- packer fmt/validate: passed"
+            echo "- shell syntax: passed"
+            echo "- module tests: passed"
+            echo "- env root validation: passed"
+            echo "- baseline policy tests: passed"
+            echo "- cost policy tests: passed"
+            echo "- OPA tests: passed"
+            echo "- artifact: \`lesson73-cost-guard\`"
+          } >> "$GITHUB_STEP_SUMMARY"

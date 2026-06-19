@@ -1,4 +1,4 @@
-name: Lesson 72 Module Release Checks
+name: lesson72-module-release-checks
 
 on:
   workflow_dispatch:
