@@ -115,6 +115,10 @@ devops-notes/
 | **Lesson 68** | Controlled Terraform Apply Pipeline | [Materials_68](lessons/68-controlled-terraform-apply-pipeline/lesson.en.md) | [Readme](lessons/68-controlled-terraform-apply-pipeline/README.md) |
 | **Lesson 69** | Production IAM: Least-Privilege Plan and Apply Roles | [Materials_69](lessons/69-production-iam-least-privilege-plan-and-apply-roles/lesson.en.md) | [Readme](lessons/69-production-iam-least-privilege-plan-and-apply-roles/README.md) |
 | **Lesson 70** | Policy as Code on Terraform JSON Plan | [Materials_70](lessons/70-policy-as-code-terraform-json-plan/lesson.en.md) | [Readme](lessons/70-policy-as-code-terraform-json-plan/README.md) |
+| **Lesson 71** | Multi-Environment Promotion | [Materials_71](lessons/71-multi-environment-promotion/lesson.en.md) | [Readme](lessons/71-multi-environment-promotion/README.md) |
+| **Lesson 72** | Module Versioning and Release Discipline | [Materials_72](lessons/72-module-versioning-and-release-discipline/lesson.en.md) | [Readme](lessons/72-module-versioning-and-release-discipline/README.md) |
+| **Lesson 73** | Cost and Blast Radius Controls | [Materials_73](lessons/73-cost-and-blast-radius-controls/lesson.en.md) | [Readme](lessons/73-cost-and-blast-radius-controls/README.md) |
+| **Lesson 74** | Disaster Recovery and Terraform Incident Runbooks | [Materials_74](lessons/74-disaster-recovery-and-incident-runbooks/lesson.en.md) | [Readme](lessons/74-disaster-recovery-and-incident-runbooks/README.md) |
 ---
 
 ## How to use
@@ -150,7 +154,12 @@ Commit `.example`, `.sample`, or `.template` files instead.
 - `terraform-quality-gates.yml` - Terraform quality gates for formatting, validation, linting, and policy baseline.
 - `lesson66-contract-tests.yml` - Module contract checks for lesson 66.
 - `lesson67-terraform-native-tests.yml` - Native Terraform tests for lesson 67.
-- `lesson69-terraform-apply-dev.yml` - Controlled apply workflow with GitHub Environment approval.
+- `lesson68-controlled-terraform-apply.yml` - Controlled apply workflow with GitHub Environment approval.
+- `lesson69-least-privilege-terraform-apply.yml` - Least-privilege plan/apply role workflow.
+- `lesson70-policy-gated-terraform-apply.yml` - Policy-gated Terraform apply workflow.
+- `lesson71-terraform-promote.yml` - Multi-environment promotion workflow.
+- `lesson72-module-release.yml` - Module release/versioning checks.
+- `lesson73-cost-guard.yml` - Cost and blast-radius guard checks.
 
 ---
 
