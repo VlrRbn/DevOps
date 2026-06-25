@@ -1,6 +1,6 @@
 # Copy this template to .github/workflows/lesson68-terraform-apply-dev.yml.
 # In this repo, the active workflow can live at that path.
-name: lesson68-terraform-apply-dev
+name: lesson68-controlled-terraform-apply
 
 on:
   workflow_dispatch:
@@ -38,7 +38,7 @@ concurrency:
 
 jobs:
   plan-dev:
-    name: Plan dev from main
+    name: L68 plan dev - controlled apply
     runs-on: ubuntu-latest
 
     defaults:
@@ -225,7 +225,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   apply-dev:
-    name: Apply approved dev plan
+    name: L68 apply dev - saved plan
     needs: plan-dev
     runs-on: ubuntu-latest
 

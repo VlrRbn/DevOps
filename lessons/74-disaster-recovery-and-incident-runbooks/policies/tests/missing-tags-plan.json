@@ -1,0 +1,20 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.network.aws_lb.app",
+      "mode": "managed",
+      "type": "aws_lb",
+      "name": "app",
+      "change": {
+        "actions": ["create"],
+        "after": {
+          "internal": true,
+          "tags": {
+            "Project": "lab74"
+          }
+        }
+      }
+    }
+  ]
+}

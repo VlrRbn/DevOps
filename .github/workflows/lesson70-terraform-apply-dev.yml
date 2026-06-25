@@ -1,4 +1,4 @@
-name: lesson70-terraform-apply-dev
+name: lesson70-policy-gated-terraform-apply
 
 on:
   workflow_dispatch:
@@ -36,7 +36,7 @@ concurrency:
 
 jobs:
   plan-dev:
-    name: Plan dev from main
+    name: L70 plan dev - policy as code
     runs-on: ubuntu-latest
 
     defaults:
@@ -225,7 +225,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   apply-dev:
-    name: Apply approved dev plan
+    name: L70 apply dev - policy-gated saved plan
     needs: plan-dev
     runs-on: ubuntu-latest
 

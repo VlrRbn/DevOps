@@ -1,0 +1,8 @@
+{
+  "reason": "Expired exception example for test only.",
+  "approved_by": "CHANGE-TEST",
+  "expires": "2000-01-01",
+  "allowed_addresses": [
+    "module.network.aws_cloudwatch_metric_alarm.old_alarm"
+  ]
+}

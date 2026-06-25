@@ -1,6 +1,6 @@
 # Copy this template to .github/workflows/lesson69-terraform-apply-dev.yml when you want to run lesson 69 through GitHub Actions.
 # It is intentionally kept as a lesson template, not auto-installed as an active workflow.
-name: lesson69-terraform-apply-dev
+name: lesson69-least-privilege-terraform-apply
 
 on:
   workflow_dispatch:
@@ -38,7 +38,7 @@ concurrency:
 
 jobs:
   plan-dev:
-    name: Plan dev from main
+    name: L69 plan dev - least privilege IAM
     runs-on: ubuntu-latest
 
     defaults:
@@ -225,7 +225,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   apply-dev:
-    name: Apply approved dev plan
+    name: L69 apply dev - least privilege IAM
     needs: plan-dev
     runs-on: ubuntu-latest
 
