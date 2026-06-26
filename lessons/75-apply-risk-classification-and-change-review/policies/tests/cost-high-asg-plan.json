@@ -1,0 +1,14 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.network.aws_autoscaling_group.web",
+      "mode": "managed",
+      "type": "aws_autoscaling_group",
+      "change": {
+        "actions": ["update"],
+        "after": { "max_size": 20 }
+      }
+    }
+  ]
+}

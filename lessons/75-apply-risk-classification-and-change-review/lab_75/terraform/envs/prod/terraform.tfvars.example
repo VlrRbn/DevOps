@@ -1,0 +1,42 @@
+aws_region   = "eu-west-1"
+project_name = "lab75-prod"
+environment  = "prod"
+
+vpc_cidr             = "10.75.0.0/16"
+public_subnet_cidrs  = ["10.75.1.0/24", "10.75.2.0/24"]
+private_subnet_cidrs = ["10.75.11.0/24", "10.75.12.0/24"]
+
+enable_ssm_vpc_endpoints = true
+enable_web_ssm           = false
+
+web_ami_id       = "ami-REPLACE_WITH_WEB_AMI"
+ssm_proxy_ami_id = "ami-REPLACE_WITH_SSM_PROXY_AMI"
+
+web_min_size         = 2
+web_desired_capacity = 2
+web_max_size         = 4
+
+asg_min_healthy_percentage     = 100
+asg_instance_warmup_seconds    = 180
+asg_checkpoint_delay_seconds   = 600
+tg_slow_start_seconds          = 120
+health_check_healthy_threshold = 3
+instance_type_web              = "t3.micro"
+
+github_owner             = "REPLACE_WITH_GITHUB_OWNER"
+github_repo              = "REPLACE_WITH_GITHUB_REPO"
+github_branch            = "main"
+github_apply_environment = "terraform-prod"
+
+github_oidc_provider_arn = "arn:aws:iam::REPLACE_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+
+tf_state_bucket_name = "REPLACE_WITH_TFSTATE_BUCKET"
+tf_state_key         = "lab75/prod/full/terraform.tfstate"
+
+demo_api_token_parameter_name = "/devops/lab75/prod/demo/api-token"
+demo_app_secret_name          = "/devops/lab75/prod/demo/app-secret"
+
+common_tags = {
+  Owner       = "DevOpsTrack"
+  Criticality = "high"
+}
