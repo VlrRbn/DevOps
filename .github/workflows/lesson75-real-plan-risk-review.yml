@@ -1,0 +1,476 @@
+name: lesson75-real-plan-risk-review
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: Environment to review
+        required: true
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
+      release_id:
+        description: Stable release/change id. Required for stage/prod.
+        required: false
+        type: string
+      source_env:
+        description: Previous promoted environment for stage/prod.
+        required: false
+        type: choice
+        default: none
+        options:
+          - none
+          - dev
+          - stage
+      promotion_evidence_path:
+        description: Optional repo-relative promotion evidence JSON path for stage/prod.
+        required: false
+        type: string
+      allow_destroy_exception_path:
+        description: Optional repo-relative allow-destroy exception JSON path.
+        required: false
+        type: string
+      confirm_plan:
+        description: Type PLAN to run a real AWS-backed Terraform plan.
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: lesson75-real-plan-${{ github.event.inputs.target_env }}
+  cancel-in-progress: false
+
+env:
+  LESSON_DIR: lessons/75-apply-risk-classification-and-change-review
+  TF_BASE: lessons/75-apply-risk-classification-and-change-review/lab_75/terraform
+  TERRAFORM_VERSION: '1.14.4'
+  AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-1' }}
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+  AWS_EC2_METADATA_DISABLED: true
+
+jobs:
+  real-plan-risk-review:
+    name: Real plan risk review (${{ github.event.inputs.target_env }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+
+    steps:
+      - name: Guard workflow inputs
+        run: |
+          target_env="${{ github.event.inputs.target_env }}"
+          source_env="${{ github.event.inputs.source_env }}"
+          release_id="${{ github.event.inputs.release_id }}"
+          promotion_evidence_path="${{ github.event.inputs.promotion_evidence_path }}"
+
+          if [ "${{ github.event.inputs.confirm_plan }}" != "PLAN" ]; then
+            echo "confirm_plan must be exactly PLAN." >&2
+            exit 64
+          fi
+
+          case "$target_env" in
+            dev|stage|prod) ;;
+            *) echo "Invalid target_env=${target_env}" >&2; exit 64 ;;
+          esac
+
+          case "$source_env" in
+            none|dev|stage|"") ;;
+            *) echo "Invalid source_env=${source_env}" >&2; exit 64 ;;
+          esac
+
+          if [ "$target_env" = "dev" ]; then
+            if [ -n "$promotion_evidence_path" ]; then
+              echo "promotion_evidence_path is not needed for dev." >&2
+              exit 64
+            fi
+          else
+            if [ -z "$release_id" ]; then
+              echo "release_id is required for stage/prod." >&2
+              exit 64
+            fi
+
+            case "$target_env:$source_env" in
+              stage:dev|prod:stage) ;;
+              *) echo "Invalid promotion path: ${source_env}->${target_env}. Required: dev->stage or stage->prod." >&2; exit 64 ;;
+            esac
+
+            if [ -z "$promotion_evidence_path" ]; then
+              echo "promotion_evidence_path is required for stage/prod." >&2
+              exit 64
+            fi
+          fi
+
+      - name: Checkout exact workflow commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform fmt
+        working-directory: ${{ env.LESSON_DIR }}
+        run: terraform fmt -check -recursive lab_75/terraform
+
+      - name: Check required repository variables
+        run: |
+          missing=0
+          for name in TF_STATE_BUCKET TF_WEB_AMI_ID TF_SSM_PROXY_AMI_ID TF_GITHUB_OIDC_PROVIDER_ARN; do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required repository variable: ${name}" >&2
+              missing=1
+            fi
+          done
+
+          case "${{ github.event.inputs.target_env }}" in
+            dev) role="$TF_PLAN_ROLE_ARN_DEV"; role_name="TF_PLAN_ROLE_ARN_DEV" ;;
+            stage) role="$TF_PLAN_ROLE_ARN_STAGE"; role_name="TF_PLAN_ROLE_ARN_STAGE" ;;
+            prod) role="$TF_PLAN_ROLE_ARN_PROD"; role_name="TF_PLAN_ROLE_ARN_PROD" ;;
+          esac
+
+          if [ -z "$role" ]; then
+            echo "Missing required repository variable for target env: ${role_name}" >&2
+            missing=1
+          fi
+
+          exit "$missing"
+        env:
+          TF_PLAN_ROLE_ARN_DEV: ${{ vars.TF_PLAN_ROLE_ARN_DEV }}
+          TF_PLAN_ROLE_ARN_STAGE: ${{ vars.TF_PLAN_ROLE_ARN_STAGE }}
+          TF_PLAN_ROLE_ARN_PROD: ${{ vars.TF_PLAN_ROLE_ARN_PROD }}
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_WEB_AMI_ID: ${{ vars.TF_WEB_AMI_ID }}
+          TF_SSM_PROXY_AMI_ID: ${{ vars.TF_SSM_PROXY_AMI_ID }}
+          TF_GITHUB_OIDC_PROVIDER_ARN: ${{ vars.TF_GITHUB_OIDC_PROVIDER_ARN }}
+
+      - name: Select environment plan role
+        id: plan-role
+        run: |
+          case "${{ github.event.inputs.target_env }}" in
+            dev) role="$TF_PLAN_ROLE_ARN_DEV" ;;
+            stage) role="$TF_PLAN_ROLE_ARN_STAGE" ;;
+            prod) role="$TF_PLAN_ROLE_ARN_PROD" ;;
+          esac
+          echo "arn=${role}" >> "$GITHUB_OUTPUT"
+        env:
+          TF_PLAN_ROLE_ARN_DEV: ${{ vars.TF_PLAN_ROLE_ARN_DEV }}
+          TF_PLAN_ROLE_ARN_STAGE: ${{ vars.TF_PLAN_ROLE_ARN_STAGE }}
+          TF_PLAN_ROLE_ARN_PROD: ${{ vars.TF_PLAN_ROLE_ARN_PROD }}
+
+      - name: Configure AWS credentials for plan via OIDC
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ steps.plan-role.outputs.arn }}
+          role-session-name: gha-l75-plan-${{ github.event.inputs.target_env }}
+
+      - name: Write backend and Terraform variables
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          target_env="${{ github.event.inputs.target_env }}"
+          state_key="lab75/${target_env}/full/terraform.tfstate"
+
+          case "$target_env" in
+            dev)
+              project_name="lab75-dev"
+              vpc_cidr="10.73.0.0/16"
+              public_subnets='["10.73.1.0/24", "10.73.2.0/24"]'
+              private_subnets='["10.73.11.0/24", "10.73.12.0/24"]'
+              web_min=1
+              web_desired=1
+              web_max=2
+              enable_web_ssm=true
+              apply_environment="terraform-dev"
+              criticality="low"
+              asg_min_healthy=50
+              asg_warmup=120
+              asg_checkpoint_delay=180
+              tg_slow_start=60
+              health_threshold=2
+              ;;
+            stage)
+              project_name="lab75-stage"
+              vpc_cidr="10.74.0.0/16"
+              public_subnets='["10.74.1.0/24", "10.74.2.0/24"]'
+              private_subnets='["10.74.11.0/24", "10.74.12.0/24"]'
+              web_min=2
+              web_desired=2
+              web_max=3
+              enable_web_ssm=true
+              apply_environment="terraform-stage"
+              criticality="medium"
+              asg_min_healthy=50
+              asg_warmup=120
+              asg_checkpoint_delay=360
+              tg_slow_start=60
+              health_threshold=2
+              ;;
+            prod)
+              project_name="lab75-prod"
+              vpc_cidr="10.75.0.0/16"
+              public_subnets='["10.75.1.0/24", "10.75.2.0/24"]'
+              private_subnets='["10.75.11.0/24", "10.75.12.0/24"]'
+              web_min=2
+              web_desired=2
+              web_max=4
+              enable_web_ssm=false
+              apply_environment="terraform-prod"
+              criticality="high"
+              asg_min_healthy=100
+              asg_warmup=180
+              asg_checkpoint_delay=600
+              tg_slow_start=120
+              health_threshold=3
+              ;;
+          esac
+
+          cat > backend.hcl <<EOF_BACKEND
+          bucket       = "${{ vars.TF_STATE_BUCKET }}"
+          key          = "${state_key}"
+          region       = "${AWS_REGION}"
+          encrypt      = true
+          use_lockfile = true
+          EOF_BACKEND
+
+          cat > terraform.auto.tfvars <<EOF_TFVARS
+          aws_region   = "${AWS_REGION}"
+          project_name = "${project_name}"
+          environment  = "${target_env}"
+
+          vpc_cidr             = "${vpc_cidr}"
+          public_subnet_cidrs  = ${public_subnets}
+          private_subnet_cidrs = ${private_subnets}
+
+          enable_ssm_vpc_endpoints = true
+          enable_web_ssm           = ${enable_web_ssm}
+
+          web_ami_id       = "${{ vars.TF_WEB_AMI_ID }}"
+          ssm_proxy_ami_id = "${{ vars.TF_SSM_PROXY_AMI_ID }}"
+
+          web_min_size         = ${web_min}
+          web_desired_capacity = ${web_desired}
+          web_max_size         = ${web_max}
+
+          asg_min_healthy_percentage     = ${asg_min_healthy}
+          asg_instance_warmup_seconds    = ${asg_warmup}
+          asg_checkpoint_delay_seconds   = ${asg_checkpoint_delay}
+          tg_slow_start_seconds          = ${tg_slow_start}
+          health_check_healthy_threshold = ${health_threshold}
+          instance_type_web              = "t3.micro"
+
+          github_owner             = "${{ vars.TF_GITHUB_OWNER || github.repository_owner }}"
+          github_repo              = "${{ vars.TF_GITHUB_REPO || github.event.repository.name }}"
+          github_branch            = "main"
+          github_apply_environment = "${apply_environment}"
+          github_oidc_provider_arn = "${{ vars.TF_GITHUB_OIDC_PROVIDER_ARN }}"
+
+          tf_state_bucket_name = "${{ vars.TF_STATE_BUCKET }}"
+          tf_state_key         = "${state_key}"
+
+          demo_api_token_parameter_name = "/devops/lab75/${target_env}/demo/api-token"
+          demo_app_secret_name          = "/devops/lab75/${target_env}/demo/app-secret"
+
+          common_tags = {
+            Owner       = "DevOpsTrack"
+            Criticality = "${criticality}"
+          }
+          EOF_TFVARS
+
+      - name: Terraform init remote backend
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: terraform init -reconfigure -backend-config=backend.hcl -input=false -no-color
+
+      - name: Terraform validate
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: terraform validate -no-color
+
+      - name: Terraform saved plan
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          terraform plan -input=false -no-color -out=tfplan 2>&1 | tee plan.txt
+          terraform show -no-color tfplan > tfplan.txt
+          terraform show -json tfplan > tfplan.json
+          sha256sum tfplan | tee tfplan.sha256
+
+      - name: Security/change policy check
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          mkdir -p policy-results
+          allow_destroy="${{ github.event.inputs.allow_destroy_exception_path }}"
+
+          if [ -n "$allow_destroy" ]; then
+            case "$allow_destroy" in
+              /*|*..*) echo "allow_destroy_exception_path must be repo-relative and must not contain '..'." >&2; exit 64 ;;
+            esac
+
+            if ! [[ "$allow_destroy" =~ ^[A-Za-z0-9._/-]+\.json$ ]]; then
+              echo "allow_destroy_exception_path must contain only letters, numbers, slash, dot, underscore, dash and end with .json." >&2
+              exit 64
+            fi
+
+            workspace_abs="$(realpath "$GITHUB_WORKSPACE")"
+            allow_destroy_abs="$(realpath -m "$GITHUB_WORKSPACE/$allow_destroy")"
+
+            case "$allow_destroy_abs" in
+              "$workspace_abs"/*) ;;
+              *) echo "allow_destroy_exception_path resolved outside repository workspace." >&2; exit 64 ;;
+            esac
+
+            if [ ! -f "$allow_destroy_abs" ]; then
+              echo "allow_destroy_exception_path does not exist: $allow_destroy" >&2
+              exit 64
+            fi
+
+            allow_destroy="$allow_destroy_abs"
+          fi
+
+          set +e
+          ALLOW_DESTROY_FILE="$allow_destroy" OUT_DIR=policy-results ../../../../policies/terraform-plan-policy.sh tfplan.json 2>&1 | tee policy-results/policy-output.txt
+          policy_ec="${PIPESTATUS[0]}"
+          set -e
+          echo "$policy_ec" > policy-results/policy-exitcode.txt
+          case "$policy_ec" in
+            0|2) ;;
+            *) echo "Security/change policy failed with tooling exit code ${policy_ec}." >&2; exit "$policy_ec" ;;
+          esac
+
+      - name: Cost/blast-radius policy check
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          mkdir -p cost-policy-results
+          set +e
+          OUT_DIR=cost-policy-results ../../../../policies/cost-policy.sh tfplan.json "${{ github.event.inputs.target_env }}" 2>&1 | tee cost-policy-results/cost-policy-output.txt
+          cost_ec="${PIPESTATUS[0]}"
+          set -e
+          echo "$cost_ec" > cost-policy-results/cost-policy-exitcode.txt
+          case "$cost_ec" in
+            0|2) ;;
+            *) echo "Cost/blast-radius policy failed with tooling exit code ${cost_ec}." >&2; exit "$cost_ec" ;;
+          esac
+
+      - name: Resolve promotion evidence
+        id: promotion
+        working-directory: ${{ env.LESSON_DIR }}
+        run: |
+          target_env="${{ github.event.inputs.target_env }}"
+          promotion_path="${{ github.event.inputs.promotion_evidence_path }}"
+
+          if [ "$target_env" = "dev" ]; then
+            echo "required=false" >> "$GITHUB_OUTPUT"
+            echo "file=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          case "$promotion_path" in
+            /*|*..*) echo "promotion_evidence_path must be repo-relative and must not contain '..'." >&2; exit 64 ;;
+          esac
+
+          if ! [[ "$promotion_path" =~ ^[A-Za-z0-9._/-]+\.json$ ]]; then
+            echo "promotion_evidence_path must contain only letters, numbers, slash, dot, underscore, dash and end with .json." >&2
+            exit 64
+          fi
+
+          workspace_abs="$(realpath "$GITHUB_WORKSPACE")"
+          evidence_abs="$(realpath -m "$GITHUB_WORKSPACE/$promotion_path")"
+
+          case "$evidence_abs" in
+            "$workspace_abs"/*) ;;
+            *) echo "promotion_evidence_path resolved outside repository workspace." >&2; exit 64 ;;
+          esac
+
+          if [ ! -f "$evidence_abs" ]; then
+            echo "promotion_evidence_path does not exist: $promotion_path" >&2
+            exit 64
+          fi
+
+          echo "required=true" >> "$GITHUB_OUTPUT"
+          echo "file=${evidence_abs}" >> "$GITHUB_OUTPUT"
+
+      - name: Risk classification
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          mkdir -p risk-results
+          if [ "${{ steps.promotion.outputs.required }}" = "true" ]; then
+            POLICY_DIR=policy-results \
+            COST_DIR=cost-policy-results \
+            OUT_DIR=risk-results \
+            PROMOTION_EVIDENCE_FILE="${{ steps.promotion.outputs.file }}" \
+            RELEASE_ID="${{ github.event.inputs.release_id }}" \
+            SOURCE_ENV="${{ github.event.inputs.source_env }}" \
+            REQUIRE_PROMOTION_EVIDENCE=true \
+            ../../../../policies/risk-classifier.sh tfplan.json "${{ github.event.inputs.target_env }}" 2>&1 | tee risk-results/risk-classifier.log
+          else
+            POLICY_DIR=policy-results \
+            COST_DIR=cost-policy-results \
+            OUT_DIR=risk-results \
+            REQUIRE_PROMOTION_EVIDENCE=false \
+            ../../../../policies/risk-classifier.sh tfplan.json "${{ github.event.inputs.target_env }}" 2>&1 | tee risk-results/risk-classifier.log
+          fi
+
+      - name: Write workflow summary
+        if: always()
+        working-directory: ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}
+        run: |
+          risk="UNKNOWN"
+          apply_allowed="UNKNOWN"
+          approval_required="UNKNOWN"
+          policy_decision="UNKNOWN"
+          cost_decision="UNKNOWN"
+
+          if [ -f risk-results/risk-decision.json ]; then
+            risk="$(jq -r '.risk' risk-results/risk-decision.json)"
+            apply_allowed="$(jq -r '.apply_allowed' risk-results/risk-decision.json)"
+            approval_required="$(jq -r '.approval_required' risk-results/risk-decision.json)"
+          fi
+
+          if [ -f policy-results/policy-decision.txt ]; then
+            policy_decision="$(grep '^POLICY_DECISION=' policy-results/policy-decision.txt | cut -d= -f2 || true)"
+          fi
+
+          if [ -f cost-policy-results/cost-decision.txt ]; then
+            cost_decision="$(grep '^COST_POLICY_DECISION=' cost-policy-results/cost-decision.txt | cut -d= -f2 || true)"
+          fi
+
+          {
+            echo "## Lesson 75 Real Plan Risk Review"
+            echo
+            echo "- target_env: \`${{ github.event.inputs.target_env }}\`"
+            echo "- commit: \`${GITHUB_SHA}\`"
+            echo "- backend_key: \`lab75/${{ github.event.inputs.target_env }}/full/terraform.tfstate\`"
+            echo "- policy_decision: \`${policy_decision}\`"
+            echo "- cost_decision: \`${cost_decision}\`"
+            echo "- risk: \`${risk}\`"
+            echo "- apply_allowed: \`${apply_allowed}\`"
+            echo "- approval_required: \`${approval_required}\`"
+            echo "- artifact: \`lesson75-${{ github.event.inputs.target_env }}-real-plan-risk-review\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload real plan risk review artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: lesson75-${{ github.event.inputs.target_env }}-real-plan-risk-review
+          path: |
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/tfplan
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/tfplan.sha256
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/tfplan.txt
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/tfplan.json
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/plan.txt
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/policy-results/
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/cost-policy-results/
+            ${{ env.TF_BASE }}/envs/${{ github.event.inputs.target_env }}/risk-results/
+          if-no-files-found: ignore
+          retention-days: 7
