@@ -7,7 +7,7 @@
 set -Eeuo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-# Detect instance region via IMDSv2 to build correct regional S3 URL.
+# Detect instance region via IMDSv2 to build the correct regional S3 URL.
 imds_region() {
   local token
   token="$(curl -fsS -X PUT "http://169.254.169.254/latest/api/token" \
@@ -21,6 +21,7 @@ imds_region() {
     sed -n 's/.*"region"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p'
 }
 
+# Add a systemd restart policy for the agent.
 install_restart_policy() {
   mkdir -p /etc/systemd/system/amazon-ssm-agent.service.d
   cat >/etc/systemd/system/amazon-ssm-agent.service.d/restart.conf <<'EOF'
@@ -43,6 +44,7 @@ if command -v snap >/dev/null 2>&1 && snap list amazon-ssm-agent >/dev/null 2>&1
   done
 fi
 
+# Install the deb-based SSM agent only if the service is not already present.
 if ! systemctl list-unit-files | grep -q '^amazon-ssm-agent\.service'; then
   REGION="${AWS_REGION:-$(imds_region || true)}"
   REGION="${REGION:-eu-west-1}"
@@ -56,6 +58,8 @@ if ! systemctl list-unit-files | grep -q '^amazon-ssm-agent\.service'; then
   rm -f /tmp/amazon-ssm-agent.deb
 fi
 
+# Start it once during image build to validate the installation, then stop and clean identity files
+# before the AMI snapshot.
 install_restart_policy
 systemctl enable --now amazon-ssm-agent
 systemctl restart amazon-ssm-agent || true

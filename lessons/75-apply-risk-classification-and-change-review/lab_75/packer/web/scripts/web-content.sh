@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Create the base nginx document root during AMI build.
+#
+# The file intentionally contains placeholders instead of final values. Runtime
+# metadata such as instance ID is unavailable during Packer build, so
+# render-index.service replaces placeholders after EC2 boot.
 mkdir -p /var/www/html
 
 # Base template baked into AMI; placeholders are resolved at instance boot.

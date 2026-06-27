@@ -2,9 +2,9 @@ aws_region   = "eu-west-1"
 project_name = "lab75-dev"
 environment  = "dev"
 
-vpc_cidr             = "10.75.0.0/16"
-public_subnet_cidrs  = ["10.75.1.0/24", "10.75.2.0/24"]
-private_subnet_cidrs = ["10.75.11.0/24", "10.75.12.0/24"]
+vpc_cidr             = "10.73.0.0/16"
+public_subnet_cidrs  = ["10.73.1.0/24", "10.73.2.0/24"]
+private_subnet_cidrs = ["10.73.11.0/24", "10.73.12.0/24"]
 
 enable_ssm_vpc_endpoints = true
 enable_web_ssm           = true

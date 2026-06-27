@@ -1,6 +1,41 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Security/change policy for Terraform JSON plans.
+#
+# This script is the "allowed or denied?" layer. It should not decide how much
+# approval a change needs. Here we only produce:
+#
+# - policy-deny.json: findings that must stop apply.
+# - policy-warn.json: findings that should be reviewed but do not stop apply.
+# - policy-decision.txt: short human-readable summary for CI/proof-pack.
+#
+# The script uses jq against `terraform show -json` output. It intentionally
+# avoids grep so checks follow Terraform's JSON structure instead of raw text.
+usage() {
+  cat >&2 <<'USAGE'
+Usage:
+  terraform-plan-policy.sh [tfplan.json]
+
+Environment variables:
+  OUT_DIR             Output directory. Default: current directory.
+  ALLOW_DESTROY_FILE  Optional JSON exception file for approved destructive addresses.
+
+Manual example:
+  OUT_DIR=/tmp/l75-policy terraform-plan-policy.sh tfplan.json
+
+Exit codes:
+  0 - allowed, possibly with warnings
+  1 - input/tooling error
+  2 - denied by security/change policy
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
 PLAN_JSON="${1:-tfplan.json}"
 ALLOW_DESTROY_FILE="${ALLOW_DESTROY_FILE:-}"
 OUT_DIR="${OUT_DIR:-.}"
@@ -11,23 +46,32 @@ DENY_OUT="$OUT_DIR/policy-deny.json"
 WARN_OUT="$OUT_DIR/policy-warn.json"
 DECISION_OUT="$OUT_DIR/policy-decision.txt"
 
+# jq is required because all policy checks are structural JSON queries.
 if ! command -v jq >/dev/null 2>&1; then
   echo "jq is required for Terraform JSON plan policy checks" >&2
   exit 1
 fi
 
+# Missing plan is a tooling/input failure. It is not reported as policy DENY
+# because the policy never evaluated the change.
 if [[ ! -f "$PLAN_JSON" ]]; then
   echo "PLAN_JSON not found: $PLAN_JSON" >&2
   exit 1
 fi
 
+# Optional exception file for approved destructive changes.
+#
+# This is intentionally strict:
+# - exact Terraform addresses only;
+# - reason and approver are required;
+# - expiry must be a real calendar date and must not be in the past.
 if [[ -n "$ALLOW_DESTROY_FILE" ]]; then
   if [[ ! -f "$ALLOW_DESTROY_FILE" ]]; then
     echo "ALLOW_DESTROY_FILE not found: $ALLOW_DESTROY_FILE" >&2
     exit 1
   fi
 
-  # Treat exception files as change-control records, not bypass flags.
+  # Treat exception files as change-control records.
   # The policy accepts only exact Terraform addresses so a reviewer can map approval to concrete resources.
   if ! jq -e '
     type == "object"
@@ -85,8 +129,11 @@ else
   cp "$OUT_DIR/destructive.json" "$OUT_DIR/destructive-unapproved.json"
 fi
 
-# Standalone SG rule resources have different schemas depending on provider generation.
-# `aws_security_group_rule` uses `type=ingress`; vpc-specific ingress resources are ingress by type.
+# DENY: public ingress in standalone security group rule resources.
+#
+# Standalone SG rule resources have different schemas depending on provider
+# generation. `aws_security_group_rule` uses `type=ingress`; newer VPC-specific
+# ingress resources are ingress by resource type. This query handles both shapes.
 jq '
 [
   .resource_changes[]?
@@ -120,8 +167,10 @@ jq '
 ]
 ' "$PLAN_JSON" > "$OUT_DIR/public-ingress-rules.json"
 
-# Inline SG rules are still common in older modules, so keep this separate from standalone rule checks.
-# Egress is intentionally not handled here.
+# DENY: public ingress embedded directly inside aws_security_group.
+#
+# Inline SG rules are common in older modules, keep this separate from standalone
+# rule checks. Egress is intentionally not handled here.
 jq '
 [
   .resource_changes[]?
@@ -147,8 +196,10 @@ jq '
 ]
 ' "$PLAN_JSON" > "$OUT_DIR/public-ingress-inline-sg.json"
 
-# Only evaluate resources that expose tags/tags_all in planned values.
-# This avoids false denies on AWS resources that cannot be tagged or do not expose tags in plan JSON.
+# DENY: missing required tags on taggable resources.
+#
+# Only evaluate resources that expose tags/tags_all in planned values. That avoids
+# false denies on resources that cannot be tagged or do not expose tags in plan JSON.
 jq '
 def has_required_tags($tags):
   ($tags // {}) as $t
@@ -174,8 +225,10 @@ def has_required_tags($tags):
 ]
 ' "$PLAN_JSON" > "$OUT_DIR/missing-tags.json"
 
-# Warnings: cost/blast-radius signals for resources being created or updated.
-# No-op resources are ignored.
+# WARN: NAT Gateway cost/blast-radius signal.
+#
+# This is not a hard security deny. NAT may be correct, but it should be visible
+# in the review because it adds cost and routing complexity.
 jq '
 def is_create_or_update:
   ((.change.actions | index("delete")) | not)
@@ -194,6 +247,9 @@ def is_create_or_update:
 ]
 ' "$PLAN_JSON" > "$OUT_DIR/warn-nat.json"
 
+# WARN: ASG max_size above the broad review threshold.
+#
+# "Review this capacity increase", not "block it".
 jq '
 def is_create_or_update:
   ((.change.actions | index("delete")) | not)
@@ -213,6 +269,10 @@ def is_create_or_update:
 ]
 ' "$PLAN_JSON" > "$OUT_DIR/warn-asg-max.json"
 
+# WARN: public load balancer exposure.
+#
+# Public load balancers can be expected in real systems, so this does not deny.
+# It gives the reviewer a clear signal that external exposure is part of the plan.
 jq '
 def is_create_or_update:
   ((.change.actions | index("delete")) | not)
@@ -232,6 +292,8 @@ def is_create_or_update:
 ]
 ' "$PLAN_JSON" > "$OUT_DIR/warn-public-lb.json"
 
+# Combine all hard-stop findings. The risk classifier expects one deny file, so
+# each individual rule writes a temporary JSON file and this block merges them.
 jq -s 'add' \
   "$OUT_DIR/destructive-unapproved.json" \
   "$OUT_DIR/public-ingress-rules.json" \
@@ -239,6 +301,7 @@ jq -s 'add' \
   "$OUT_DIR/missing-tags.json" \
   > "$DENY_OUT"
 
+# Combine all review-only findings into one warnings file.
 jq -s 'add' \
   "$OUT_DIR/warn-nat.json" \
   "$OUT_DIR/warn-asg-max.json" \
@@ -248,27 +311,32 @@ jq -s 'add' \
 DENY_COUNT="$(jq 'length' "$DENY_OUT")"
 WARN_COUNT="$(jq 'length' "$WARN_OUT")"
 
+# Keep a compact text summary for CI logs and proof-pack evidence.
 {
   echo "deny_count=$DENY_COUNT"
   echo "warn_count=$WARN_COUNT"
 } > "$DECISION_OUT"
 
+# Exit 2 means "policy evaluated the plan and blocked it". This is distinct from
+# exit 1 input/tooling failures and lets CI/reporting handle the cases correctly.
 if [[ "$DENY_COUNT" -gt 0 ]]; then
   echo "POLICY_DECISION=DENY" >> "$DECISION_OUT"
   echo "POLICY_DECISION=DENY"
   echo "deny_count=$DENY_COUNT"
   echo "warn_count=$WARN_COUNT"
-  echo "policy_results_dir=$OUT_DIR"
+  echo "terraform_plan_policy_results_dir=$OUT_DIR"
   echo "Policy deny findings:"
   cat "$DENY_OUT"
   exit 2
 fi
 
+# Warnings do not fail this script. They are passed forward to the risk
+# classifier, which can raise review level without blocking apply.
 echo "POLICY_DECISION=ALLOW" >> "$DECISION_OUT"
 echo "POLICY_DECISION=ALLOW"
 echo "deny_count=$DENY_COUNT"
 echo "warn_count=$WARN_COUNT"
-echo "policy_results_dir=$OUT_DIR"
+echo "terraform_plan_policy_results_dir=$OUT_DIR"
 
 if [[ "$WARN_COUNT" -gt 0 ]]; then
   echo "Policy warnings present:"
