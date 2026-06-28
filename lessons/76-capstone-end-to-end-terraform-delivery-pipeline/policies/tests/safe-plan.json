@@ -1,0 +1,22 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.network.aws_cloudwatch_metric_alarm.target_5xx_critical",
+      "mode": "managed",
+      "type": "aws_cloudwatch_metric_alarm",
+      "name": "target_5xx_critical",
+      "change": {
+        "actions": ["update"],
+        "after": {
+          "tags": {
+            "Project": "lab75",
+            "Environment": "dev",
+            "ManagedBy": "Terraform"
+          },
+          "alarm_description": "Safe text update"
+        }
+      }
+    }
+  ]
+}

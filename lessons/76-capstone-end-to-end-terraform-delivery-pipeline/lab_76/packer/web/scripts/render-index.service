@@ -1,0 +1,17 @@
+[Unit]
+Description=Render nginx index.html with runtime metadata
+# Do nothing if the web root was not created. This keeps the unit safe on images where
+# nginx/content provisioning did not run.
+ConditionPathExists=/var/www/html/index.html
+# Wait for network because render-index.sh uses EC2 instance metadata service.
+After=network-online.target nginx.service
+Wants=network-online.target
+
+[Service]
+# One-shot service: render the page once at boot and exit.
+Type=oneshot
+ExecStart=/usr/local/bin/render-index.sh
+
+[Install]
+# Run during normal multi-user boot.
+WantedBy=multi-user.target
