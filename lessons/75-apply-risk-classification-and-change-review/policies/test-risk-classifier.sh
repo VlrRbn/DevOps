@@ -262,6 +262,7 @@ run_classifier low_dev "$TEST_DIR/safe-plan.json" dev 0 env REQUIRE_PROMOTION_EV
 assert_risk low_dev LOW true
 jq -e '.approval_required == true and .approval_level == "standard" and .approval == "standard"' \
   "$TMP_ROOT/low_dev/risk/risk-decision.json" >/dev/null
+assert_reason low_dev small_dev_change
 
 # NO_CHANGE: valid plan with only no-op managed resources should be allowed
 # without approval, but only after lower-level policy outputs exist and are valid.

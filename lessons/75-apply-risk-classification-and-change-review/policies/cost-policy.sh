@@ -214,6 +214,9 @@ WARN_COUNT="$(jq 'length' "$WARN_OUT")"
 if [[ "$DENY_COUNT" -gt 0 ]]; then
   echo "COST_POLICY_DECISION=DENY" >> "$DECISION_OUT"
   echo "COST_POLICY_DECISION=DENY"
+  echo "deny_count=$DENY_COUNT"
+  echo "warn_count=$WARN_COUNT"
+  echo "cost_policy_results_dir=$OUT_DIR"
   jq . "$DENY_OUT"
   exit 2
 fi
@@ -222,6 +225,8 @@ fi
 # classifier can raise LOW/NO_CHANGE to MEDIUM if appropriate.
 echo "COST_POLICY_DECISION=ALLOW" >> "$DECISION_OUT"
 echo "COST_POLICY_DECISION=ALLOW"
+echo "deny_count=$DENY_COUNT"
+echo "warn_count=$WARN_COUNT"
 echo "cost_policy_results_dir=$OUT_DIR"
 
 if [[ "$WARN_COUNT" -gt 0 ]]; then
