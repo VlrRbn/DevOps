@@ -1,0 +1,175 @@
+name: lesson76-drift-check
+
+on:
+#  schedule:
+#    - cron: '23 5 * * *'
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Target environment: dev, stage, or prod"
+        required: true
+        type: choice
+        options: [dev, stage, prod]
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  LESSON_DIR: lessons/76-capstone-end-to-end-terraform-delivery-pipeline
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+  TERRAFORM_VERSION: '1.14.4'
+  AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-1' }}
+  TARGET_ENV: ${{ github.event.inputs.target_env || 'dev' }}
+
+concurrency:
+  group: lesson76-drift-${{ github.event.inputs.target_env || 'dev' }}
+  cancel-in-progress: true
+
+jobs:
+  drift:
+    name: Drift check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Resolve target environment
+        id: env
+        run: |
+          target_env="$TARGET_ENV"
+          case "$target_env" in dev|stage|prod) ;; *) exit 64 ;; esac
+          echo "target_env=$target_env" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact commit
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Validate required GitHub variables
+        run: |
+          set -Eeuo pipefail
+          missing=0
+          for name in TF_STATE_BUCKET TF_WEB_AMI_ID TF_SSM_PROXY_AMI_ID TF_GITHUB_OIDC_PROVIDER_ARN; do
+            value="${!name:-}"
+            if [[ -z "$value" ]]; then
+              echo "Missing GitHub variable: $name" >&2
+              missing=1
+            fi
+          done
+          exit "$missing"
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_WEB_AMI_ID: ${{ vars.TF_WEB_AMI_ID }}
+          TF_SSM_PROXY_AMI_ID: ${{ vars.TF_SSM_PROXY_AMI_ID }}
+          TF_GITHUB_OIDC_PROVIDER_ARN: ${{ vars.TF_GITHUB_OIDC_PROVIDER_ARN }}
+
+      - name: Select plan role
+        id: role
+        run: |
+          case "${{ steps.env.outputs.target_env }}" in
+            dev) role="${{ vars.TF_PLAN_ROLE_ARN_DEV }}" ;;
+            stage) role="${{ vars.TF_PLAN_ROLE_ARN_STAGE }}" ;;
+            prod) role="${{ vars.TF_PLAN_ROLE_ARN_PROD }}" ;;
+          esac
+          if [[ -z "$role" ]]; then
+            echo "Missing TF_PLAN_ROLE_ARN_${{ steps.env.outputs.target_env }}" >&2
+            exit 1
+          fi
+          echo "role_arn=$role" >> "$GITHUB_OUTPUT"
+
+      - name: Assume plan role
+        uses: aws-actions/configure-aws-credentials@cabfdba3510de1431bac9dba27511d97497fc100
+        with:
+          role-to-assume: ${{ steps.role.outputs.role_arn }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Write temporary Terraform config
+        run: ${{ env.LESSON_DIR }}/scripts/write-terraform-env-files.sh "${{ steps.env.outputs.target_env }}"
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_WEB_AMI_ID: ${{ vars.TF_WEB_AMI_ID }}
+          TF_SSM_PROXY_AMI_ID: ${{ vars.TF_SSM_PROXY_AMI_ID }}
+          TF_GITHUB_OWNER: ${{ vars.TF_GITHUB_OWNER || github.repository_owner }}
+          TF_GITHUB_REPO: ${{ vars.TF_GITHUB_REPO || github.event.repository.name }}
+          TF_GITHUB_OIDC_PROVIDER_ARN: ${{ vars.TF_GITHUB_OIDC_PROVIDER_ARN }}
+
+      - name: Terraform init
+        working-directory: ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ steps.env.outputs.target_env }}
+        run: terraform init -backend-config=backend.hcl -input=false -no-color
+
+      - name: Terraform fmt and validate
+        working-directory: ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ steps.env.outputs.target_env }}
+        run: |
+          terraform fmt -check -recursive ../..
+          terraform validate -no-color
+
+      - name: Terraform drift plan
+        id: plan
+        working-directory: ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ steps.env.outputs.target_env }}
+        run: |
+          set +e
+          terraform plan -detailed-exitcode -input=false -no-color -out=tfplan > drift-plan.txt 2>&1
+          ec=$?
+          set -e
+          echo "$ec" > drift-exitcode.txt
+          if [[ "$ec" -eq 0 ]]; then
+            status="CLEAN"
+          elif [[ "$ec" -eq 2 ]]; then
+            status="DRIFT_OR_DIFF"
+          else
+            status="ERROR"
+          fi
+          if [[ "$ec" -eq 0 || "$ec" -eq 2 ]]; then
+            terraform show -no-color tfplan > tfplan.txt
+            terraform show -json tfplan > tfplan.json
+          fi
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          echo "exitcode=$ec" >> "$GITHUB_OUTPUT"
+          [[ "$ec" -ne 1 ]]
+
+      - name: Upload drift artifact
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: lesson76-${{ steps.env.outputs.target_env }}-drift
+          path: |
+            ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ steps.env.outputs.target_env }}/backend.hcl
+            ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ steps.env.outputs.target_env }}/terraform.auto.tfvars
+            ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ steps.env.outputs.target_env }}/drift-plan.txt
+            ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ steps.env.outputs.target_env }}/drift-exitcode.txt
+            ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ steps.env.outputs.target_env }}/tfplan.txt
+            ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ steps.env.outputs.target_env }}/tfplan.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Lesson 76 Drift Check"
+            echo
+            echo "- environment: ${{ steps.env.outputs.target_env }}"
+            echo "- status: ${{ steps.plan.outputs.status }}"
+            echo "- exit code: ${{ steps.plan.outputs.exitcode }}"
+            echo "- artifact: lesson76-${{ steps.env.outputs.target_env }}-drift"
+            echo "- config: temporary backend.hcl and terraform.auto.tfvars generated from GitHub variables"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail if drift is detected
+        if: steps.plan.outputs.exitcode == '2'
+        run: |
+          echo "Drift or unapplied diff detected. See lesson76-${{ steps.env.outputs.target_env }}-drift artifact." >&2
+          exit 2
