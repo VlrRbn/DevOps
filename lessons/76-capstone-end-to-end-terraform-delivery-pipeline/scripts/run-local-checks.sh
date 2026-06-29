@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# Run safe local checks for lesson 75.
+# Run safe local checks for lesson 76.
 #
 # This script is the "one command before commit" helper. It does not call AWS and does not run
 # terraform apply/destroy. By default it runs checks that should work offline: shell syntax, shellcheck,
@@ -18,7 +18,7 @@ REPO_ROOT="$(cd -- "${LESSON_DIR}/../.." && pwd)"
 RUN_OPA="${RUN_OPA:-false}"
 RUN_TERRAFORM="${RUN_TERRAFORM:-false}"
 
-run() {
+step() {
   echo
   echo "==> $*"
 }
@@ -43,24 +43,24 @@ else
   echo "[WARN] shellcheck not found; skipping shellcheck."
 fi
 
-run "Running packer fmt"
-packer fmt -check -recursive "$LESSON_DIR/lab_75/packer"
+step "Running packer fmt"
+packer fmt -check -recursive "$LESSON_DIR/lab_76/packer"
 
-run "Running terraform fmt"
-terraform fmt -check -recursive "$LESSON_DIR/lab_75/terraform"
+step "Running terraform fmt"
+terraform fmt -check -recursive "$LESSON_DIR/lab_76/terraform"
 
-run "Running security policy tests"
-"$LESSON_DIR/policies/test-policy.sh"
+step "Running security policy tests"
+"$LESSON_DIR/policies/test-security-policy.sh"
 
-run "Running cost policy tests"
+step "Running cost policy tests"
 "$LESSON_DIR/policies/test-cost-policy.sh"
 
-run "Running risk classifier tests"
+step "Running risk classifier tests"
 "$LESSON_DIR/policies/test-risk-classifier.sh"
 
 if [[ "$RUN_OPA" == "true" ]]; then
   if command -v opa >/dev/null 2>&1; then
-    run "Running OPA policy tests"
+    step "Running OPA policy tests"
     "$LESSON_DIR/policies/test-opa.sh"
   else
     echo "[WARN] RUN_OPA=true but opa is not installed; skipping OPA tests."
@@ -68,28 +68,28 @@ if [[ "$RUN_OPA" == "true" ]]; then
 fi
 
 if [[ "$RUN_TERRAFORM" == "true" ]]; then
-  run "Running Terraform module init"
-  env TF_DATA_DIR=/tmp/l75-module-test-data \
-    terraform -chdir="$LESSON_DIR/lab_75/terraform/modules/network" \
+  step "Running Terraform module init"
+  env TF_DATA_DIR=/tmp/l76-module-test-data \
+    terraform -chdir="$LESSON_DIR/lab_76/terraform/modules/network" \
     init -backend=false -input=false -no-color
 
-  run "Running Terraform module tests"
-  env TF_DATA_DIR=/tmp/l75-module-test-data \
-    terraform -chdir="$LESSON_DIR/lab_75/terraform/modules/network" \
+  step "Running Terraform module tests"
+  env TF_DATA_DIR=/tmp/l76-module-test-data \
+    terraform -chdir="$LESSON_DIR/lab_76/terraform/modules/network" \
     test -no-color
 
   for env_name in dev stage prod; do
-    run "Running Terraform ${env_name} init"
-    env TF_DATA_DIR="/tmp/l75-${env_name}-data" \
-      terraform -chdir="$LESSON_DIR/lab_75/terraform/envs/${env_name}" \
+    step "Running Terraform ${env_name} init"
+    env TF_DATA_DIR="/tmp/l76-${env_name}-data" \
+      terraform -chdir="$LESSON_DIR/lab_76/terraform/envs/${env_name}" \
       init -backend=false -input=false -no-color
 
-    run "Running Terraform ${env_name} validate"
-    env TF_DATA_DIR="/tmp/l75-${env_name}-data" \
-      terraform -chdir="$LESSON_DIR/lab_75/terraform/envs/${env_name}" \
+    step "Running Terraform ${env_name} validate"
+    env TF_DATA_DIR="/tmp/l76-${env_name}-data" \
+      terraform -chdir="$LESSON_DIR/lab_76/terraform/envs/${env_name}" \
       validate -no-color
   done
 fi
 
 echo
-echo "lesson 75 local checks passed"
+echo "lesson 76 local checks passed"

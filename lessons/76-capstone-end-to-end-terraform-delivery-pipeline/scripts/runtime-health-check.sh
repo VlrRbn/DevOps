@@ -26,7 +26,7 @@ esac
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 LESSON_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
-ROOT="${LESSON_DIR}/lab_74/terraform/envs/${ENV_NAME}"
+ROOT="${LESSON_DIR}/lab_76/terraform/envs/${ENV_NAME}"
 STAMP="$(date -u +%Y%m%d_%H%M%S)"
 OUT_DIR="${OUT_DIR:-${LESSON_DIR}/evidence/runtime-health-${ENV_NAME}-${STAMP}}"
 
@@ -218,5 +218,5 @@ runtime_health_status=${overall_status}
 SUMMARY
 
 echo "RUNTIME_HEALTH_STATUS=${overall_status}"
-echo "$OUT_DIR"
+echo "Runtime health check written to: $OUT_DIR"
 exit "$exit_code"

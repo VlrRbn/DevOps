@@ -20,7 +20,7 @@ esac
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 LESSON_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
-ROOT="${LESSON_DIR}/lab_74/terraform/envs/${ENV_NAME}"
+ROOT="${LESSON_DIR}/lab_76/terraform/envs/${ENV_NAME}"
 STAMP="$(date -u +%Y%m%d_%H%M%S)"
 OUT_DIR="${OUT_DIR:-${LESSON_DIR}/evidence/state-snapshot-${ENV_NAME}-${STAMP}}"
 
@@ -59,7 +59,7 @@ state_pull_exitcode=${state_pull_ec}
 plan_exitcode=${plan_ec}
 SUMMARY
 
-echo "$OUT_DIR"
+echo "Snapshot written to: $OUT_DIR"
 
 if [[ "$state_pull_ec" -ne 0 ]]; then
   echo "WARNING: terraform state pull failed; evidence was still written to ${OUT_DIR}" >&2

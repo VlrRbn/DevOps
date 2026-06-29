@@ -10,20 +10,21 @@ set -Eeuo pipefail
 usage() {
   cat >&2 <<'USAGE'
 Usage:
-  promotion-evidence-template.sh <release-id> <source-env> <commit-sha> [status]
+  promotion-evidence-template.sh <release-id> <source-env> <commit-sha> <source-workflow-run-url> [status]
 
 Examples:
-  promotion-evidence-template.sh l75-demo dev "$(git rev-parse HEAD)" > /tmp/promotion-evidence-stage.json
-  promotion-evidence-template.sh l75-demo stage "$(git rev-parse HEAD)" > /tmp/promotion-evidence-prod.json
+  promotion-evidence-template.sh l76-demo dev "$(git rev-parse HEAD)" "https://github.com/OWNER/REPO/actions/runs/123" > /tmp/promotion-evidence-stage.json
+  promotion-evidence-template.sh l76-demo stage "$(git rev-parse HEAD)" "https://github.com/OWNER/REPO/actions/runs/456" > /tmp/promotion-evidence-prod.json
 USAGE
 }
 
 RELEASE_ID="${1:-}"
 SOURCE_ENV="${2:-}"
 COMMIT_SHA="${3:-}"
-STATUS="${4:-passed}"
+SOURCE_WORKFLOW_RUN_URL="${4:-}"
+STATUS="${5:-passed}"
 
-if [[ -z "$RELEASE_ID" || -z "$SOURCE_ENV" || -z "$COMMIT_SHA" ]]; then
+if [[ -z "$RELEASE_ID" || -z "$SOURCE_ENV" || -z "$COMMIT_SHA" || -z "$SOURCE_WORKFLOW_RUN_URL" ]]; then
   usage
   exit 64
 fi
@@ -38,6 +39,11 @@ if [[ ! "$COMMIT_SHA" =~ ^[0-9a-f]{7,40}$ ]]; then
   exit 64
 fi
 
+if [[ ! "$SOURCE_WORKFLOW_RUN_URL" =~ ^https://github\.com/.+/actions/runs/[0-9]+(/.*)?$ ]]; then
+  echo "source-workflow-run-url must look like a GitHub Actions run URL" >&2
+  exit 64
+fi
+
 if [[ "$STATUS" != "passed" ]]; then
   echo "warning: status is not 'passed'; risk-classifier.sh will block this evidence" >&2
 fi
@@ -47,11 +53,13 @@ jq -n \
   --arg source_env "$SOURCE_ENV" \
   --arg status "$STATUS" \
   --arg commit_sha "$COMMIT_SHA" \
+  --arg source_workflow_run_url "$SOURCE_WORKFLOW_RUN_URL" \
   --arg generated_at_utc "$(date -u +%FT%TZ)" \
   '{
     release_id: $release_id,
     source_env: $source_env,
     status: $status,
     commit_sha: $commit_sha,
+    source_workflow_run_url: $source_workflow_run_url,
     generated_at_utc: $generated_at_utc
   }'
