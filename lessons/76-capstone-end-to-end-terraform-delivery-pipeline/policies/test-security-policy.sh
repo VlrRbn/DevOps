@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# Unit-style test runner for terraform-plan-policy.sh.
+# Unit-style test runner for security-policy.sh.
 #
 # The fixtures are synthetic Terraform JSON plans. Test destructive changes, public ingress,
 # missing tags, warnings, and exception files without an alive AWS account.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-POLICY="$SCRIPT_DIR/terraform-plan-policy.sh"
+POLICY="$SCRIPT_DIR/security-policy.sh"
 TEST_DIR="$SCRIPT_DIR/tests"
-TMP_ROOT="${TMPDIR:-/tmp}/l75-policy-tests_$$"
+TMP_ROOT="${TMPDIR:-/tmp}/l76-policy-tests_$$"
 mkdir -p "$TMP_ROOT"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
@@ -21,7 +21,7 @@ pass_case() {
   local plan="$2"
   local out_dir="$TMP_ROOT/$name"
   mkdir -p "$out_dir"
-  OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l75-policy-${name}.log"
+  OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l76-policy-${name}.log"
   grep -q 'POLICY_DECISION=ALLOW' "$out_dir/policy-decision.txt"
 }
 
@@ -32,7 +32,7 @@ pass_case_no_warnings() {
   local plan="$2"
   local out_dir="$TMP_ROOT/$name"
   mkdir -p "$out_dir"
-  OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l75-policy-${name}.log"
+  OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l76-policy-${name}.log"
   grep -q 'POLICY_DECISION=ALLOW' "$out_dir/policy-decision.txt"
   jq -e 'length == 0' "$out_dir/policy-warn.json" >/dev/null
 }
@@ -46,12 +46,12 @@ deny_case() {
   local out_dir="$TMP_ROOT/$name"
   mkdir -p "$out_dir"
   set +e
-  OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l75-policy-${name}.log" 2>&1
+  OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l76-policy-${name}.log" 2>&1
   local ec=$?
   set -e
   if [[ "$ec" -ne 2 ]]; then
     echo "Expected DENY exit code 2 for $name, got $ec" >&2
-    cat "/tmp/l75-policy-${name}.log" >&2
+    cat "/tmp/l76-policy-${name}.log" >&2
     exit 1
   fi
   grep -q 'POLICY_DECISION=DENY' "$out_dir/policy-decision.txt"
@@ -66,7 +66,7 @@ pass_case_with_exception() {
   local exception="$3"
   local out_dir="$TMP_ROOT/$name"
   mkdir -p "$out_dir"
-  ALLOW_DESTROY_FILE="$exception" OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l75-policy-${name}.log"
+  ALLOW_DESTROY_FILE="$exception" OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l76-policy-${name}.log"
   grep -q 'POLICY_DECISION=ALLOW' "$out_dir/policy-decision.txt"
   # A valid exception removes only approved destructive addresses from the effective deny list.
   jq -e 'length == 0' "$out_dir/policy-deny.json" >/dev/null
@@ -82,12 +82,12 @@ deny_case_with_exception() {
   local out_dir="$TMP_ROOT/$name"
   mkdir -p "$out_dir"
   set +e
-  ALLOW_DESTROY_FILE="$exception" OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l75-policy-${name}.log" 2>&1
+  ALLOW_DESTROY_FILE="$exception" OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l76-policy-${name}.log" 2>&1
   local ec=$?
   set -e
   if [[ "$ec" -ne 2 ]]; then
     echo "Expected DENY exit code 2 for $name, got $ec" >&2
-    cat "/tmp/l75-policy-${name}.log" >&2
+    cat "/tmp/l76-policy-${name}.log" >&2
     exit 1
   fi
   grep -q 'POLICY_DECISION=DENY' "$out_dir/policy-decision.txt"
@@ -103,12 +103,12 @@ input_error_case() {
   local out_dir="$TMP_ROOT/$name"
   mkdir -p "$out_dir"
   set +e
-  ALLOW_DESTROY_FILE="$exception" OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l75-policy-${name}.log" 2>&1
+  ALLOW_DESTROY_FILE="$exception" OUT_DIR="$out_dir" "$POLICY" "$plan" >"/tmp/l76-policy-${name}.log" 2>&1
   local ec=$?
   set -e
   if [[ "$ec" -ne 1 ]]; then
     echo "Expected input error exit code 1 for $name, got $ec" >&2
-    cat "/tmp/l75-policy-${name}.log" >&2
+    cat "/tmp/l76-policy-${name}.log" >&2
     exit 1
   fi
 }

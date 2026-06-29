@@ -21,7 +21,7 @@ Environment variables:
   OUT_DIR             Output directory. Default: current directory.
 
 Manual example:
-  OUT_DIR=/tmp/l75-cost cost-policy.sh tfplan.json dev
+  OUT_DIR=/tmp/l76-cost cost-policy.sh tfplan.json dev
 
 Exit codes:
   0 - allowed, possibly with warnings

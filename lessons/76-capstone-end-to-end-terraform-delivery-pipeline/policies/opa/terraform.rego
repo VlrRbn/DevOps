@@ -1,6 +1,6 @@
 package terraform.plan
 
-# Optional OPA/Rego v1 for the same core deny rules as terraform-plan-policy.sh.
+# Optional OPA/Rego v1 for the same core deny rules as security-policy.sh.
 
 is_delete_action(actions) if {
 	actions[_] == "delete"

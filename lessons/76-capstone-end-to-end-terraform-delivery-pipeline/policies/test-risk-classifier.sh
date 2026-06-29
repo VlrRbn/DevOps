@@ -10,9 +10,9 @@ set -Eeuo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 TEST_DIR="$SCRIPT_DIR/tests"
 RISK_POLICY="$SCRIPT_DIR/risk-classifier.sh"
-SECURITY_POLICY="$SCRIPT_DIR/terraform-plan-policy.sh"
+SECURITY_POLICY="$SCRIPT_DIR/security-policy.sh"
 COST_POLICY="$SCRIPT_DIR/cost-policy.sh"
-TMP_ROOT="${TMPDIR:-/tmp}/l75-risk-classifier-tests_$$"
+TMP_ROOT="${TMPDIR:-/tmp}/l76-risk-classifier-tests_$$"
 
 # Every test writes isolated artifacts under /tmp so repository files are not
 # polluted and tests can inspect each case independently.
@@ -200,10 +200,11 @@ run_policy_classifier() {
 promotion_file="$TMP_ROOT/promotion-evidence.json"
 cat > "$promotion_file" <<'EOF'
 {
-  "release_id": "l75-demo",
+  "release_id": "l76-demo",
   "source_env": "dev",
   "status": "passed",
-  "commit_sha": "0123456789abcdef0123456789abcdef01234567"
+  "commit_sha": "0123456789abcdef0123456789abcdef01234567",
+  "source_workflow_run_url": "https://github.com/VlrRbn/DevOps/actions/runs/760001"
 }
 EOF
 
@@ -211,10 +212,11 @@ EOF
 prod_promotion_file="$TMP_ROOT/prod-promotion-evidence.json"
 cat > "$prod_promotion_file" <<'EOF'
 {
-  "release_id": "l75-demo",
+  "release_id": "l76-demo",
   "source_env": "stage",
   "status": "passed",
-  "commit_sha": "0123456789abcdef0123456789abcdef01234567"
+  "commit_sha": "0123456789abcdef0123456789abcdef01234567",
+  "source_workflow_run_url": "https://github.com/VlrRbn/DevOps/actions/runs/760002"
 }
 EOF
 
@@ -225,7 +227,8 @@ cat > "$invalid_promotion_file" <<'EOF'
   "release_id": "wrong-release",
   "source_env": "dev",
   "status": "failed",
-  "commit_sha": "not-a-sha"
+  "commit_sha": "not-a-sha",
+  "source_workflow_run_url": "not-a-url"
 }
 EOF
 
@@ -251,7 +254,7 @@ incident_record="$TMP_ROOT/incident-record.md"
 cat > "$incident_record" <<'EOF'
 # Incident Record
 
-- Incident ID: INC-L75-001
+- Incident ID: INC-L76-001
 - Severity: SEV-2
 - Reason: risk classifier emergency-mode test
 - Approval: simulated
@@ -288,25 +291,26 @@ assert_risk no_change_prod_ci_without_promotion NO_CHANGE true
 
 # MEDIUM: stage change with real cost warning and valid dev->stage evidence.
 run_policy_classifier medium_stage_nat "$TEST_DIR/cost-nat-plan.json" stage 0 \
-  env PROMOTION_EVIDENCE_FILE="$promotion_file" RELEASE_ID=l75-demo SOURCE_ENV=dev
+  env PROMOTION_EVIDENCE_FILE="$promotion_file" RELEASE_ID=l76-demo SOURCE_ENV=dev
 assert_risk medium_stage_nat MEDIUM true
 jq -e '.promotion_present == true and .promotion_valid == true' \
   "$TMP_ROOT/medium_stage_nat/risk/risk-decision.json" >/dev/null
 
 # HIGH: prod change with valid stage->prod evidence.
 run_classifier high_prod "$TEST_DIR/safe-plan.json" prod 0 \
-  env PROMOTION_EVIDENCE_FILE="$prod_promotion_file" RELEASE_ID=l75-demo SOURCE_ENV=stage
+  env PROMOTION_EVIDENCE_FILE="$prod_promotion_file" RELEASE_ID=l76-demo SOURCE_ENV=stage
 assert_risk high_prod HIGH true
 jq -e '.promotion_present == true and .promotion_valid == true' \
   "$TMP_ROOT/high_prod/risk/risk-decision.json" >/dev/null
 
 # Invalid promotion evidence must block stage/prod even if the file exists.
 run_classifier invalid_promotion_evidence "$TEST_DIR/safe-plan.json" stage 2 \
-  env PROMOTION_EVIDENCE_FILE="$invalid_promotion_file" RELEASE_ID=l75-demo SOURCE_ENV=dev
+  env PROMOTION_EVIDENCE_FILE="$invalid_promotion_file" RELEASE_ID=l76-demo SOURCE_ENV=dev
 assert_risk invalid_promotion_evidence BLOCKED false
 assert_reason invalid_promotion_evidence promotion_evidence_release_id_mismatch
 assert_reason invalid_promotion_evidence promotion_evidence_status_not_passed
 assert_reason invalid_promotion_evidence promotion_evidence_commit_sha_invalid
+assert_reason invalid_promotion_evidence promotion_evidence_source_workflow_run_url_invalid
 
 # Lower-level policy DENY must become BLOCKED at the risk layer.
 run_policy_classifier blocked_public_ingress "$TEST_DIR/public-ingress-plan.json" dev 2 env REQUIRE_PROMOTION_EVIDENCE=false
@@ -350,7 +354,7 @@ run_classifier emergency_destroy "$TEST_DIR/destroy-plan.json" prod 0 \
 assert_risk emergency_destroy EMERGENCY true
 
 # Stage/prod managed changes require promotion evidence by default.
-run_classifier missing_stage_promotion "$TEST_DIR/safe-plan.json" stage 2 env RELEASE_ID=l75-demo SOURCE_ENV=dev
+run_classifier missing_stage_promotion "$TEST_DIR/safe-plan.json" stage 2 env RELEASE_ID=l76-demo SOURCE_ENV=dev
 assert_risk missing_stage_promotion BLOCKED false
 
 # Input validation cases.

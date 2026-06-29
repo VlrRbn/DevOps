@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# Security/change policy for Terraform JSON plans.
+# Security policy for Terraform JSON plans.
 #
 # This script is the "allowed or denied?" layer. It should not decide how much
 # approval a change needs. Here we only produce:
@@ -15,19 +15,19 @@ set -Eeuo pipefail
 usage() {
   cat >&2 <<'USAGE'
 Usage:
-  terraform-plan-policy.sh [tfplan.json]
+  security-policy.sh [tfplan.json]
 
 Environment variables:
   OUT_DIR             Output directory. Default: current directory.
   ALLOW_DESTROY_FILE  Optional JSON exception file for approved destructive addresses.
 
 Manual example:
-  OUT_DIR=/tmp/l75-policy terraform-plan-policy.sh tfplan.json
+  OUT_DIR=/tmp/l76-policy security-policy.sh tfplan.json
 
 Exit codes:
   0 - allowed, possibly with warnings
   1 - input/tooling error
-  2 - denied by security/change policy
+  2 - denied by security policy
 USAGE
 }
 

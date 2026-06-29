@@ -11,7 +11,7 @@ set -Eeuo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 POLICY="$SCRIPT_DIR/cost-policy.sh"
 TEST_DIR="$SCRIPT_DIR/tests"
-TMP_ROOT="${TMPDIR:-/tmp}/l75-cost-policy-tests_$$"
+TMP_ROOT="${TMPDIR:-/tmp}/l76-cost-policy-tests_$$"
 mkdir -p "$TMP_ROOT"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 

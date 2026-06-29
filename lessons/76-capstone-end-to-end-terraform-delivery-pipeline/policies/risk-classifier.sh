@@ -4,7 +4,7 @@ set -Eeuo pipefail
 # Final apply risk classifier.
 #
 # Earlier scripts answer narrower questions:
-# - terraform-plan-policy.sh: is the change allowed by security/change policy?
+# - security-policy.sh: is the change allowed by security policy?
 # - cost-policy.sh: is the change allowed by cost/blast-radius policy?
 #
 # This script combines those outputs with environment context, promotion evidence,
@@ -153,7 +153,7 @@ json_array_len() {
   JSON_ARRAY_LEN="$(jq 'length' "$file")"
 }
 
-# Load security/change policy outputs.
+# Load security policy outputs.
 json_array_len "$POLICY_DIR/policy-deny.json" policy_deny
 policy_deny_count="$JSON_ARRAY_LEN"
 json_array_len "$POLICY_DIR/policy-warn.json" policy_warn
@@ -206,6 +206,7 @@ if [[ "$changed_count" -gt 0 && "$REQUIRE_PROMOTION_EVIDENCE" == "true" && "$INC
       evidence_source_env="$(jq -r '.source_env // ""' "$PROMOTION_EVIDENCE_FILE")"
       evidence_status="$(jq -r '.status // ""' "$PROMOTION_EVIDENCE_FILE")"
       evidence_commit_sha="$(jq -r '.commit_sha // ""' "$PROMOTION_EVIDENCE_FILE")"
+      evidence_source_workflow_run_url="$(jq -r '.source_workflow_run_url // ""' "$PROMOTION_EVIDENCE_FILE")"
 
       if [[ -n "$RELEASE_ID" && "$evidence_release_id" != "$RELEASE_ID" ]]; then
         promotion_valid=false
@@ -235,6 +236,14 @@ if [[ "$changed_count" -gt 0 && "$REQUIRE_PROMOTION_EVIDENCE" == "true" && "$INC
       if [[ ! "$evidence_commit_sha" =~ ^[0-9a-f]{7,40}$ ]]; then
         promotion_valid=false
         input_reasons+=("promotion_evidence_commit_sha_invalid")
+      fi
+
+      if [[ -z "$evidence_source_workflow_run_url" ]]; then
+        promotion_valid=false
+        input_reasons+=("promotion_evidence_source_workflow_run_url_missing")
+      elif [[ ! "$evidence_source_workflow_run_url" =~ ^https://github\.com/.+/actions/runs/[0-9]+(/.*)?$ ]]; then
+        promotion_valid=false
+        input_reasons+=("promotion_evidence_source_workflow_run_url_invalid")
       fi
     fi
   fi
