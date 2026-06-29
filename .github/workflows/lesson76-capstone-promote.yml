@@ -416,13 +416,19 @@ jobs:
           cp /tmp/lesson76-review-artifact/tfplan ./tfplan
           cp /tmp/lesson76-review-artifact/tfplan.sha256 ./tfplan.sha256
           sha256sum -c tfplan.sha256
-          terraform apply -input=false -no-color tfplan | tee apply.txt
+          set +e
+          terraform apply -input=false -no-color tfplan 2>&1 | tee apply.txt
+          apply_ec=${PIPESTATUS[0]}
+          set -e
+          echo "$apply_ec" > apply_exitcode.txt
+          exit "$apply_ec"
 
       - name: Post-apply drift check
         if: always()
         working-directory: ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}
         run: |
           set +e
+          terraform init -backend-config=backend.hcl -input=false -no-color > post_apply_init.txt 2>&1
           terraform plan -detailed-exitcode -input=false -no-color > post_apply_plan.txt 2>&1
           ec=$?
           set -e
@@ -436,6 +442,8 @@ jobs:
           name: lesson76-${{ needs.plan.outputs.target_env }}-${{ env.RELEASE_ID }}-apply
           path: |
             ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}/apply.txt
+            ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}/apply_exitcode.txt
+            ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}/post_apply_init.txt
             ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}/post_apply_plan.txt
             ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}/post_apply_exitcode.txt
           if-no-files-found: warn
