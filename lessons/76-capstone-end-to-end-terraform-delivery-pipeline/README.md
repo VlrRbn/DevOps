@@ -52,7 +52,8 @@ local checks
 - Apply the exact saved `tfplan` generated from the protected branch.
 - `tfplan.sha256` detects accidental mismatch between reviewed and applied files, but it is not a full trust boundary if the whole artifact can be replaced.
 - For `stage`/`prod`, record the previous environment workflow run URL as promotion evidence.
-- The promotion workflow verifies the source workflow run through the GitHub API and requires the same commit SHA.
+- The promotion workflow verifies the source workflow run through the GitHub API, downloads the source apply artifact, and validates `promotion-manifest.json`.
+- Source promotion evidence must match the same commit SHA, `release_id`, source environment, successful apply, and clean post-apply drift check.
 - Apply artifacts are uploaded with `if: always()` so failed apply/post-apply checks still leave evidence.
 - Treat raw evidence as sensitive: it can contain ARNs, account IDs, DNS names, IPs, and internal metadata.
 - `ci/` files are templates. Review and copy them into `.github/workflows/` only when ready.

@@ -30,10 +30,16 @@
 
 ## Download Candidate Version
 
+Set the state key explicitly before copying anything:
+
+```bash
+export TF_STATE_KEY="lab76/dev/full/terraform.tfstate"
+```
+
 ```bash
 aws s3api get-object \
   --bucket "$TF_STATE_BUCKET" \
-  --key "lab74/dev/full/terraform.tfstate" \
+  --key "$TF_STATE_KEY" \
   --version-id "$VERSION_ID" \
   previous-state.json
 ```
@@ -45,8 +51,8 @@ This command changes the current remote state object. Do not run it during the n
 ```bash
 aws s3api copy-object \
   --bucket "$TF_STATE_BUCKET" \
-  --copy-source "${TF_STATE_BUCKET}/lab74/dev/full/terraform.tfstate?versionId=${VERSION_ID}" \
-  --key "lab74/dev/full/terraform.tfstate"
+  --copy-source "${TF_STATE_BUCKET}/${TF_STATE_KEY}?versionId=${VERSION_ID}" \
+  --key "$TF_STATE_KEY"
 ```
 
 After restore, do not apply immediately. First run `terraform plan -detailed-exitcode` and classify any diff.

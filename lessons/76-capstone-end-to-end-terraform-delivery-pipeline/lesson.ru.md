@@ -260,6 +260,8 @@ Promotion evidence должно доказать:
 - на том же `commit SHA`
 - с тем же `release_id`
 - source run завершился `success`
+- source apply artifact содержит `promotion-manifest.json`
+- manifest показывает `apply_exitcode == 0`, `post_apply_exitcode == 0` и `final_status == PROMOTABLE`
 - `source_workflow_run_url`
   -> GitHub API
   -> status `completed`
@@ -288,6 +290,8 @@ lessons/76-capstone-end-to-end-terraform-delivery-pipeline/scripts/promotion-evi
   "source_workflow_run_url": "https://github.com/OWNER/REPO/actions/runs/..."
 }
 ```
+
+В CI это строже, чем текстовая заметка. Workflow скачивает source apply artifact и проверяет `promotion-manifest.json` перед планированием `stage` или `prod`.
 
 Для `prod` source environment обычно должен быть `stage`.
 

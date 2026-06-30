@@ -133,7 +133,8 @@ source-workflow-run-url.txt
 - commit SHA;
 - source workflow run URL;
 - source result passed;
-- GitHub API verification подтверждает successful source run на том же commit SHA.
+- GitHub API verification подтверждает successful source run на том же commit SHA;
+- `promotion-manifest.json` подтверждает тот же `release_id`, source environment, successful apply и clean post-apply drift check.
 - для реального production-flow source workflow URL должен ссылаться на предыдущий environment gate, а не на синтетический локальный файл.
 
 ---
@@ -219,7 +220,6 @@ lessons/76-capstone-end-to-end-terraform-delivery-pipeline/scripts/summarize-cap
 Важно: `collect-capstone-proof.sh` собирает только заранее известные файлы из папок урока, env и evidence. Он не ищет outputs в `/tmp`. Если policy/cost/risk outputs были созданы в `/tmp/l76-*`, скопируй их в папку доказательств перед `summarize-capstone.sh`.
 
 ---
-
 ## 11. Итоговая заметка ревью
 
 Создай:

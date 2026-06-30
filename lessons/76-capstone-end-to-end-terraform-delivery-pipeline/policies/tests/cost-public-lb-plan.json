@@ -7,7 +7,7 @@
       "type": "aws_lb",
       "change": {
         "actions": ["update"],
-        "after": { "name": "lab75-public-alb", "internal": false }
+        "after": { "name": "lab76-public-alb", "internal": false }
       }
     }
   ]

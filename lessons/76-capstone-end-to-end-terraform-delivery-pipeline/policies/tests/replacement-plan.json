@@ -8,8 +8,8 @@
       "name": "web",
       "change": {
         "actions": ["delete", "create"],
-        "before": { "name": "lab75-web-old" },
-        "after": { "name": "lab75-web-new" }
+        "before": { "name": "lab76-web-old" },
+        "after": { "name": "lab76-web-new" }
       }
     }
   ]

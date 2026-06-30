@@ -106,7 +106,7 @@ Trust policy check:
 
 ```bash
 aws iam get-role \
-  --role-name lab74-dev-github-actions-apply-role \
+  --role-name lab76-dev-github-actions-apply-role \
   --query 'Role.AssumeRolePolicyDocument' \
   --output json
 ```
@@ -128,7 +128,7 @@ State object example:
 ```bash
 aws s3api head-object \
   --bucket "$TF_STATE_BUCKET" \
-  --key "lab74/dev/full/terraform.tfstate" \
+  --key "lab76/dev/full/terraform.tfstate" \
   --output json
 ```
 
@@ -144,9 +144,9 @@ Alarm state example:
 ```bash
 aws cloudwatch describe-alarms \
   --alarm-names \
-    lab74-dev-alb-unhealthy-hosts \
-    lab74-dev-alb-5xx-critical \
-    lab74-dev-target-5xx-critical \
+    lab76-dev-alb-unhealthy-hosts \
+    lab76-dev-alb-5xx-critical \
+    lab76-dev-target-5xx-critical \
   --query 'MetricAlarms[].{Name:AlarmName,State:StateValue,Reason:StateReason}' \
   --output table
 ```

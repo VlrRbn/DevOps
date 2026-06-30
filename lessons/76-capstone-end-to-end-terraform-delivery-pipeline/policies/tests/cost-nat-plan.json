@@ -7,7 +7,7 @@
       "type": "aws_nat_gateway",
       "change": {
         "actions": ["create"],
-        "after": { "tags": { "Project": "lab75", "Environment": "stage", "ManagedBy": "Terraform" } }
+        "after": { "tags": { "Project": "lab76", "Environment": "stage", "ManagedBy": "Terraform" } }
       }
     }
   ]

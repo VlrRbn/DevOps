@@ -107,13 +107,10 @@ jobs:
               echo "stage/prod promotion requires source_workflow_run_url" >&2
               exit 64
             fi
-            case "$SOURCE_WORKFLOW_RUN_URL" in
-              "https://github.com/${{ github.repository }}/actions/runs/"*) ;;
-              *)
-                echo "source_workflow_run_url must point to this repository's GitHub Actions run URL" >&2
-                exit 64
-                ;;
-            esac
+            if [[ ! "$SOURCE_WORKFLOW_RUN_URL" =~ ^https://github.com/${{ github.repository }}/actions/runs/[0-9]+$ ]]; then
+              echo "source_workflow_run_url must be the canonical GitHub Actions run URL for this repository" >&2
+              exit 64
+            fi
           fi
           echo "target_env=$TARGET_ENV" >> "$GITHUB_OUTPUT"
 
@@ -161,8 +158,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
-          if [[ ! "$SOURCE_WORKFLOW_RUN_URL" =~ ^https://github\.com/${GITHUB_REPOSITORY}/actions/runs/([0-9]+)(/.*)?$ ]]; then
-            echo "source_workflow_run_url must point to this repository's GitHub Actions run URL" >&2
+          if [[ ! "$SOURCE_WORKFLOW_RUN_URL" =~ ^https://github\.com/${GITHUB_REPOSITORY}/actions/runs/([0-9]+)$ ]]; then
+            echo "source_workflow_run_url must be the canonical GitHub Actions run URL for this repository" >&2
             exit 64
           fi
 
@@ -204,6 +201,40 @@ jobs:
           echo "workflow_name=$workflow_name" >> "$GITHUB_OUTPUT"
           echo "workflow_path=$workflow_path" >> "$GITHUB_OUTPUT"
           echo "display_title=$display_title" >> "$GITHUB_OUTPUT"
+
+      - name: Download source apply artifact
+        if: env.TARGET_ENV != 'dev'
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
+        with:
+          name: lesson76-${{ env.SOURCE_ENV }}-${{ env.RELEASE_ID }}-apply
+          path: /tmp/lesson76-source-apply
+          run-id: ${{ steps.source_run.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Validate source promotion manifest
+        if: env.TARGET_ENV != 'dev'
+        run: |
+          set -Eeuo pipefail
+          manifest="/tmp/lesson76-source-apply/promotion-manifest.json"
+          if [[ ! -s "$manifest" ]]; then
+            echo "source apply artifact does not contain promotion-manifest.json" >&2
+            exit 64
+          fi
+
+          jq -e \
+            --arg release_id "$RELEASE_ID" \
+            --arg source_env "$SOURCE_ENV" \
+            --arg commit_sha "${{ github.sha }}" \
+            --arg source_url "$SOURCE_WORKFLOW_RUN_URL" \
+            '
+              .release_id == $release_id
+              and .target_env == $source_env
+              and .commit_sha == $commit_sha
+              and .workflow_run_url == $source_url
+              and .apply_exitcode == "0"
+              and .post_apply_exitcode == "0"
+              and .final_status == "PROMOTABLE"
+            ' "$manifest" >/dev/null
 
       - name: Select plan role
         id: role
@@ -435,6 +466,73 @@ jobs:
           echo "$ec" > post_apply_exitcode.txt
           [[ "$ec" -eq 0 ]]
 
+      - name: Write promotion manifest
+        if: always()
+        working-directory: ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}
+        run: |
+          set -Eeuo pipefail
+          apply_ec="missing"
+          post_apply_ec="missing"
+          [[ -s apply_exitcode.txt ]] && apply_ec="$(tr -d '[:space:]' < apply_exitcode.txt)"
+          [[ -s post_apply_exitcode.txt ]] && post_apply_ec="$(tr -d '[:space:]' < post_apply_exitcode.txt)"
+
+          final_status="NOT_PROMOTABLE"
+          if [[ "$apply_ec" == "0" && "$post_apply_ec" == "0" ]]; then
+            final_status="PROMOTABLE"
+          fi
+
+          tfplan_sha256="missing"
+          if [[ -s /tmp/lesson76-review-artifact/tfplan.sha256 ]]; then
+            tfplan_sha256="$(awk '{print $1}' /tmp/lesson76-review-artifact/tfplan.sha256)"
+          fi
+
+          security_policy="n/a"
+          cost_policy="n/a"
+          risk="n/a"
+          apply_allowed="n/a"
+          [[ -s /tmp/lesson76-review-artifact/policy-results/policy-decision.txt ]] && security_policy="$(tr -d '[:space:]' < /tmp/lesson76-review-artifact/policy-results/policy-decision.txt)"
+          [[ -s /tmp/lesson76-review-artifact/cost-policy-results/cost-decision.txt ]] && cost_policy="$(tr -d '[:space:]' < /tmp/lesson76-review-artifact/cost-policy-results/cost-decision.txt)"
+          if [[ -s /tmp/lesson76-review-artifact/risk-results/risk-decision.json ]]; then
+            risk="$(jq -r '.risk // "n/a"' /tmp/lesson76-review-artifact/risk-results/risk-decision.json)"
+            apply_allowed="$(jq -r '.apply_allowed // "n/a"' /tmp/lesson76-review-artifact/risk-results/risk-decision.json)"
+          fi
+
+          jq -n \
+            --arg release_id "$RELEASE_ID" \
+            --arg target_env "${{ needs.plan.outputs.target_env }}" \
+            --arg source_env "$SOURCE_ENV" \
+            --arg commit_sha "${{ github.sha }}" \
+            --arg workflow_run_url "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --arg workflow_run_id "${{ github.run_id }}" \
+            --arg review_artifact "${{ needs.plan.outputs.artifact_name }}" \
+            --arg apply_artifact "lesson76-${{ needs.plan.outputs.target_env }}-${RELEASE_ID}-apply" \
+            --arg tfplan_sha256 "$tfplan_sha256" \
+            --arg security_policy "$security_policy" \
+            --arg cost_policy "$cost_policy" \
+            --arg risk "$risk" \
+            --arg apply_allowed "$apply_allowed" \
+            --arg apply_exitcode "$apply_ec" \
+            --arg post_apply_exitcode "$post_apply_ec" \
+            --arg final_status "$final_status" \
+            '{
+              release_id: $release_id,
+              target_env: $target_env,
+              source_env: $source_env,
+              commit_sha: $commit_sha,
+              workflow_run_url: $workflow_run_url,
+              workflow_run_id: $workflow_run_id,
+              review_artifact: $review_artifact,
+              apply_artifact: $apply_artifact,
+              tfplan_sha256: $tfplan_sha256,
+              security_policy: $security_policy,
+              cost_policy: $cost_policy,
+              risk: $risk,
+              apply_allowed: $apply_allowed,
+              apply_exitcode: $apply_exitcode,
+              post_apply_exitcode: $post_apply_exitcode,
+              final_status: $final_status
+            }' > promotion-manifest.json
+
       - name: Upload apply artifact
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
@@ -446,5 +544,6 @@ jobs:
             ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}/post_apply_init.txt
             ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}/post_apply_plan.txt
             ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}/post_apply_exitcode.txt
+            ${{ env.LESSON_DIR }}/lab_76/terraform/envs/${{ needs.plan.outputs.target_env }}/promotion-manifest.json
           if-no-files-found: warn
           retention-days: 7

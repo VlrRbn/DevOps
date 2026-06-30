@@ -261,6 +261,8 @@ For `stage` and `prod`, managed changes require promotion evidence.
 - on the same `commit SHA`
 - with the same `release_id`
 - the source run finished with `success`
+- the source apply artifact contains `promotion-manifest.json`
+- that manifest shows `apply_exitcode == 0`, `post_apply_exitcode == 0`, and `final_status == PROMOTABLE`
 - `source_workflow_run_url`
   -> GitHub API
   -> status `completed`
@@ -289,6 +291,8 @@ Minimum fields:
   "source_workflow_run_url": "https://github.com/OWNER/REPO/actions/runs/..."
 }
 ```
+
+In CI this is stricter than a text note. The workflow downloads the source apply artifact and validates `promotion-manifest.json` before planning `stage` or `prod`.
 
 For `prod`, the source environment should normally be `stage`.
 
@@ -365,7 +369,7 @@ Plan job:
 validate inputs
 checkout exact commit
 local checks
-verify source workflow run через GitHub API
+verify source workflow run through GitHub API
 assume plan role
 generate backend/tfvars
 terraform init/validate/plan
@@ -427,13 +431,13 @@ The promote template is intentionally conservative. Before using it against real
 | Symptom | Likely cause | What to check |
 | --- | --- | --- |
 | `terraform init` asks for bucket | missing or wrong `backend.hcl` | backend file path and values |
-| plan role fails | проблема с OIDC, trust policy или role ARN | GitHub variables, IAM trust policy, repo/ref claims |
+| plan role fails | OIDC, trust policy, or role ARN problem | GitHub variables, IAM trust policy, repo/ref claims |
 | policy passes but risk is `BLOCKED` | missing evidence or deny from another gate | `risk-decision.md` reason codes |
 | `stage`/`prod` blocked | missing promotion evidence | `PROMOTION_EVIDENCE_FILE`, `release_id`, `source_env` |
 | apply blocked by approval | GitHub Environment protection | reviewers, branch restrictions, environment name |
 | apply uses different changes | fresh plan used after approval | apply exact saved `tfplan` artifact only |
 | post-apply exit code `2` | drift or unapplied diff | inspect `post_apply_plan.txt` |
-| runtime health unhealthy | проблема с app, ALB, ASG или alarm | target health, ASG activities, CloudWatch alarms |
+| runtime health unhealthy | app, ALB, ASG, or alarm problem | target health, ASG activities, CloudWatch alarms |
 | stuck lock | previous run interrupted | inspect lock, use runbook before force-unlock |
 
 `Terraform init` asks for the bucket. Possible causes:
@@ -683,7 +687,7 @@ The lesson is complete when:
 
 ## 17. Lesson Summary
 
-- **What you learned:** how to connect контролы доставки Terraform into one auditable pipeline.
+- **What you learned:** how to connect Terraform delivery controls into one auditable pipeline.
 - **What you practiced:** checks, plans, policies, risk classification, approval, exact-plan apply, and verification.
 - **Operational focus:** apply only what was reviewed, save evidence, and keep recovery runbooks close.
 - **Why it matters:** production delivery is controlled evidence plus safe rollback/recovery paths.

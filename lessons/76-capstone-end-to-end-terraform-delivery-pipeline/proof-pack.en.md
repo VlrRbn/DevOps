@@ -133,7 +133,8 @@ Must show:
 - commit SHA;
 - source workflow run URL;
 - source result passed;
-- GitHub API verification confirms a successful source run on the same commit SHA.
+- GitHub API verification confirms a successful source run on the same commit SHA;
+- `promotion-manifest.json` confirms matching `release_id`, source environment, successful apply, and clean post-apply drift check.
 - for a real production flow, source workflow URL should point to the previous environment gate, not to a synthetic local file.
 
 ---
@@ -219,7 +220,6 @@ Must show:
 Important: `collect-capstone-proof.sh` collects known files only from lesson/env/evidence locations. It does not search outputs in `/tmp`. If policy/cost/risk outputs were created under `/tmp/l76-*`, copy them into the evidence directory before running `summarize-capstone.sh`.
 
 ---
-
 ## 11. Final Review Note
 
 Create:

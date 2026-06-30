@@ -11,7 +11,7 @@
         "after": {
           "max_size": 6,
           "tags": {
-            "Project": "lab75",
+            "Project": "lab76",
             "Environment": "dev",
             "ManagedBy": "Terraform"
           }
