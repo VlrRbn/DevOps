@@ -135,7 +135,7 @@ source-workflow-run-url.txt
 - source result passed;
 - GitHub API verification подтверждает successful source run на том же commit SHA;
 - `promotion-manifest.json` подтверждает тот же `release_id`, source environment, successful apply и clean post-apply drift check.
-- для реального production-flow source workflow URL должен ссылаться на предыдущий environment gate, а не на синтетический локальный файл.
+- для реального production-flow source workflow URL должен ссылаться на предыдущий successful run с apply artifact, а не на синтетический локальный файл.
 
 ---
 

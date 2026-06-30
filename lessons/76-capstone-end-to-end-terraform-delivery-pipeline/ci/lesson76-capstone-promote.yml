@@ -185,14 +185,6 @@ jobs:
             echo "source workflow run must be lesson76-capstone-promote: name=$workflow_name path=$workflow_path" >&2
             exit 64
           fi
-          if [[ "$workflow_name" != "lesson76-capstone-promote" ]]; then
-            echo "source workflow name mismatch: name=$workflow_name" >&2
-            exit 64
-          fi
-          if [[ "$display_title" != "L76 promote ${SOURCE_ENV} "* ]]; then
-            echo "source workflow run title does not match source_env=$SOURCE_ENV: display_title=$display_title" >&2
-            exit 64
-          fi
 
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
           echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"

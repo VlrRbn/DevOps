@@ -135,7 +135,7 @@ Must show:
 - source result passed;
 - GitHub API verification confirms a successful source run on the same commit SHA;
 - `promotion-manifest.json` confirms matching `release_id`, source environment, successful apply, and clean post-apply drift check.
-- for a real production flow, source workflow URL should point to the previous environment gate, not to a synthetic local file.
+- for a real production flow, source workflow URL should point to the previous successful run with an apply artifact, not to a synthetic local file.
 
 ---
 
