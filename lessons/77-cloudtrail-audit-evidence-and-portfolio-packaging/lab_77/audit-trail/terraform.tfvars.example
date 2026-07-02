@@ -1,0 +1,29 @@
+aws_region = "eu-west-1"
+
+project_name = "lab77"
+trail_name   = "lab77-terraform-audit-trail"
+
+# Must be globally unique. Include your short name/account/region.
+cloudtrail_log_bucket_name = "YOURNAME-cloudtrail-logs-ACCOUNTID-eu-west-1"
+
+# Existing Terraform state bucket/prefix from lesson 76.
+terraform_state_bucket_name = "YOURNAME-tfstate-ACCOUNTID-eu-west-1"
+terraform_state_prefixes = {
+  dev   = "lab76/dev/full/"
+  stage = "lab76/stage/full/"
+  prod  = "lab76/prod/full/"
+}
+
+# Lab defaults: focused data events, single region, 30-day retention.
+enable_state_data_events = true
+is_multi_region_trail    = false
+log_retention_days       = 30
+
+# Keep false unless you intentionally want terraform destroy to remove log objects too.
+force_destroy_log_bucket = false
+
+common_tags = {
+  Owner      = "DevOpsTrack"
+  ManagedBy  = "Terraform"
+  Visibility = "private"
+}

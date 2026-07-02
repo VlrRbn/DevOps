@@ -196,7 +196,7 @@ jobs:
 
       - name: Download source apply artifact
         if: env.TARGET_ENV != 'dev'
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
+        uses: actions/download-artifact@v6
         with:
           name: lesson76-${{ env.SOURCE_ENV }}-${{ env.RELEASE_ID }}-apply
           path: /tmp/lesson76-source-apply
@@ -243,7 +243,7 @@ jobs:
           echo "role_arn=$role" >> "$GITHUB_OUTPUT"
 
       - name: Assume plan role
-        uses: aws-actions/configure-aws-credentials@cabfdba3510de1431bac9dba27511d97497fc100
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ steps.role.outputs.role_arn }}
           aws-region: ${{ env.AWS_REGION }}
@@ -398,7 +398,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Download approved review artifact
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
+        uses: actions/download-artifact@v6
         with:
           name: ${{ needs.plan.outputs.artifact_name }}
           path: /tmp/lesson76-review-artifact
@@ -418,7 +418,7 @@ jobs:
           echo "role_arn=$role" >> "$GITHUB_OUTPUT"
 
       - name: Assume apply role after approval
-        uses: aws-actions/configure-aws-credentials@cabfdba3510de1431bac9dba27511d97497fc100
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ steps.role.outputs.role_arn }}
           aws-region: ${{ env.AWS_REGION }}
