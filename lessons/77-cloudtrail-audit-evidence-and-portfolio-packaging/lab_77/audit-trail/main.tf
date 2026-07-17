@@ -74,13 +74,13 @@ data "aws_iam_policy_document" "cloudtrail_log_bucket" {
 locals {
   trail_arn = "arn:${data.aws_partition.current.partition}:cloudtrail:${var.aws_region}:${data.aws_caller_identity.current.account_id}:trail/${var.trail_name}"
 
-  state_data_event_prefixes = [
-    for prefix in var.terraform_state_prefixes :
-    endswith(prefix, "/") ? prefix : "${prefix}/"
-  ]
+  state_data_event_prefixes = {
+    for env, prefix in var.terraform_state_prefixes :
+    env => endswith(prefix, "/") ? prefix : "${prefix}/"
+  }
 
   state_data_event_arns = [
-    for prefix in local.state_data_event_prefixes :
+    for prefix in values(local.state_data_event_prefixes) :
     "arn:${data.aws_partition.current.partition}:s3:::${var.terraform_state_bucket_name}/${prefix}"
   ]
 
@@ -113,6 +113,14 @@ resource "aws_s3_bucket_public_access_block" "cloudtrail_logs" {
   restrict_public_buckets = true
 }
 
+resource "aws_s3_bucket_versioning" "cloudtrail_logs" {
+  bucket = aws_s3_bucket.cloudtrail_logs.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail_logs" {
   bucket = aws_s3_bucket.cloudtrail_logs.id
 
@@ -136,6 +144,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_logs" {
 
     expiration {
       days = var.log_retention_days
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = var.log_retention_days
     }
   }
 }

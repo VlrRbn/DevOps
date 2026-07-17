@@ -119,6 +119,10 @@ devops-notes/
 | **Lesson 72** | Module Versioning and Release Discipline | [Materials_72](lessons/72-module-versioning-and-release-discipline/lesson.en.md) | [Readme](lessons/72-module-versioning-and-release-discipline/README.md) |
 | **Lesson 73** | Cost and Blast Radius Controls | [Materials_73](lessons/73-cost-and-blast-radius-controls/lesson.en.md) | [Readme](lessons/73-cost-and-blast-radius-controls/README.md) |
 | **Lesson 74** | Disaster Recovery and Terraform Incident Runbooks | [Materials_74](lessons/74-disaster-recovery-and-incident-runbooks/lesson.en.md) | [Readme](lessons/74-disaster-recovery-and-incident-runbooks/README.md) |
+| **Lesson 75** | Apply Risk Classification and Change Review | [Materials_75](lessons/75-apply-risk-classification-and-change-review/lesson.en.md) | [Readme](lessons/75-apply-risk-classification-and-change-review/README.md) |
+| **Lesson 76** | Capstone End-to-End Terraform Delivery Pipeline | [Materials_76](lessons/76-capstone-end-to-end-terraform-delivery-pipeline/lesson.en.md) | [Readme](lessons/76-capstone-end-to-end-terraform-delivery-pipeline/README.md) |
+| **Lesson 77** | CloudTrail Audit Evidence and Portfolio Packaging | [Materials_77](lessons/77-cloudtrail-audit-evidence-and-portfolio-packaging/lesson.en.md) | [Readme](lessons/77-cloudtrail-audit-evidence-and-portfolio-packaging/README.md) |
+| **Lesson 78** | AWS Lambda Fundamentals | [Materials_78](lessons/78-aws-lambda-fundamentals/lesson.en.md) | [Readme](lessons/78-aws-lambda-fundamentals/README.md) |
 ---
 
 ## How to use
@@ -144,8 +148,6 @@ git config core.hooksPath scripts/git-hooks
 
 The hook blocks accidental commits of Terraform runtime/private files such as `backend.hcl`, `terraform.tfvars`, `terraform.tfstate`, plan/apply artifacts, `.terraform/`, private keys, and `*.auto.tfvars`.
 
-Commit `.example`, `.sample`, or `.template` files instead.
-
 ---
 
 ## CI Workflows
@@ -160,11 +162,11 @@ Commit `.example`, `.sample`, or `.template` files instead.
 - `lesson71-terraform-promote.yml` - Multi-environment promotion workflow.
 - `lesson72-module-release.yml` - Module release/versioning checks.
 - `lesson73-cost-guard.yml` - Cost and blast-radius guard checks.
+- `lesson75-real-plan-risk-review.yml` - Real Terraform plan risk classification and review evidence.
+- `lesson76-pr-checks.yml` - Capstone pull-request checks for scripts, policies, and Terraform validation.
+- `lesson76-drift-check.yml` - Capstone drift check workflow.
+- `lesson76-capstone-promote.yml` - Capstone promotion workflow with review, exact-plan apply, and evidence artifacts.
 
----
-
-## 📈 Progress
-- Daily log: [DevOps Progress](DevOps_Progress.md)
 ---
 
 ## 🎯 Goal

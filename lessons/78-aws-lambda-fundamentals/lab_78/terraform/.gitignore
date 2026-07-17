@@ -1,0 +1,3 @@
+# The repository-wide ignore is convenient for copied training labs, but this
+# standalone Terraform root keeps provider checksums for reproducible runs.
+!.terraform.lock.hcl

@@ -42,12 +42,12 @@ variable "terraform_state_prefixes" {
   }
 
   validation {
-    condition = alltrue([
+    condition = length(var.terraform_state_prefixes) > 0 && alltrue([
       for env in keys(var.terraform_state_prefixes) :
       contains(["dev", "stage", "prod"], env)
     ])
 
-    error_message = "terraform_state_prefixes keys must be one of: dev, stage, prod."
+    error_message = "terraform_state_prefixes must not be empty, and keys must be one of: dev, stage, prod."
   }
 
   validation {
@@ -62,7 +62,7 @@ variable "terraform_state_prefixes" {
 
 variable "enable_state_data_events" {
   type        = bool
-  description = "Enable S3 object-level data events for terraform_state_bucket_name/terraform_state_prefix."
+  description = "Enable S3 object-level data events for terraform_state_bucket_name/terraform_state_prefixes."
   default     = true
 }
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-blocked_regex='(^|/)(backend\.hcl|terraform\.tfvars|[^/]+\.tfvars|terraform\.tfstate|terraform\.tfstate\.backup|tfplan|plan\.txt|tfplan\.txt|tfplan\.json|apply\.txt|post_apply_plan\.txt|post_apply_exitcode\.txt|\.terraform/|\.terraform\.lock\.hcl)$|\.auto\.tfvars$|\.pem$|\.key$'
+blocked_regex='(^|/)(backend\.hcl|terraform\.tfvars|[^/]+\.tfvars|terraform\.tfstate|terraform\.tfstate\.backup|tfplan|plan\.txt|tfplan\.txt|tfplan\.json|apply\.txt|post_apply_plan\.txt|post_apply_exitcode\.txt|\.terraform/)$|\.auto\.tfvars$|\.pem$|\.key$'
 
 # Allow examples/templates but block real runtime/private files.
 staged_files="$(git diff --cached --name-only --diff-filter=ACMR || true)"
