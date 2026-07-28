@@ -123,6 +123,8 @@ devops-notes/
 | **Lesson 76** | Capstone End-to-End Terraform Delivery Pipeline | [Materials_76](lessons/76-capstone-end-to-end-terraform-delivery-pipeline/lesson.en.md) | [Readme](lessons/76-capstone-end-to-end-terraform-delivery-pipeline/README.md) |
 | **Lesson 77** | CloudTrail Audit Evidence and Portfolio Packaging | [Materials_77](lessons/77-cloudtrail-audit-evidence-and-portfolio-packaging/lesson.en.md) | [Readme](lessons/77-cloudtrail-audit-evidence-and-portfolio-packaging/README.md) |
 | **Lesson 78** | AWS Lambda Fundamentals | [Materials_78](lessons/78-aws-lambda-fundamentals/lesson.en.md) | [Readme](lessons/78-aws-lambda-fundamentals/README.md) |
+| **Lesson 79** | Lambda IAM and Invocation Permissions | [Materials_79](lessons/79-lambda-iam-invocation-permissions/lesson.en.md) | [Readme](lessons/79-lambda-iam-invocation-permissions/README.md) |
+| **Lesson 80** | Lambda Async Retries and Failure Destinations | [Materials_80](lessons/80-lambda-async-retries-and-failure-destinations/lesson.en.md) | [Readme](lessons/80-lambda-async-retries-and-failure-destinations/README.md) |
 ---
 
 ## How to use

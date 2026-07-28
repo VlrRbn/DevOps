@@ -118,6 +118,7 @@ backend.*.hcl
 *.tfplan
 tfplan
 tfplan.*
+tfplan-*
 plan.txt
 tfplan.txt
 tfplan.json

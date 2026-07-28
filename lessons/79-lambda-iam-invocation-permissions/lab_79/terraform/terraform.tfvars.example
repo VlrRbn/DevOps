@@ -1,0 +1,11 @@
+aws_region   = "eu-west-1"
+project_name = "lab79"
+environment  = "dev"
+
+# Use an IAM role/user ARN. Do not paste arn:aws:sts::...:assumed-role/... here.
+operator_iam_principal_arn = "arn:aws:iam::123456789012:role/YOUR_OPERATOR_ROLE"
+
+# none -> expected AccessDenied
+# lambda_caller_identity_policy -> Lambda caller role receives InvokeFunction
+# function_resource_policy -> Lambda function allows the Lambda caller role
+invoke_permission_mode = "none"

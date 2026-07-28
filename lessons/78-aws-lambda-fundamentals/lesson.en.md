@@ -249,15 +249,6 @@ The function does not log the complete event. Events may contain tokens,
 personal data, or other sensitive values. The log record contains only
 explicitly selected fields.
 
-### Checkpoint 1
-
-Answer in your own words:
-
-1. Why should core logic be separated from the handler?
-2. Who creates `event`, and who creates `context`?
-3. Why must execution environment memory not be used as reliable durable
-   storage?
-
 ## 5. Local Tests
 
 From the lesson directory, run:
@@ -444,12 +435,6 @@ The lab configures:
 
 Values limit the training function's cost and blast radius.
 
-### Checkpoint 2
-
-1. Why does the execution role not need `lambda:InvokeFunction` to invoke
-   itself?
-2. What changes in the plan after editing `lambda_function.py`?
-
 ## 7. Deployment
 
 Before applying, verify the identity:
@@ -586,12 +571,6 @@ echo "aws_cli_exit_code=$aws_cli_exit_code"
 
 The response must contain `ValueError: event must be a JSON object`, not an
 accidental `AttributeError` from calling `.get()` on `None`.
-
-### Checkpoint 3
-
-1. Why does AWS CLI exit code `0` not prove handler success?
-2. Where do you find the Python stack trace?
-3. Why should the entire input event not be logged?
 
 ## 11. Practical Drills
 
@@ -738,7 +717,8 @@ few seconds and verify the Region and log group name.
 
 ### Checkov Reports VPC, KMS, DLQ, X-Ray, Or Code-Signing Findings
 
-These generic findings require context rather than automatic suppression:
+These generic findings require context rather than automatic suppression.
+Lesson 78 explains the fundamentals of AWS Lambda and does not add unrelated resources:
 
 - a VPC is needed only when the function must reach private VPC resources;
 - this lab stores non-secret configuration and relies on AWS-managed encryption;
@@ -747,10 +727,6 @@ These generic findings require context rather than automatic suppression:
 - X-Ray, code signing, customer-managed KMS keys, and longer log retention are
   valid production decisions but belong to later reliability and delivery
   lessons.
-
-Record these findings as accepted lab limitations. Do not claim that the lab is
-a complete production workload, and do not add unrelated infrastructure only
-to make a generic scanner green.
 
 ## 13. Completion Check
 
