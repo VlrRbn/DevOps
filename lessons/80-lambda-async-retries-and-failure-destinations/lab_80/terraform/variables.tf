@@ -12,7 +12,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Short project name used in resource names and tags"
   type        = string
-  default     = "lab79"
+  default     = "lab80"
 
   validation {
     condition     = can(regex("^[a-z][a-z0-9-]{2,20}$", var.project_name))
@@ -31,26 +31,24 @@ variable "environment" {
   }
 }
 
-variable "operator_iam_principal_arn" {
-  description = "Existing IAM user or role ARN allowed to assume the Lambda caller role"
-  type        = string
+variable "maximum_retry_attempts" {
+  description = "Additional attempts after the first failed asynchronous invocation"
+  type        = number
+  default     = 1
 
   validation {
-    condition     = can(regex("^arn:aws:iam::[0-9]{12}:(role|user)/.+$", var.operator_iam_principal_arn))
-    error_message = "operator_iam_principal_arn must be an IAM role or user ARN, not an STS assumed-role session ARN."
+    condition     = contains([0, 1, 2], var.maximum_retry_attempts)
+    error_message = "maximum_retry_attempts must be 0, 1, or 2."
   }
 }
 
-variable "invoke_permission_mode" {
-  description = "Where lambda:InvokeFunction is granted: none, lambda_caller_identity_policy, or function_resource_policy"
-  type        = string
-  default     = "none"
+variable "maximum_event_age_in_seconds" {
+  description = "Maximum age of an asynchronous event before Lambda discards it"
+  type        = number
+  default     = 300
 
   validation {
-    condition = contains(
-      ["none", "lambda_caller_identity_policy", "function_resource_policy"],
-      var.invoke_permission_mode,
-    )
-    error_message = "invoke_permission_mode must be none, lambda_caller_identity_policy, or function_resource_policy."
+    condition     = var.maximum_event_age_in_seconds >= 60 && var.maximum_event_age_in_seconds <= 21600
+    error_message = "maximum_event_age_in_seconds must be between 60 and 21600."
   }
 }

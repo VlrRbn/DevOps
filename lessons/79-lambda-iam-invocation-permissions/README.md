@@ -7,7 +7,7 @@ policy.
 ## Files
 
 - `lesson.en.md` / `lesson.ru.md` - full lesson text.
-- `lab_78/app/lambda_function.py` - Lambda handler and testable application logic.
+- `lab_79/app/lambda_function.py` - Lambda handler and testable application logic.
 - `lab_79/tests/` - local Python unit tests.
 - `lab_79/terraform/` - Lambda and IAM authorization lab.
 - `lab_79/terraform/tests/` - native Terraform tests for all grant modes.

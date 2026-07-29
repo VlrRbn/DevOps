@@ -1,0 +1,9 @@
+aws_region   = "eu-west-1"
+project_name = "lab80"
+environment  = "dev"
+
+# Lambda runs the first attempt plus this many retries after handler failure.
+maximum_retry_attempts = 1
+
+# Keep the lab feedback loop short. Production values depend on the workload.
+maximum_event_age_in_seconds = 300
