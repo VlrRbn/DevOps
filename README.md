@@ -125,6 +125,7 @@ devops-notes/
 | **Lesson 78** | AWS Lambda Fundamentals | [Materials_78](lessons/78-aws-lambda-fundamentals/lesson.en.md) | [Readme](lessons/78-aws-lambda-fundamentals/README.md) |
 | **Lesson 79** | Lambda IAM and Invocation Permissions | [Materials_79](lessons/79-lambda-iam-invocation-permissions/lesson.en.md) | [Readme](lessons/79-lambda-iam-invocation-permissions/README.md) |
 | **Lesson 80** | Lambda Async Retries and Failure Destinations | [Materials_80](lessons/80-lambda-async-retries-and-failure-destinations/lesson.en.md) | [Readme](lessons/80-lambda-async-retries-and-failure-destinations/README.md) |
+| **Lesson 81** | Lambda Idempotency with DynamoDB | [Materials_81](lessons/81-lambda-dynamodb-idempotency/lesson.en.md) | [Readme](lessons/81-lambda-dynamodb-idempotency/README.md) |
 ---
 
 ## How to use

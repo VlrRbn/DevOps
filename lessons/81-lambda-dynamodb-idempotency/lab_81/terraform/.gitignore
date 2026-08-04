@@ -1,0 +1,2 @@
+# Keep the provider lock file while repository-wide rules ignore runtime files.
+!.terraform.lock.hcl

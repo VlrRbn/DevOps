@@ -1,0 +1,5 @@
+{
+  "idempotency_key": "report-2026-08-customer-42",
+  "customer_id": "customer-42",
+  "report_date": "2026-08-01"
+}

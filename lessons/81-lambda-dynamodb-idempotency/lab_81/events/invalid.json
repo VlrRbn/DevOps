@@ -1,0 +1,4 @@
+{
+  "idempotency_key": "report-invalid-001",
+  "customer_id": "customer-42"
+}

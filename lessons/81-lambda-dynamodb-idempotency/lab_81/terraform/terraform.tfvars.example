@@ -1,0 +1,5 @@
+aws_region         = "eu-west-1"
+project_name       = "lab81"
+environment        = "dev"
+claim_ttl_seconds  = 300
+record_ttl_seconds = 86400
