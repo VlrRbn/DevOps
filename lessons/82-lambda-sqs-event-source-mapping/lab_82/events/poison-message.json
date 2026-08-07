@@ -1,0 +1,5 @@
+{
+  "task_id": "report-poison-001",
+  "action": "generate_report",
+  "should_fail": true
+}

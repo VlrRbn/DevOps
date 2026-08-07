@@ -45,6 +45,23 @@ After the lesson, you will be able to:
 - explain why retryable consumers require idempotency;
 - clean up the lab without deleting diagnostic evidence prematurely.
 
+### 2.1. Lesson Terminology
+
+| English term | Plain wording | Precise meaning in this lesson |
+|---|---|---|
+| `synchronous invocation` | synchronous call | The caller waits for the handler and receives its response |
+| `asynchronous invocation` | asynchronous call | Lambda accepts the event and runs the handler separately from the sender request |
+| `Lambda asynchronous queue` | internal Lambda async queue | The AWS-managed queue of accepted events; users cannot access it directly |
+| `retry` | retry attempt | An additional handler execution after event processing fails |
+| `event age` | event age | Time elapsed since the Lambda service accepted the event |
+| `failure destination` | failure destination | The resource that receives the final invocation record after retries are exhausted |
+| `dead-letter queue (DLQ)` | dead-letter queue | A queue containing the original event that Lambda could not process |
+| `invocation record` | invocation record | An envelope containing request, response, context, and execution details for a destination |
+| `event_id` | business event ID | A stable event identifier preserved across retry attempts |
+| `RequestId` | Lambda request ID | A diagnostic execution identifier assigned by the Lambda service |
+| `DestinationDeliveryFailures` | destination delivery failures | The CloudWatch metric for records Lambda could not send to a destination |
+| `idempotency` | idempotency | Processing behavior in which a duplicate event does not repeat the business effect |
+
 ## 3. Mental Model
 
 ### 3.1. Synchronous and Asynchronous Invocation

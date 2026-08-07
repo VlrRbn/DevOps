@@ -1,0 +1,8 @@
+aws_region                          = "eu-west-1"
+project_name                        = "lab82"
+environment                         = "dev"
+function_timeout_seconds            = 10
+queue_visibility_timeout_seconds    = 70
+batch_size                          = 5
+maximum_batching_window_seconds     = 5
+max_receive_count                   = 3

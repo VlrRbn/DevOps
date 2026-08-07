@@ -42,6 +42,23 @@ After this lesson, you will be able to:
 - inspect a role policy and Lambda resource policy with the AWS CLI;
 - explain why cross-account invocation is stricter than same-account invocation.
 
+### 2.1. Lesson Terminology
+
+| English term | Plain wording | Precise meaning in this lesson |
+|---|---|---|
+| `principal` | IAM principal | An entity to which AWS allows or denies an action |
+| `identity` | IAM identity | An IAM user or IAM role with its own permissions |
+| `operator identity` | operator identity | The user or role that runs Terraform and the AWS CLI |
+| `caller role` | calling role | The IAM role used to send `lambda:InvokeFunction` |
+| `execution role` | Lambda execution role | The IAM role Lambda assumes so function code can call AWS APIs |
+| `trust policy` | role trust policy | Defines who may assume an IAM role through STS |
+| `identity-based policy` | identity policy | Permissions attached to an IAM user or IAM role |
+| `resource-based policy` | resource policy | Permissions attached directly to a resource, here a Lambda function |
+| `assume role` | assume a role | Obtain temporary permissions for an IAM role through STS |
+| `session credentials` | temporary session credentials | The `AccessKeyId`, `SecretAccessKey`, and `SessionToken` issued by STS |
+| `explicit deny` | explicit deny | A `Deny` decision that takes precedence over every `Allow` |
+| `cross-account access` | cross-account access | Access from a principal in one AWS account to a resource in another |
+
 ## 3. Mental Model
 
 ### 3.1. Four Participants

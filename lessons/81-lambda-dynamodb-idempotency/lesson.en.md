@@ -82,16 +82,27 @@ Flow connecting each lesson outcome to its concrete evidence:
 | An expired claim is taken over            | a new `owner_token`                        |
 | Exactly-once processing is not guaranteed | explanation of the side-effect gap         |
 
+### 2.1. Lesson Terminology
+
+| English term | Plain wording | Precise meaning in this lesson |
+|---|---|---|
+| `consumer` | event consumer | The component that receives an event; Lambda has this role in the lab |
+| `worker` | worker | One concurrent Lambda execution attempt |
+| `handler` | Lambda handler | The `lambda_handler` entry point that validates the event and coordinates processing |
+| `processor` | business processor | The business-logic function called after successful key acquisition |
+| `idempotency key` | idempotency key | A stable business key connecting duplicate deliveries of one operation |
+| `claim` | processing claim | An atomically created `IN_PROGRESS` record that assigns the key to one worker |
+| `replay` | saved-result replay | A response from a `COMPLETED` record without executing the processor again |
+| `payload hash` | payload hash | A fingerprint used to detect reuse of one key with different input data |
+| `owner token` | owner token | A unique identifier for the worker that owns an active claim |
+| `fencing token` | fencing token | An ownership value that prevents a stale worker from completing a reclaimed record |
+| `conditional write` | conditional write | A DynamoDB operation performed only when its `ConditionExpression` is true |
+| `strongly consistent read` | strongly consistent read | A DynamoDB read that includes all writes confirmed before the request |
+| `time to live (TTL)` | record expiry | An attribute for background deletion of stale DynamoDB records, not a precise timer |
+| `side-effect gap` | external-effect persistence gap | A failure window after the business effect but before saving `COMPLETED` |
+| `exactly-once` | exactly-once execution | A desired semantic that an idempotency table alone cannot fully guarantee |
+
 ## 3. Mental Model
-
-The lesson uses four terms to keep the processing layers distinct:
-
-| Term        | Role in this lesson | Meaning                                                                                                      |
-| ----------- | ------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `consumer`  | event consumer      | The system component that receives an event; Lambda has this role in the lab                                 |
-| `worker`    | worker              | One concurrent Lambda execution attempt                                                                     |
-| `handler`   | Lambda handler      | The `lambda_handler` entry point that validates the event and coordinates processing                        |
-| `processor` | business processor  | The business-logic function invoked after a worker acquires the claim; in the lab, this is `generate_report` |
 
 ### 3.1. Duplicate Delivery Is Expected
 

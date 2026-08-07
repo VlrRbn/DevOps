@@ -1,0 +1,5 @@
+{
+  "task_id": "report-success-001",
+  "action": "generate_report",
+  "should_fail": false
+}

@@ -38,6 +38,23 @@ After this lesson, you will be able to:
 - distinguish a successful Lambda API call from successful handler execution;
 - remove the lab resources safely.
 
+### 2.1. Lesson Terminology
+
+| English term | Plain wording | Precise meaning in this lesson |
+|---|---|---|
+| `function` | Lambda function | Code and configuration of one Lambda compute resource |
+| `runtime` | language runtime | AWS-managed language environment such as `python3.14` |
+| `handler` | entry point | Function that Lambda invokes to process an event |
+| `event` | invocation input | Data passed into one Lambda invocation |
+| `context` | invocation context | AWS object containing `RequestId`, remaining time, and other metadata |
+| `execution environment` | isolated runtime environment | Environment in which AWS runs the Lambda code |
+| `invocation` | function invocation | One attempt to run the handler with a specific event |
+| `execution role` | Lambda permissions role | IAM role assumed by Lambda for AWS API access while the code runs |
+| `cold start` | new environment startup | Creation of a new execution environment before handler execution |
+| `warm start` | environment reuse | Reuse of an already prepared execution environment |
+| `payload` | request or response data | Data carried by the Lambda request or response |
+| `FunctionError` | function execution error | Invoke API response field that indicates an unhandled handler error |
+
 ## 3. Mental Model
 
 ### 3.1. Lambda Is Not Just An Unnamed Server
