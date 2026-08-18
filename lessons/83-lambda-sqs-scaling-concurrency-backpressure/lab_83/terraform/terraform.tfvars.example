@@ -1,0 +1,10 @@
+aws_region                       = "eu-west-1"
+project_name                     = "lab83"
+environment                      = "dev"
+function_timeout_seconds         = 15
+queue_visibility_timeout_seconds = 95
+batch_size                       = 1
+maximum_batching_window_seconds  = 0
+event_source_maximum_concurrency = 2
+function_reserved_concurrency    = null
+max_receive_count                = 3
