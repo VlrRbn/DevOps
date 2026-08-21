@@ -999,9 +999,9 @@ The lab creates:
 - one CloudWatch log group;
 - three CloudWatch alarms.
 
-An exercise with twenty messages, 128 MB of memory, and 8 seconds per message is a
-small experiment, but it is not necessarily free. The cost comes not only from Lambda
-execution time, but also from SQS requests, logs, metrics, and alarms.
+An exercise with twenty messages, 128 MB of memory, and 8 seconds per message. 
+The cost comes not only from Lambda execution time, but also from SQS requests,
+logs, metrics, and alarms.
 
 Production capacity review should include:
 

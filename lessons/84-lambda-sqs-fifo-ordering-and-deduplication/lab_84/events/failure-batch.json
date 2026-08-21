@@ -1,0 +1,31 @@
+{
+  "Records": [
+    {
+      "messageId": "local-message-1",
+      "body": "{\"task_id\":\"group-a-task-1\",\"sequence\":1,\"work_seconds\":0,\"should_fail\":false}",
+      "attributes": {
+        "MessageGroupId": "group-a",
+        "MessageDeduplicationId": "local-group-a-1",
+        "SequenceNumber": "1"
+      }
+    },
+    {
+      "messageId": "local-message-2",
+      "body": "{\"task_id\":\"group-a-task-2\",\"sequence\":2,\"work_seconds\":0,\"should_fail\":true}",
+      "attributes": {
+        "MessageGroupId": "group-a",
+        "MessageDeduplicationId": "local-group-a-2",
+        "SequenceNumber": "2"
+      }
+    },
+    {
+      "messageId": "local-message-3",
+      "body": "{\"task_id\":\"group-a-task-3\",\"sequence\":3,\"work_seconds\":0,\"should_fail\":false}",
+      "attributes": {
+        "MessageGroupId": "group-a",
+        "MessageDeduplicationId": "local-group-a-3",
+        "SequenceNumber": "3"
+      }
+    }
+  ]
+}

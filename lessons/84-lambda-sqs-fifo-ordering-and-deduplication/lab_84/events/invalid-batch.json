@@ -1,0 +1,11 @@
+{
+  "Records": [
+    {
+      "messageId": "local-message-invalid",
+      "body": "{\"task_id\":\"invalid-task\",\"sequence\":0,\"work_seconds\":9,\"should_fail\":\"no\"}",
+      "attributes": {
+        "MessageDeduplicationId": "local-invalid-1"
+      }
+    }
+  ]
+}

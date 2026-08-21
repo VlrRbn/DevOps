@@ -128,6 +128,7 @@ devops-notes/
 | **Lesson 81** | Lambda Idempotency with DynamoDB | [Materials_81](lessons/81-lambda-dynamodb-idempotency/lesson.en.md) | [Readme](lessons/81-lambda-dynamodb-idempotency/README.md) |
 | **Lesson 82** | Lambda SQS Event Source Mapping and Partial Batch Failures | [Materials_82](lessons/82-lambda-sqs-event-source-mapping/lesson.en.md) | [Readme](lessons/82-lambda-sqs-event-source-mapping/README.md) |
 | **Lesson 83** | Lambda SQS Scaling, Concurrency, and Backpressure | [Materials_83](lessons/83-lambda-sqs-scaling-concurrency-backpressure/lesson.en.md) | [Readme](lessons/83-lambda-sqs-scaling-concurrency-backpressure/README.md) |
+| **Lesson 84** | Lambda SQS FIFO Ordering and Deduplication | [Materials_84](lessons/84-lambda-sqs-fifo-ordering-and-deduplication/lesson.en.md) | [Readme](lessons/84-lambda-sqs-fifo-ordering-and-deduplication/README.md) |
 ---
 
 ## How to use
