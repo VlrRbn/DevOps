@@ -1,0 +1,24 @@
+{
+  "Records": [
+    {
+      "messageId": "message-order-created",
+      "body": "{\"event_id\":\"event-100\",\"event_type\":\"order.created\",\"order_id\":\"order-100\",\"amount\":42.5,\"fail_consumer\":null}",
+      "messageAttributes": {
+        "event_type": {
+          "stringValue": "order.created",
+          "dataType": "String"
+        }
+      }
+    },
+    {
+      "messageId": "message-order-refunded",
+      "body": "{\"event_id\":\"event-101\",\"event_type\":\"order.refunded\",\"order_id\":\"order-101\",\"amount\":10,\"fail_consumer\":null}",
+      "messageAttributes": {
+        "event_type": {
+          "stringValue": "order.refunded",
+          "dataType": "String"
+        }
+      }
+    }
+  ]
+}

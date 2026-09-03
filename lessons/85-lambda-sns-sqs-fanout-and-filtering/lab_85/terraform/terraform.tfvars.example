@@ -1,0 +1,14 @@
+aws_region   = "eu-west-1"
+project_name = "lab85"
+environment  = "dev"
+
+billing_event_types = [
+  "order.created",
+  "order.refunded",
+]
+
+function_timeout_seconds          = 6
+queue_visibility_timeout_seconds  = 40
+batch_size                        = 5
+event_source_maximum_concurrency  = 2
+max_receive_count                 = 3

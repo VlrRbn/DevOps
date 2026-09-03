@@ -1,0 +1,24 @@
+{
+  "Records": [
+    {
+      "messageId": "message-planned-failure",
+      "body": "{\"event_id\":\"event-200\",\"event_type\":\"order.created\",\"order_id\":\"order-200\",\"amount\":99,\"fail_consumer\":\"billing\"}",
+      "messageAttributes": {
+        "event_type": {
+          "stringValue": "order.created",
+          "dataType": "String"
+        }
+      }
+    },
+    {
+      "messageId": "message-valid-tail",
+      "body": "{\"event_id\":\"event-201\",\"event_type\":\"order.created\",\"order_id\":\"order-201\",\"amount\":15,\"fail_consumer\":null}",
+      "messageAttributes": {
+        "event_type": {
+          "stringValue": "order.created",
+          "dataType": "String"
+        }
+      }
+    }
+  ]
+}
