@@ -1,0 +1,4 @@
+{
+  "source": ["com.devops.orders"],
+  "detail-type": ["Order Created", "Order Refunded"]
+}

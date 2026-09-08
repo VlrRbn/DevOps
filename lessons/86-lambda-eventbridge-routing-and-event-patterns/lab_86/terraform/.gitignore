@@ -1,0 +1,11 @@
+.terraform/
+.build/
+terraform.tfstate
+terraform.tfstate.*
+terraform.tfvars
+tfplan*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

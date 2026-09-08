@@ -1,0 +1,16 @@
+{
+  "version": "0",
+  "id": "22222222-2222-4222-8222-222222222222",
+  "detail-type": "Order Created",
+  "source": "com.devops.orders",
+  "account": "123456789012",
+  "time": "2026-09-06T12:01:00Z",
+  "region": "eu-west-1",
+  "resources": [],
+  "detail": {
+    "event_id": "event-low-001",
+    "order_id": "order-low-001",
+    "amount": 25,
+    "fail_consumer": null
+  }
+}

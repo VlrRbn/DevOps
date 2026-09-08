@@ -1,0 +1,15 @@
+aws_region   = "eu-west-1"
+project_name = "lab86"
+environment  = "dev"
+
+event_source         = "com.devops.orders"
+high_value_threshold = 100
+
+function_timeout_seconds         = 6
+queue_visibility_timeout_seconds = 40
+batch_size                       = 5
+event_source_maximum_concurrency = 2
+max_receive_count                = 3
+
+target_maximum_event_age_seconds = 3600
+target_maximum_retry_attempts    = 10

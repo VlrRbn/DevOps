@@ -130,6 +130,7 @@ devops-notes/
 | **Lesson 83** | Lambda SQS Scaling, Concurrency, and Backpressure | [Materials_83](lessons/83-lambda-sqs-scaling-concurrency-backpressure/lesson.en.md) | [Readme](lessons/83-lambda-sqs-scaling-concurrency-backpressure/README.md) |
 | **Lesson 84** | Lambda SQS FIFO Ordering and Deduplication | [Materials_84](lessons/84-lambda-sqs-fifo-ordering-and-deduplication/lesson.en.md) | [Readme](lessons/84-lambda-sqs-fifo-ordering-and-deduplication/README.md) |
 | **Lesson 85** | Lambda SNS-to-SQS Fan-out and Filtering | [Materials_85](lessons/85-lambda-sns-sqs-fanout-and-filtering/lesson.en.md) | [Readme](lessons/85-lambda-sns-sqs-fanout-and-filtering/README.md) |
+| **Lesson 86** | Lambda EventBridge Routing and Event Patterns | [Materials_86](lessons/86-lambda-eventbridge-routing-and-event-patterns/lesson.en.md) | [Readme](lessons/86-lambda-eventbridge-routing-and-event-patterns/README.md) |
 ---
 
 ## How to use

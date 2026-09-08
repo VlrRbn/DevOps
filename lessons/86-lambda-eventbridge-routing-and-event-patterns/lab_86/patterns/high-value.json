@@ -1,0 +1,11 @@
+{
+  "source": ["com.devops.orders"],
+  "detail-type": ["Order Created"],
+  "detail": {
+    "amount": [
+      {
+        "numeric": [">=", 100]
+      }
+    ]
+  }
+}

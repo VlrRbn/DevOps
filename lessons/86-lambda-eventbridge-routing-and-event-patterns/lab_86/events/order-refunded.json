@@ -1,0 +1,16 @@
+{
+  "version": "0",
+  "id": "33333333-3333-4333-8333-333333333333",
+  "detail-type": "Order Refunded",
+  "source": "com.devops.orders",
+  "account": "123456789012",
+  "time": "2026-09-06T12:02:00Z",
+  "region": "eu-west-1",
+  "resources": [],
+  "detail": {
+    "event_id": "event-refund-001",
+    "order_id": "order-refund-001",
+    "amount": 150,
+    "fail_consumer": null
+  }
+}

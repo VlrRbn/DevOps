@@ -1,0 +1,16 @@
+{
+  "version": "0",
+  "id": "44444444-4444-4444-8444-444444444444",
+  "detail-type": "Order Created",
+  "source": "com.example.wrong",
+  "account": "123456789012",
+  "time": "2026-09-06T12:03:00Z",
+  "region": "eu-west-1",
+  "resources": [],
+  "detail": {
+    "event_id": "event-wrong-001",
+    "order_id": "order-wrong-001",
+    "amount": 150,
+    "fail_consumer": null
+  }
+}
