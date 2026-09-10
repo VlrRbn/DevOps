@@ -52,7 +52,7 @@ resource "aws_sqs_queue" "source" {
       condition = (
         var.queue_visibility_timeout_seconds >= 6 * var.function_timeout_seconds
       )
-      error_message = "queue_visibility_timeout_seconds must be at least six times the Lambda timeout."
+      error_message = "${each.key}: queue_visibility_timeout_seconds must be at least six times the Lambda timeout."
     }
   }
 }
