@@ -1,0 +1,8 @@
+aws_region   = "eu-west-1"
+project_name = "lab87"
+environment  = "dev"
+
+function_timeout_seconds     = 6
+throttle_rate_limit          = 5
+throttle_burst_limit         = 10
+enable_api_invoke_permission = true

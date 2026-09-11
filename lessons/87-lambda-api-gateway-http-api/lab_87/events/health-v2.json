@@ -1,0 +1,13 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /health",
+  "rawPath": "/health",
+  "rawQueryString": "",
+  "headers": {},
+  "requestContext": {
+    "requestId": "api-health-request",
+    "stage": "$default",
+    "http": {"method": "GET", "path": "/health", "protocol": "HTTP/1.1"}
+  },
+  "isBase64Encoded": false
+}

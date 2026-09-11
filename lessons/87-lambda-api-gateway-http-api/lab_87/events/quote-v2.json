@@ -1,0 +1,14 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /quotes",
+  "rawPath": "/quotes",
+  "rawQueryString": "",
+  "headers": {"content-type": "application/json"},
+  "requestContext": {
+    "requestId": "api-test-request",
+    "stage": "$default",
+    "http": {"method": "POST", "path": "/quotes", "protocol": "HTTP/1.1"}
+  },
+  "body": "{\"unit_price_cents\":1250,\"quantity\":3}",
+  "isBase64Encoded": false
+}
